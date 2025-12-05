@@ -1,0 +1,288 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "type": "header",
+  "name": "Header",
+  "sections": {
+    "announcement-bar": {
+      "type": "announcement-bar",
+      "blocks": {
+        "text": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Free shipping on orders over $100 <a href=\"/collections/all\" title=\"All products\"><strong>Shop now</strong></a></p>",
+            "text_color": "",
+            "heading_highlight_type": "circle",
+            "highlight_color": "#d43747",
+            "highlight_text_color": "#000000",
+            "icon_name": "none",
+            "icon_color": "",
+            "icon_width": 20,
+            "target_url_enabled": false,
+            "target_url": "",
+            "target_referrer_enabled": false,
+            "target_referrer": "",
+            "target_device_enabled": false,
+            "target_device": "mobile"
+          }
+        },
+        "text-0": {
+          "type": "text",
+          "settings": {
+            "text": "<p>New customers save 10% with code WELCOME10</p>",
+            "text_color": "",
+            "heading_highlight_type": "circle",
+            "highlight_color": "#d43747",
+            "highlight_text_color": "#000000",
+            "icon_name": "none",
+            "icon_color": "",
+            "icon_width": 20,
+            "target_url_enabled": false,
+            "target_url": "",
+            "target_referrer_enabled": false,
+            "target_referrer": "",
+            "target_device_enabled": false,
+            "target_device": "mobile"
+          }
+        }
+      },
+      "block_order": [
+        "text",
+        "text-0"
+      ],
+      "settings": {
+        "width": "wrapper--full",
+        "layout": "marquee",
+        "show_top_border": false,
+        "show_bottom_border": true,
+        "padding": 10,
+        "slider_speed": 14,
+        "show_arrows": false,
+        "marquee_speed": 100,
+        "direction": "ticker-ltr",
+        "text_caps": true,
+        "type_font": "space_mono_n4",
+        "text_size": 110,
+        "letter_spacing": 100,
+        "message_spacing": 30,
+        "color_scheme": "",
+        "color": "#000000",
+        "border_color": "#000000"
+      }
+    },
+    "header": {
+      "type": "header",
+      "blocks": {
+        "image": {
+          "type": "image",
+          "settings": {
+            "position": "1",
+            "image_second_menu": false,
+            "aspect_ratio": 1.2,
+            "wide_image": false,
+            "overlay_type": "disabled",
+            "title": "Knitwear",
+            "heading_size": 100,
+            "link_text": "",
+            "link": "",
+            "text_color": ""
+          }
+        },
+        "image-0": {
+          "type": "image",
+          "settings": {
+            "position": "1",
+            "image_second_menu": false,
+            "aspect_ratio": 1.2,
+            "wide_image": false,
+            "overlay_type": "disabled",
+            "title": "Fall looks",
+            "heading_size": 100,
+            "link_text": "",
+            "link": "",
+            "text_color": ""
+          }
+        },
+        "image-1": {
+          "type": "image",
+          "settings": {
+            "position": "2",
+            "image_second_menu": false,
+            "aspect_ratio": 1.2,
+            "wide_image": false,
+            "overlay_type": "disabled",
+            "title": "Revive Dress",
+            "heading_size": 100,
+            "link_text": "Shop now",
+            "link": "",
+            "text_color": ""
+          }
+        },
+        "image-2": {
+          "type": "image",
+          "settings": {
+            "position": "2",
+            "image_second_menu": false,
+            "aspect_ratio": 1.2,
+            "wide_image": false,
+            "overlay_type": "disabled",
+            "title": "Corin Coat",
+            "heading_size": 100,
+            "link_text": "Shop now",
+            "link": "",
+            "text_color": ""
+          }
+        },
+        "image-3": {
+          "type": "image",
+          "settings": {
+            "position": "2",
+            "image_second_menu": false,
+            "aspect_ratio": 1.2,
+            "wide_image": false,
+            "overlay_type": "disabled",
+            "title": "Nalani Cardigan",
+            "heading_size": 100,
+            "link_text": "Shop now",
+            "link": "",
+            "text_color": ""
+          }
+        },
+        "image-4": {
+          "type": "image",
+          "settings": {
+            "position": "2",
+            "image_second_menu": false,
+            "aspect_ratio": 1.2,
+            "wide_image": false,
+            "overlay_type": "disabled",
+            "title": "Brandi Bikini Top",
+            "heading_size": 100,
+            "link_text": "Shop now",
+            "link": "",
+            "text_color": ""
+          }
+        }
+      },
+      "block_order": [
+        "image",
+        "image-0",
+        "image-1",
+        "image-2",
+        "image-3",
+        "image-4"
+      ],
+      "settings": {
+        "sticky_header": false,
+        "link_hover_effect": "dot",
+        "highlight_color": "#fff7f2",
+        "highlight_text_color": "",
+        "header_border": true,
+        "header_border_color": "",
+        "border_opacity": 50,
+        "logo_max_width": 100,
+        "main-menu": "menu",
+        "main_menu_secondary": "",
+        "show_images": false,
+        "image_aspect_ratio": 1.1,
+        "menu_alignment": "left",
+        "header_icons_as_text": false,
+        "show_locale_selector": false,
+        "show_locale_code": true,
+        "show_country_selector": false,
+        "show_country_name": false,
+        "show_country_flag": false,
+        "highlight_item": "Sale",
+        "enable_custom_badge": true,
+        "custom_badge_text": "15% off",
+        "highlight_item_color": "#de5757",
+        "highlight_item_text_color": "#ffffff",
+        "header_transparent": false,
+        "header_gradient": true
+      }
+    },
+    "mobile-menu": {
+      "type": "mobile-menu",
+      "blocks": {
+        "menu": {
+          "type": "menu",
+          "settings": {
+            "mobile_menu_linklist": "main-menu",
+            "text_size": 100,
+            "show_images": true,
+            "image_aspect_ratio": 0.5,
+            "highlight_item": "Sale",
+            "enable_custom_badge": false,
+            "custom_badge_text": "10% OFF",
+            "highlight_item_color": "#d02e2e",
+            "highlight_item_text_color": "#ffffff",
+            "padding": false,
+            "padding_bottom": 10
+          }
+        },
+        "login": {
+          "type": "login",
+          "settings": {
+            "text_size": 100,
+            "pin_to_bottom": true,
+            "padding_bottom": 10
+          }
+        },
+        "search": {
+          "type": "search",
+          "settings": {
+            "text_size": 100,
+            "pin_to_bottom": true,
+            "padding_bottom": 10
+          }
+        },
+        "localization": {
+          "type": "localization",
+          "settings": {
+            "show_locale_selector": true,
+            "show_locale_code": true,
+            "show_country_selector": true,
+            "show_country_name": false,
+            "show_country_flag": false,
+            "pin_to_bottom": true,
+            "padding_bottom": 10
+          }
+        },
+        "button": {
+          "type": "button",
+          "settings": {
+            "button_text": "Shop All",
+            "button_link": "shopify://collections/all",
+            "button_color": "btn--white",
+            "button_style": "btn--solid-border",
+            "button_size": "btn--medium",
+            "pin_to_bottom": true,
+            "padding_bottom": 10
+          }
+        }
+      },
+      "block_order": [
+        "menu",
+        "login",
+        "search",
+        "localization",
+        "button"
+      ],
+      "settings": {
+        "logo_max_width": 150
+      }
+    }
+  },
+  "order": [
+    "announcement-bar",
+    "header",
+    "mobile-menu"
+  ]
+}

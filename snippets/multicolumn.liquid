@@ -1,0 +1,542 @@
+{% comment %}
+  Renders the content of section-multicolumn and section-social-gallery.
+
+  Accepts:
+  - type: {String} Section type (optional)
+
+  Usage:
+  {% render 'multicolumn', type: 'social-gallery' %}
+{% endcomment %}
+
+{%- liquid
+  assign unique = section.id
+  assign blocks_size = section.blocks.size
+  assign section_width = section.settings.width
+  assign layout_mobile = section.settings.layout_mobile
+  assign align_heading = section.settings.align_heading | default: 'text-center'
+  assign align_text = section.settings.align_text
+  assign heading_size = section.settings.heading_size | times: 0.01
+  assign text_size = section.settings.text_size | times: 0.01
+  assign section_subheading = section.settings.subheading
+  assign section_title = section.settings.title
+  assign section_text = section.settings.text
+  assign color_scheme = 'color-' | append: section.settings.color_scheme
+  assign id = 'multicolumns--' | append: section.id
+  assign selector_id = '#' | append: id
+  assign animations_enabled = settings.animations_enabled
+  assign animation_delay = 150
+
+  assign one_third_blocks_only = false
+  assign one_third_block_count = 0
+
+  for block in section.blocks
+    if block.settings.column_width == 33
+      assign one_third_block_count = one_third_block_count | plus: 1
+    endif
+  endfor
+
+  if one_third_block_count == blocks_size
+    assign one_third_blocks_only = true
+  endif
+
+  case layout_mobile
+    when 'grid'
+      assign mobile_width = 'mobile--one-half'
+      assign mobile_class = 'grid--mobile'
+    when 'stacked'
+      assign mobile_width = 'mobile--one-whole'
+      assign mobile_class = 'stacked--mobile'
+    when 'carousel'
+      assign mobile_class = 'carousel--mobile'
+  endcase
+
+  assign slider_tag = 'div'
+
+  if type == 'social-gallery'
+    assign columns = section.settings.columns | plus: 0
+    assign slider_tag = 'social-gallery-slider'
+
+    capture img_in_classes
+      echo ' image-in image-in--zoom-out'
+    endcapture
+  endif
+-%}
+
+<link
+  href="{{ 'section-columns.css' | asset_url }}"
+  rel="preload"
+  as="style"
+  onload="this.onload=null;this.rel='stylesheet'"
+>
+
+{% if type == 'social-gallery' %}
+  <script src="{{ 'social-gallery-slider.js' | asset_url }}" defer="defer"></script>
+
+  {%- if request.design_mode -%}
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        if (window.multicolumnBlockSelectHandlerAttached) return;
+        window.multicolumnBlockSelectHandlerAttached = true;
+
+        document.addEventListener('shopify:block:select', (event) => {
+          const target = event.target;
+          const slider = target.closest('social-gallery-slider');
+
+          if (!slider) return;
+
+          const flkty = (window.theme.Flickity && window.theme.Flickity.data(slider)) || null;
+
+          if (flkty !== null && flkty.isActive) {
+            const index = parseInt([...target.parentNode.children].indexOf(target));
+            const slidesPerPage = parseInt(flkty.slides[0].cells.length);
+            const groupIndex = Math.floor(index / slidesPerPage);
+
+            if (!event.detail.load) {
+              flkty.select(groupIndex);
+              return;
+            }
+
+            // Transitionend event if new block is added
+            const onTransitionEnd = () => {
+              requestAnimationFrame(() => {
+                flkty.select(groupIndex);
+              });
+
+              flkty.element.removeEventListener('transitionend', onTransitionEnd);
+            };
+
+            flkty.element.addEventListener('transitionend', onTransitionEnd);
+          }
+        });
+      });
+    </script>
+  {%- endif -%}
+{% endif %}
+
+{%- style -%}
+  {{ selector_id }} {
+    --PT: {{ section.settings.padding_top }}px;
+    --PB: {{ section.settings.padding_bottom }}px;
+    --adjust-heading: calc(var(--FONT-ADJUST-HEADING) * {{ heading_size }});
+    --adjust-body: calc(var(--FONT-ADJUST-BODY) * {{ text_size }});
+  }
+{%- endstyle -%}
+
+<div
+  id="{{ id }}"
+  class="section-padding section-columns{% if type == 'social-gallery' %} section-columns--social-gallery{% else %} section-columns--multicolumn{% endif %} {{ color_scheme }}"
+  data-section-id="{{ unique }}"
+  data-section-type="multicolumns"
+>
+  <div class="{{ section_width }}">
+    {%- if section_title != '' or section_text != '' or section_subheading != '' -%}
+      <div
+        id="multicolumnsHeader--{{ section.id }}"
+        class="section__header {{ align_heading }}"
+      >
+        {%- if section_subheading != '' -%}
+          <h6
+            class="section__subheading subheading-text"
+            {% if animations_enabled %}
+              data-aos="fade-up"
+              data-aos-anchor="#multicolumnsHeader--{{ section.id }}"
+              data-aos-delay="{{ animation_delay }}"
+              {%- assign animation_delay = animation_delay | plus: 150 -%}
+            {% endif %}
+          >
+            {{ section_subheading | escape }}
+          </h6>
+        {%- endif -%}
+
+        {% if section_title != '' %}
+          <h2
+            class="section__heading"
+            {% if animations_enabled %}
+              data-aos="fade-up"
+              data-aos-anchor="#multicolumnsHeader--{{ section.id }}"
+              data-aos-delay="{{ animation_delay }}"
+              {%- assign animation_delay = animation_delay | plus: 150 -%}
+            {% endif %}
+          >
+            {{- section_title -}}
+          </h2>
+        {% endif %}
+
+        {% if section_text != '' %}
+          <div
+            class="section__text"
+            {% if animations_enabled %}
+              data-aos="fade-up"
+              data-aos-anchor="#multicolumnsHeader--{{ section.id }}"
+              data-aos-delay="{{ animation_delay }}"
+              {%- assign animation_delay = animation_delay | plus: 150 -%}
+            {% endif %}
+          >
+            {{- section_text -}}
+          </div>
+        {% endif %}
+      </div>
+    {%- endif -%}
+
+    <div class="section-columns__wrapper carousel__container">
+      {%- if blocks_size > 0 -%}
+        <{{ slider_tag }}
+          class="section-columns__slider {{ align_text }} {{ mobile_class }}{% if type == 'social-gallery' %} carousel{% endif %}"
+          role="group"
+        >
+          {%- for block in section.blocks -%}
+            {%- liquid
+              assign bg_color = block.settings.bg_color
+              assign column_width = 100 | divided_by: columns
+
+              if type == 'social-gallery'
+                case columns
+                  when 1
+                    assign column_size = 'one-whole'
+                  when 2
+                    assign column_size = 'one-half'
+                  when 3
+                    assign column_size = 'one-third'
+                  when 4
+                    assign column_size = 'one-quarter'
+                  when 5
+                    assign column_size = 'one-fifth'
+                  when 6
+                    assign column_size = 'one-sixth'
+                endcase
+              else
+                assign column_width = block.settings.column_width
+
+                capture block_style
+                  echo '--desktop-width: ' | append: column_width | append: '%;'
+                  if block.type == 'image' or block.type == 'collection'
+                    echo '--image-width: ' | append: block.settings.image_width | append: '%;'
+                  endif
+                endcapture
+
+                if one_third_blocks_only
+                  assign column_width = 33.333333
+                endif
+              endif
+
+              assign has_background = false
+              if bg_color.alpha != 0.0 and bg_color != '' and bg_color != blank
+                assign has_background = true
+              endif
+
+              assign render_item = true
+
+              if block.type == 'text'
+                assign subheading = block.settings.subheading
+                assign title = block.settings.title
+                assign text = block.settings.text
+                assign button_text = block.settings.button_text
+
+                if subheading == blank and title == blank and text == blank and button_text == blank
+                  assign render_item = false
+                endif
+              elsif block.type == 'menu'
+                assign menu = block.settings.menu
+
+                if menu == blank
+                  assign render_item = false
+                endif
+              endif
+            -%}
+
+            {%- if render_item -%}
+              {% if has_background %}
+                {%- style -%}
+                  #columnItem--{{ block.id }} { --bg: {{ bg_color }}; }
+                {%- endstyle -%}
+              {% endif %}
+              <div
+                class="column-item column-item--{{ block.type }}{% if has_background %} column-item--boxed{% endif %}{% if type == 'social-gallery' %} {{ column_size }}{% else %} carousel__item{% endif %} {{ mobile_width }}"
+                {{ block.shopify_attributes }}
+                style="{{ block_style }}"
+                id="columnItem--{{ block.id }}"
+                data-slide
+              >
+                <div
+                  class="column-item__inner"
+                  {% if animations_enabled %}
+                    {% if type != 'social-gallery' %}
+                      data-aos="fade-up"
+                      data-aos-anchor="#multicolumns--{{ section.id }}"
+                      data-aos-delay="{{ animation_delay }}"
+                      {%- assign animation_delay = animation_delay | plus: 150 -%}
+                    {% endif %}
+                  {% endif %}
+                >
+                  {%- case block.type -%}
+                    {%- when 'text' -%}
+                      {%- liquid
+                        assign button_link = block.settings.button_link
+                        assign button_style = block.settings.button_style
+                        assign button_color = block.settings.button_color
+                        assign button_size = block.settings.button_size
+                        assign heading_size = block.settings.heading_size | times: 0.01
+                        assign text_size = block.settings.text_size | times: 0.01
+
+                        assign button_advanced_class = 'btn--advanced'
+                        if button_style != 'btn--text'
+                          assign button_advanced_class = button_advanced_class | append: ' btn--advanced-width-height btn--advanced-adaptive-width'
+                        endif
+                      -%}
+                      {%- style -%}
+                        #columnItemContent--{{ block.id }} {
+                          --adjust-heading: calc(var(--FONT-ADJUST-HEADING) * {{ heading_size }});
+                          --adjust-body: calc(var(--FONT-ADJUST-BODY) * {{ text_size }});
+                        }
+                      {%- endstyle -%}
+                      <div
+                        class="column-item__content{%- render 'button-fallback-classes', primary_color: button_color -%}"
+                        id="columnItemContent--{{ block.id }}"
+                      >
+                        {%- if subheading != blank -%}
+                          <h6 class="column-item__subheading subheading-text">{{ subheading | escape }}</h6>
+                        {%- endif -%}
+
+                        {%- if title != blank -%}
+                          <h3 class="column-item__heading">{{ title | escape }}</h3>
+                        {%- endif -%}
+
+                        {%- if text != blank -%}
+                          <div class="column-item__text">{{ text }}</div>
+                        {%- endif -%}
+
+                        {%- if button_text != '' -%}
+                          <a
+                            href="{{ button_link }}"
+                            class="column-item__button btn {{ button_style }} {{ button_size }} {{ button_color }} {{ button_advanced_class }}"
+                          >
+                            <hover-button></hover-button>
+                            {{- button_text -}}
+                          </a>
+                        {%- endif -%}
+                      </div>
+                    {%- when 'image', 'collection' -%}
+                      {%- liquid
+                        assign image = block.settings.image
+                        assign aspect_ratio_desktop = block.settings.aspect_ratio_desktop | default: section.settings.aspect_ratio_desktop | times: 100
+                        assign aspect_ratio_mobile = block.settings.aspect_ratio_mobile | default: section.settings.aspect_ratio_mobile | times: 100
+                        assign button_link = block.settings.button_link
+                        assign link_target_blank = block.settings.link_target_blank
+                        assign button_text = block.settings.button_text | default: ''
+                        assign button_style = block.settings.button_style | default: section.settings.button_style
+                        assign button_color = block.settings.button_color | default: section.settings.button_color
+                        assign button_size = block.settings.button_size | default: section.settings.button_size
+                        assign title = block.settings.title
+                        assign heading_size = block.settings.heading_size | times: 0.01
+                        assign text = block.settings.text
+                        assign text_size = block.settings.text_size | default: 100 | times: 0.01
+
+                        assign button_advanced_class = 'btn--advanced'
+                        if button_style != 'btn--text'
+                          assign button_advanced_class = button_advanced_class | append: ' btn--advanced-width-height btn--advanced-adaptive-width'
+                        endif
+
+                        if image != blank
+                          assign image_alt = image.alt | default: title | strip_html | escape
+                        endif
+
+                        comment
+                          Collection block
+                        endcomment
+
+                        if block.type == 'collection'
+                          assign collection = collections[block.settings.collection]
+                          assign collection_string = 'homepage.onboarding.collection_title' | t
+                          assign title = block.settings.title | default: collection.title | default: collection_string
+                          assign button_link = collection.url
+                          assign show_products_count = block.settings.show_products_count
+
+                          if image == blank
+                            assign image = collection.image | default: collection.products.first.featured_media.preview_image | default: false
+                            assign image_alt = image.alt | default: title | strip_html | escape
+                          endif
+
+                          if show_products_count
+                            assign products_count = collection.all_products_count | default: 0
+                            assign text = 'general.search.results_products_with_count' | t: count: products_count
+                          endif
+                        endif
+
+                        comment
+                          Images sizes
+                        endcomment
+
+                        assign column_width_multiplier = column_width | times: 0.01
+
+                        # Desktop widths
+                        if section_width == 'wrapper--full-padded'
+                          assign wrapper_width_lg = '(100vw - 120px)'
+                        else
+                          assign wrapper_width_lg = '(1440px - 120px)'
+                        endif
+                        assign img_width_lg = 'calc(' | append: wrapper_width_lg | append: ' * ' | append: column_width_multiplier | append: ' - 20px)'
+
+                        # Mobile widths
+                        assign wrapper_width_md = '(100vw - 2 * 20px)'
+                        assign img_width_md = 'calc(' | append: wrapper_width_md | append: ' / 2 - 20px)'
+
+                        # Mobile portrait widths
+                        assign img_width_sm = 'calc' | append: wrapper_width_md
+
+                        if mobile_class == 'grid--mobile'
+                          assign img_width_sm = 'calc(' | append: wrapper_width_md | append: ' / 2 - 20px)'
+                        elsif mobile_class == 'carousel--mobile'
+                          assign img_width_sm = 'calc(' | append: wrapper_width_md | append: ' - 20px)'
+                        endif
+
+                        assign sizes = '(min-width: 768px) ' | append: img_width_lg | append: ', (min-width: 480px) ' | append: img_width_md | append: ', ' | append: img_width_sm
+                      -%}
+
+                      {%- style -%}
+                        #columnItemImage--{{ block.id }} {
+                          --image-ratio-desktop: {{ aspect_ratio_desktop }}%;
+                          --image-ratio-mobile: {{ aspect_ratio_mobile }}%;
+                        }
+                        #columnItemContent--{{ block.id }},
+                        #columnItemContent--{{ block.id }}-social-gallery {
+                          --adjust-heading: calc(var(--FONT-ADJUST-HEADING) * {{ heading_size }});
+                          --adjust-body: calc(var(--FONT-ADJUST-BODY) * {{ text_size }});
+                        }
+                      {%- endstyle -%}
+
+                      {% assign subheading = '' %}
+                      {%- if text != blank -%}
+                        {%- capture subheading -%}
+                          <div class="column-item__text subheading-text">{{ text }}</div>
+                        {%- endcapture -%}
+                      {%- endif -%}
+
+                      {%- if type == 'social-gallery' and subheading != '' -%}
+                        <div
+                          class="column-item__content"
+                          id="columnItemContent--{{ block.id }}-social-gallery"
+                          {% if animations_enabled %}
+                            data-aos="fade-up"
+                            data-aos-anchor="#columnItemContent--{{ block.id }}-social-gallery"
+                            data-aos-delay="150"
+                            {%- assign animation_delay = animation_delay | plus: 150 -%}
+                          {% endif %}
+                        >
+                          {{ subheading }}
+                        </div>
+                      {%- endif -%}
+
+                      <div
+                        class="column-item__image-wrapper"
+                        id="columnItemImage--{{ block.id }}"
+                        data-media-container
+                        {% if animations_enabled and type == 'social-gallery' %}
+                          data-aos="image-in"
+                          data-aos-anchor="#columnItemImage--{{ block.id }}"
+                          data-aos-delay="0"
+                          data-aos-intersection="0.4"
+                          {%- assign animation_delay = animation_delay | plus: 150 -%}
+                        {% endif %}
+                      >
+                        <div class="column-item__image-wrapper--inner{{ img_in_classes }}{% if type == 'social-gallery' %} hover-scale{% endif %}">
+                          {%- if button_link != blank -%}
+                            <a
+                              href="{{ button_link }}"
+                              {% if link_target_blank %}
+                                target="_blank"
+                              {% endif %}
+                              class="column-item__image-link hover-scale"
+                            >
+                          {%- endif -%}
+                          {%- render 'image-fill',
+                            is_background: true,
+                            img_object: image,
+                            sizes: sizes,
+                            classes: 'column-item__image',
+                            alt: image_alt
+                          -%}
+                          {%- if button_link != blank -%}
+                            </a>
+                          {%- endif -%}
+                        </div>
+                      </div>
+
+                      <div
+                        class="column-item__content{%- render 'button-fallback-classes', primary_color: button_color -%}"
+                        id="columnItemContent--{{ block.id }}"
+                        {% if animations_enabled and type == 'social-gallery' %}
+                          data-aos="fade-up"
+                          data-aos-anchor="#columnItemContent--{{ block.id }}"
+                          data-aos-delay="150"
+                        {% endif %}
+                      >
+                        {%- if title != blank -%}
+                          <h3 class="column-item__heading h6">{{ title | escape }}</h3>
+                        {%- endif -%}
+
+                        {%- if type != 'social-gallery' -%}
+                          {{ subheading }}
+                        {%- endif -%}
+
+                        {%- if button_text != blank -%}
+                          <a
+                            href="{{ button_link }}"
+                            {% if link_target_blank %}
+                              target="_blank"
+                            {% endif %}
+                            class="column-item__button btn {{ button_style }} {{ button_size }} {{ button_color }} {{ button_advanced_class }}"
+                          >
+                            <hover-button></hover-button>
+                            {{- button_text -}}
+                          </a>
+                        {%- endif -%}
+                      </div>
+                    {%- when 'menu' -%}
+                      {%- liquid
+                        assign text_size = block.settings.text_size | times: 0.01
+                        assign link_hover_effect = block.settings.link_hover_effect
+                        assign highlight_color = block.settings.highlight_color
+                        assign highlight_text_color = block.settings.highlight_text_color
+                      -%}
+                      {%- style -%}
+                        #columnItemMenu--{{ block.id }} {
+                          --adjust-heading: calc(var(--FONT-ADJUST-HEADING) * {{ text_size }});
+
+                          {%- if highlight_color != 'rgba(0,0,0,0)' and highlight_color != '' -%}
+                            --highlight-color: {{ highlight_color }};
+                          {%- endif -%}
+
+                          {%- if highlight_text_color != 'rgba(0,0,0,0)' and highlight_text_color != '' -%}
+                            --highlight-text-color: {{ highlight_text_color }};
+                          {%- endif -%}
+                        }
+                      {%- endstyle -%}
+
+                      <div
+                        class="column-item__links text-highlight-wrapper--{{ link_hover_effect }}"
+                        id="columnItemMenu--{{ block.id }}"
+                      >
+                        {%- for link in linklists[menu].links -%}
+                          <div class="column-item__link h3">
+                            {%- render 'link-with-highlights',
+                              link_url: link.url,
+                              link_title: link.title,
+                              link_hover_effect: link_hover_effect,
+                              is_text: true,
+                              skip_span: true
+                            -%}
+                          </div>
+                        {%- endfor -%}
+                      </div>
+                    {%- else -%}
+                      {%- render 'no-blocks' -%}
+                  {%- endcase -%}
+                </div>
+              </div>
+            {%- endif -%}
+          {%- endfor -%}
+        </{{ slider_tag }}>
+      {%- endif -%}
+    </div>
+  </div>
+</div>

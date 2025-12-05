@@ -1,0 +1,229 @@
+<!-- /snippets/countdown-timer.liquid -->
+
+{% comment %}
+  Renders a countdown timer
+
+  Accepts:
+  - expiration_date: {Datetime} Expiration date (Required)
+  - end_message: {String} End of timer message (Optional)
+  - leading_zero: {Boolean} Set to true to enable leading zeros (Optional)
+  - animation_order: {Number} Factor based on number of blocks in the section
+  - animation_anchor: {String} Hook for the AOS animation
+
+  Usage:
+  {% render 'countdown-timer', expiration_date: expiration_date %}
+{% endcomment %}
+
+{%- liquid
+  assign end_message = end_message | default: ''
+
+  assign current_date = 'now' | date: '%s'
+  assign expiration_date = expiration_date | default: 'now' | date: '%s'
+  assign time_difference = expiration_date | minus: current_date
+
+  assign days = time_difference | divided_by: 86400 | at_least: 0
+  assign remaining_seconds = time_difference | modulo: 86400
+  assign hours = remaining_seconds | divided_by: 3600 | at_least: 0
+  assign remaining_seconds = remaining_seconds | modulo: 3600
+  assign minutes = remaining_seconds | divided_by: 60 | at_least: 0
+  assign seconds = remaining_seconds | modulo: 60 | at_least: 0
+  assign leading_zero = leading_zero | default: false
+  assign text = text | default: false
+  assign heading = heading | default: false
+  assign layout_style = layout_style | default: 'stacked'
+
+  if leading_zero
+    if days < 10
+      assign days = days | prepend: '0'
+    endif
+
+    if hours < 10
+      assign hours = hours | prepend: '0'
+    endif
+
+    if minutes < 10
+      assign minutes = minutes | prepend: '0'
+    endif
+
+    if seconds < 10
+      assign seconds = seconds | prepend: '0'
+    endif
+  endif
+
+  assign section_selector_id = '#' | append: section.id
+  assign animation_anchor = animation_anchor | default: section_selector_id
+  assign animation_order = animation_order | default: 1
+  assign animation_order_message = animation_order
+  assign animations_enabled = settings.animations_enabled
+
+  assign on_time_ended = 'show-message'
+  if end_message == ''
+    assign on_time_ended = 'hide'
+  endif
+
+  assign container_class = 'countdown-timer'
+  assign wrapper_class = 'countdown-timer__wrapper'
+  assign item_class = 'countdown-timer__item'
+  assign digit_class = 'countdown-timer__digit'
+  assign unit_class = 'countdown-timer__unit'
+  assign message_class = 'countdown-timer__message'
+
+  assign bg_opacity = bg_opacity | default: 0
+  assign bg_color = bg_color | default: ''
+  assign has_bg = false
+
+  if layout_style == 'stacked'
+    assign wrapper_class = wrapper_class | append: ' countdown-timer__wrapper--stacked'
+  else
+    assign wrapper_class = wrapper_class | append: ' countdown-timer__wrapper--inline'
+  endif
+
+  if bg_color.alpha != 0.0 and bg_color != ''
+    assign has_bg = true
+    assign container_class = container_class | append: ' countdown-timer--background'
+    assign bg_color_opacity = bg_opacity | times: 0.01
+    assign bg_color_value = bg_color | color_modify: 'alpha', bg_color_opacity
+  endif
+
+  assign digit_class = digit_class | append: ' h1'
+  assign unit_class = unit_class | append: ' subheading-text'
+  assign message_class = message_class | append: ' rte'
+-%}
+
+<script src="{{ 'countdown-timer.js' | asset_url }}" defer="defer"></script>
+
+{%- if has_bg -%}
+  {%- style -%}
+    {{ animation_anchor }} {
+      --timer-bg: {{ bg_color_value }};
+      --timer-bg-delay: {{ animation_order | times: 150 | minus: 50 }}ms;
+    }
+  {%- endstyle -%}
+{%- endif -%}
+
+<countdown-timer
+  class="{{ container_class }}"
+  data-expiration-behavior="{{ on_time_ended }}"
+  {% if leading_zero %}
+    data-leading-zero
+  {% endif %}
+>
+  {%- if text or heading -%}
+    <div class="countdown-timer__content">
+      {%- if heading -%}
+        <div
+          class="countdown-timer__heading"
+          {% if animations_enabled %}
+            data-aos="hero"
+            data-aos-anchor="{{ animation_anchor }}"
+            data-aos-order="{{ animation_order }}"
+            {%- assign animation_order = animation_order | plus: 1 -%}
+          {% endif %}
+        >
+          <h3 class="countdown-timer__title {{ heading_style }}">{{ heading }}</h3>
+        </div>
+      {%- endif -%}
+      {%- if text -%}
+        <div
+          class="countdown-timer__text"
+          {% if animations_enabled %}
+            data-aos="hero"
+            data-aos-anchor="{{ animation_anchor }}"
+            data-aos-order="{{ animation_order }}"
+            {%- assign animation_order = animation_order | plus: 1 -%}
+          {% endif %}
+        >
+          {{ text }}
+        </div>
+      {%- endif -%}
+    </div>
+  {%- endif -%}
+
+  <time class="{{ wrapper_class }}" datetime="{{ expiration_date | date: '%Y-%m-%dT%H:%M:%S.%3N%z' }}" data-time>
+    <div
+      class="{{ item_class }}"
+      {% if animations_enabled %}
+        data-aos="hero"
+        data-aos-anchor="{{ animation_anchor }}"
+        data-aos-order="{{ animation_order }}"
+        {%- assign animation_order = animation_order | plus: 1 -%}
+      {% endif %}
+    >
+      <strong class="{{ digit_class }}" data-days>
+        {{ days }}
+      </strong>
+
+      <span class="{{ unit_class }}">
+        {{- 'countdown.days' | t -}}
+      </span>
+    </div>
+
+    <div
+      class="{{ item_class }}"
+      {% if animations_enabled %}
+        data-aos="hero"
+        data-aos-anchor="{{ animation_anchor }}"
+        data-aos-order="{{ animation_order }}"
+        {%- assign animation_order = animation_order | plus: 1 -%}
+      {% endif %}
+    >
+      <strong class="{{ digit_class }}" data-hours>
+        {{ hours }}
+      </strong>
+
+      <span class="{{ unit_class }}">
+        {{- 'countdown.hours' | t -}}
+      </span>
+    </div>
+
+    <div
+      class="{{ item_class }}"
+      {% if animations_enabled %}
+        data-aos="hero"
+        data-aos-anchor="{{ animation_anchor }}"
+        data-aos-order="{{ animation_order }}"
+        {%- assign animation_order = animation_order | plus: 1 -%}
+      {% endif %}
+    >
+      <strong class="{{ digit_class }}" data-minutes>
+        {{ minutes }}
+      </strong>
+
+      <span class="{{ unit_class }}">
+        {{- 'countdown.minutes' | t -}}
+      </span>
+    </div>
+
+    <div
+      class="{{ item_class }}"
+      {% if animations_enabled %}
+        data-aos="hero"
+        data-aos-anchor="{{ animation_anchor }}"
+        data-aos-order="{{ animation_order }}"
+        {%- assign animation_order = animation_order | plus: 1 -%}
+      {% endif %}
+    >
+      <strong class="{{ digit_class }}" data-seconds>
+        {{ seconds }}
+      </strong>
+
+      <span class="{{ unit_class }}">
+        {{- 'countdown.seconds' | t -}}
+      </span>
+    </div>
+  </time>
+
+  {%- if end_message != '' -%}
+    <div
+      class="{{ message_class }}"
+      data-mesage
+      {% if animations_enabled %}
+        data-aos="hero"
+        data-aos-anchor="{{ animation_anchor }}"
+        data-aos-order="{{ animation_order_message }}"
+      {% endif %}
+    >
+      {{ end_message }}
+    </div>
+  {%- endif -%}
+</countdown-timer>

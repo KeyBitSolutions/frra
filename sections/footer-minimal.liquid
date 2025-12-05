@@ -1,0 +1,492 @@
+<!-- /sections/footer-minimal.liquid -->
+
+{%- render 'footer', section_id: 'FooterMinimal' -%}
+
+{% schema %}
+{
+  "name": "Footer minimal",
+  "max_blocks": 6,
+  "class": "section-footer section-footer--minimal",
+  "limit": 1,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Appearance"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_footer_wave",
+      "label": "Show footer wave",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_footer_parallax",
+      "label": "Enable footer parallax",
+      "default": true,
+      "info": "Desktop only. Disabled on Safari"
+    },
+    {
+      "type": "checkbox",
+      "id": "increase_border_radius",
+      "label": "Increase border radius",
+      "default": true,
+      "info": "Desktop only. Applied only when parallax effect is enabled and wave is disabled"
+    },
+    {
+      "type": "header",
+      "content": "Bottom bar"
+    },
+    {
+      "type": "select",
+      "id": "bottom_bar_alignment",
+      "label": "Alignment",
+      "default": "text-left",
+      "options": [
+        {"value": "text-left", "label": "Left"},
+        {"value": "text-center", "label": "Center"}
+      ],
+      "info": "Mobile only"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_social_links",
+      "label": "Show social icons",
+      "info": "Edit your social settings and accounts in [Theme settings](/admin/themes/current/editor?context=theme)",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_follow_on_shop",
+      "default": true,
+      "label": "Enable Follow on Shop",
+      "info": "Display follow button for your storefront on the Shop app. [Learn more](https://help.shopify.com/manual/online-store/themes/customizing-themes/follow-on-shop)"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_payment_icons",
+      "label": "Show payment icons",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_greyscale",
+      "label": "Enable greyscale for payment icons",
+      "default": false
+    },
+    {
+      "type": "link_list",
+      "id": "bottom_menu",
+      "label": "Menu"
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "color_text",
+      "label": "Text",
+      "default": "#fff",
+      "alpha": true
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-3"
+    },
+    {
+      "type": "color",
+      "id": "color_border",
+      "label": "Border",
+      "default": "#fff",
+      "alpha": true
+    },
+    {
+      "type": "header",
+      "content": "Language selector",
+      "info": "To add a language, go to your [language settings.](/admin/settings/languages)"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_locale_selector",
+      "label": "Show language selector",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_locale_code",
+      "label": "Show language code only",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Country/Region selector",
+      "info": "To add a country/region, go to your [markets settings](/admin/settings/markets)."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_country_selector",
+      "label": "Show country selector",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_country_name",
+      "label": "Show country name",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_country_flag",
+      "label": "Show country flag",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Section spacing"
+    },
+    {
+      "type": "select",
+      "id": "width",
+      "label": "Width",
+      "default": "wrapper",
+      "options": [
+        {"value": "wrapper--full-padded", "label": "Full width padded"},
+        {"value": "wrapper", "label": "Page width"}
+      ]
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "label": "Padding top",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "label": "Padding bottom",
+      "default": 50
+    }
+  ],
+  "blocks": [
+    {
+      "type": "logo",
+      "name": "Logo",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "select",
+          "id": "alignment",
+          "label": "Alignment",
+          "default": "text-left",
+          "options": [
+            {"value": "text-left", "label": "Left"},
+            {"value": "text-center", "label": "Center"}
+          ]
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Select an image"
+        },
+        {
+          "type": "range",
+          "id": "logo_width",
+          "label": "Custom logo width (in pixels)",
+          "min": 30,
+          "max": 250,
+          "default": 100,
+          "step": 10,
+          "unit": "px"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_shop_name",
+          "label": "Show shop name",
+          "default": true
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text"
+        },
+        {
+          "type": "select",
+          "id": "column_width",
+          "label": "Column width",
+          "default": "25",
+          "options": [
+            {"value": "20", "label": "20%"},
+            {"value": "25", "label": "25%"},
+            {"value": "30", "label": "30%"},
+            {"value": "33.33", "label": "33%"},
+            {"value": "50", "label": "50%"},
+            {"value": "66.66", "label": "66%"},
+            {"value": "75", "label": "75%"},
+            {"value": "80", "label": "80%"},
+            {"value": "100", "label": "100%"}
+          ],
+          "info": "Desktop only"
+        }
+      ]
+    },
+    {
+      "type": "logo_full",
+      "name": "Logo (full width)",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "select",
+          "id": "alignment",
+          "label": "Alignment",
+          "default": "text-center",
+          "options": [
+            {"value": "text-left", "label": "Left"},
+            {"value": "text-center", "label": "Center"},
+            {"value": "text-right", "label": "Right"}
+          ]
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Select an image",
+          "info": "Use svg or large png"
+        },
+        {
+          "type": "range",
+          "id": "logo_width",
+          "label": "Width",
+          "min": 10,
+          "max": 100,
+          "default": 100,
+          "step": 5,
+          "unit": "%"
+        },
+        {
+          "type": "range",
+          "id": "padding_top",
+          "min": 0,
+          "max": 100,
+          "step": 2,
+          "unit": "px",
+          "label": "Padding top",
+          "default": 40
+        }
+      ]
+    },
+    {
+      "type": "link",
+      "name": "Link list",
+      "settings": [
+        {
+          "type": "select",
+          "id": "alignment",
+          "label": "Alignment",
+          "default": "text-left",
+          "options": [
+            {"value": "text-left", "label": "Left"},
+            {"value": "text-center", "label": "Center"}
+          ]
+        },
+        {
+          "type": "link_list",
+          "id": "menu",
+          "label": "Link list",
+          "default": "main-menu",
+          "info": "This menu won't show dropdown items"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Shop"
+        },
+        {
+          "type": "select",
+          "id": "column_width",
+          "label": "Column width",
+          "default": "20",
+          "options": [
+            {"value": "10", "label": "10%"},
+            {"value": "15", "label": "15%"},
+            {"value": "20", "label": "20%"},
+            {"value": "25", "label": "25%"},
+            {"value": "30", "label": "30%"},
+            {"value": "33.33", "label": "33%"},
+            {"value": "50", "label": "50%"},
+            {"value": "66.66", "label": "66%"},
+            {"value": "75", "label": "75%"},
+            {"value": "80", "label": "80%"},
+            {"value": "100", "label": "100%"}
+          ],
+          "info": "Desktop only"
+        }
+      ]
+    },
+    {
+      "type": "newsletter",
+      "name": "Newsletter",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "Subscribers are added in the Customers section of your site admin."
+        },
+        {
+          "type": "select",
+          "id": "alignment",
+          "label": "Alignment",
+          "default": "text-left",
+          "options": [
+            {"value": "text-left", "label": "Left"},
+            {"value": "text-center", "label": "Center"}
+          ]
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Heading",
+          "default": "Newsletter"
+        },
+        {
+          "type": "checkbox",
+          "id": "uppercase_heading",
+          "label": "Uppercase heading",
+          "default": false
+        },
+        {
+          "type": "range",
+          "id": "heading_size",
+          "label": "Heading size",
+          "default": 100,
+          "min": 50,
+          "max": 200,
+          "step": 5,
+          "unit": "%"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text",
+          "default": "<p>Stay up to date with the new collections, products and exclusive offers.</p>"
+        },
+        {
+          "type": "text",
+          "id": "button_text",
+          "label": "Button text"
+        },
+        {
+          "type": "select",
+          "id": "button_color",
+          "label": "Button color",
+          "default": "btn--white",
+          "options": [
+            {"label": "Primary", "value": "btn--primary"},
+            {"label": "Secondary", "value": "btn--secondary"},
+            {"label": "White", "value": "btn--white"},
+            {"label": "Black", "value": "btn--black"}
+          ]
+        },
+        {
+          "type": "select",
+          "id": "button_style",
+          "label": "Button style",
+          "default": "btn--solid",
+          "options": [
+            {"label": "Solid", "value": "btn--solid"},
+            {"label": "Outline", "value": "btn--outline"},
+            {"label": "Solid with border", "value": "btn--solid-border"},
+            {"label": "Soft", "value": "btn--soft"}
+          ]
+        },
+        {
+          "type": "select",
+          "id": "column_width",
+          "label": "Column width",
+          "default": "30",
+          "options": [
+            {"value": "20", "label": "20%"},
+            {"value": "25", "label": "25%"},
+            {"value": "30", "label": "30%"},
+            {"value": "33.33", "label": "33%"},
+            {"value": "50", "label": "50%"},
+            {"value": "66.66", "label": "66%"},
+            {"value": "75", "label": "75%"},
+            {"value": "80", "label": "80%"},
+            {"value": "100", "label": "100%"}
+          ],
+          "info": "Desktop only"
+        }
+      ]
+    },
+    {
+      "type": "divider",
+      "name": "Divider",
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "Desktop only"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_border_line",
+          "label": "Show border line",
+          "default": false
+        },
+        {
+          "type": "select",
+          "id": "column_width",
+          "label": "Column width",
+          "default": "25",
+          "options": [
+            {"value": "5", "label": "5%"},
+            {"value": "10", "label": "10%"},
+            {"value": "15", "label": "15%"},
+            {"value": "20", "label": "20%"},
+            {"value": "25", "label": "25%"},
+            {"value": "30", "label": "30%"},
+            {"value": "33.33", "label": "33%"},
+            {"value": "50", "label": "50%"},
+            {"value": "66.66", "label": "66%"},
+            {"value": "75", "label": "75%"},
+            {"value": "80", "label": "80%"},
+            {"value": "100", "label": "100%"}
+          ]
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Footer Minimal",
+      "blocks": [
+        {
+          "type": "logo"
+        },
+        {
+          "type": "divider"
+        },
+        {
+          "type": "link"
+        },
+        {
+          "type": "newsletter"
+        }
+      ]
+    }
+  ],
+  "enabled_on": {
+    "groups": ["footer"]
+  }
+}
+{% endschema %}

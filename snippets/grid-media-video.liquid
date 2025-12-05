@@ -1,0 +1,26 @@
+{% comment %}
+  * Renders an auto-playable video block
+
+  * video {object} - Video object from the product media
+
+  {% render 'grid-media-video', video: current_media %}
+{% endcomment %}
+
+{%- liquid
+  assign video_class = 'media-video'
+
+  if settings.image_size == 'cover'
+    assign video_class = video_class | append: ' media-video--cover'
+  endif
+
+  case video.media_type
+    when 'video'
+      echo video | media_tag: image_size: '1024x1024', class: video_class, autoplay: true, loop: true, controls: false, preload: 'none', muted: true
+    when 'external_video'
+      if video.host == 'youtube'
+        echo video | external_video_url: autoplay: true, playsinline: true, loop: true, playlist: video.external_id, controls: false, mute: true, showinfo: false | external_video_tag: loading: 'lazy', data-host: video.host
+      else
+        echo video | external_video_url: autoplay: true, playsinline: true, loop: true, controls: false, muted: true | external_video_tag: data-host: video.host
+      endif
+  endcase
+-%}

@@ -1,0 +1,370 @@
+{%- liquid
+  assign heading = section.settings.title
+  assign heading_size = section.settings.heading_size
+  assign columns = section.settings.collections_per_row | plus: 0
+  assign columns_small = columns | at_most: 2
+  assign layout = section.settings.layout
+  assign alignment = section.settings.alignment
+  assign image_shape = section.settings.image_shape
+  assign image_aspect_ratio = section.settings.image_aspect_ratio
+  assign enable_product_count = section.settings.enable_product_count
+  assign text_size = section.settings.text_size
+  assign text_over_image = section.settings.overlay_text
+  assign enable_slider_mobile = section.settings.enable_slider_mobile
+  assign columns_mobile = section.settings.columns_mobile | plus: 0
+  assign color_scheme = 'color-' | append: section.settings.color_scheme
+  assign section_text_color = section.settings.section_text_color
+  assign width = section.settings.width
+  assign padding_top = section.settings.padding_top
+  assign padding_bottom = section.settings.padding_bottom
+  # "Buttons list" section specific
+  assign section_buttons = section_buttons | default: false
+  # Specific for section on pages other than the 'Colletion list' page
+  assign section_collections = section_collections | default: false
+  assign type_style = section.settings.type_style
+  assign letter_spacing = section.settings.letter_spacing
+  assign animations_enabled = settings.animations_enabled
+  if section_buttons
+    assign text_over_image = true
+    assign image_shape = 'square'
+    assign button_style = section.settings.button_style
+    assign animations_enabled = section.settings.animations_enabled
+
+    case button_style
+      when 'square'
+        assign border_radius = 0
+      when 'rounded'
+        assign border_radius = 8
+      when 'pill'
+        assign border_radius = 30
+    endcase
+  endif
+
+  assign id = 'listCollections--' | append: section.id
+  assign selector_id = '#' | append: id
+  assign animation_anchor = selector_id
+
+  assign collection_limit = collections.size
+
+  assign carousel = false
+  if layout == 'carousel'
+    assign carousel = true
+  endif
+
+  assign adjust_heading = heading_size | divided_by: 100.0
+  assign adjust_text = text_size | divided_by: 100.0
+  capture type_adjustment
+    case type_style
+      when 'font-body'
+        echo 'var(--FONT-ADJUST-BODY)'
+      when 'subheading-text'
+        echo 'var(--FONT-ADJUST-SUBHEADING)'
+      when 'button-typography'
+        echo 'var(--FONT-ADJUST-MEDIUM-BUTTON)'
+      else
+        echo 'var(--FONT-ADJUST-HEADING)'
+    endcase
+  endcapture
+
+  capture list_collections_classes
+    echo 'list-collections-section'
+
+    if text_over_image
+      echo ' list-collections-section--overlay-text'
+    endif
+
+    if alignment == 'center'
+      echo ' list-collections-section--center'
+    endif
+
+    if layout == 'grid'
+      echo ' list-collections-section--grid'
+    else
+      echo ' list-collections-section--carousel'
+    endif
+
+    if enable_slider_mobile
+      echo ' list-collections-section--carousel-mobile'
+    else
+      echo ' list-collections-section--grid-mobile'
+    endif
+  endcapture
+
+  capture layout_tag
+    if carousel
+      echo 'grid-slider'
+    else
+      echo 'div'
+    endif
+  endcapture
+
+  capture layout_class
+    if carousel
+      echo 'carousel'
+    else
+      echo 'grid'
+    endif
+
+    if enable_slider_mobile
+      echo ' carousel--mobile'
+    else
+      echo ' grid--mobile'
+    endif
+  endcapture
+
+  capture container_class
+    if carousel
+      echo 'carousel__container'
+    else
+      echo 'grid__container'
+    endif
+
+    echo ' list-collections-section__container'
+  endcapture
+
+  assign is_main_section = false
+  if template.name == 'list-collections' and section_buttons == false and section_collections == false
+    assign is_main_section = true
+  endif
+-%}
+
+<link
+  href="{{ 'section-collection-list.css' | asset_url }}"
+  rel="preload"
+  as="style"
+  onload="this.onload=null;this.rel='stylesheet'"
+>
+
+{%- style -%}
+  [data-section-id="{{ section.id }}"] {
+    {% comment %} Set a min of 10px top padding to avoid images being cut off when padding top setting is set to less than 10px {% endcomment %}
+    --PT: max(10px, {{ padding_top }}px);
+
+    {% comment %} Set a min of 10px bottom padding to avoid images being cut off when padding bottom setting is set to less than 10px and text is over image {% endcomment %}
+    {% if text_over_image %}
+      --PB: max(10px, {{ padding_bottom }}px);
+    {% else %}
+      --PB: {{ padding_bottom }}px;
+    {% endif %}
+
+    {% if section_text_color != 'rgba(0,0,0,0)' and section_text_color != '' %}
+      --text: {{ section_text_color }};
+      --heading: {{ section_text_color }};
+    {% endif %}
+
+    --grid-item: {{ 100.0 | divided_by: columns | round: 4 }}%;
+    --image-height: {{ image_aspect_ratio | times: 100 }}%;
+
+    {% if text_size != blank %}
+      --adjust-text: calc({{ type_adjustment }} * {{ adjust_text }});
+    {% endif %}
+  }
+
+  {% if heading_size != blank %}
+    [data-section-id="{{ section.id }}"] .section__heading {
+      --adjust-heading: calc(var(--FONT-ADJUST-HEADING) * {{ adjust_heading }});
+    }
+  {% endif %}
+
+  @media screen and (min-width: 768px) and (max-width: 1023px) {
+    [data-section-id="{{ section.id }}"] {
+      --grid-item: {{ 100.0 | divided_by: columns_small | round: 4 }}%;
+    }
+  }
+
+  @media screen and (max-width: 767px) {
+    [data-section-id="{{ section.id }}"] {
+      --grid-item: {{ 100.0 | divided_by: columns_mobile | round: 4 }}%;
+    }
+
+    {% if columns_mobile > 1 %}
+      [data-section-id="{{ section.id }}"] .carousel--mobile {
+        --item-width-mobile: calc(90% / {{ columns_mobile }} - var(--grid-gutter));
+      }
+    {% endif %}
+  }
+{%- endstyle -%}
+
+<section
+  id="{{ id }}"
+  class="section-padding {{ list_collections_classes }} {{ color_scheme }}"
+  data-section-type="list-collections"
+  data-section-id="{{ section.id }}"
+  {% if animations_enabled %}
+    data-aos-intersection="0"
+    data-aos-watch-anchors
+  {% endif %}
+>
+  <div class="{{ width }}">
+    {%- if heading != blank -%}
+      <div class="section__header">
+        <h2
+          class="section__heading h2"
+          {% if animations_enabled %}
+            data-aos="fade-up"
+            data-aos-anchor="{{ animation_anchor }}"
+            data-aos-delay="{{ animation_delay }}"
+            {%- assign animation_delay = animation_delay | plus: 150 -%}
+          {% endif %}
+        >
+          {{ heading | escape }}
+        </h2>
+
+        {%- if settings.show_spacer_lines -%}
+          <hr
+            class="section__heading-line"
+            {% if animations_enabled %}
+              data-aos="fade-up"
+              data-aos-anchor="{{ animation_anchor }}"
+              data-aos-delay="{{ animation_delay }}"
+              {%- assign animation_delay = animation_delay | plus: 150 -%}
+            {% endif %}
+          >
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+
+    <div class="{{ container_class }}">
+      {%- if section.blocks.size > 0 or is_main_section -%}
+        <{{ layout_tag }}
+          class="{{ layout_class }}"
+          {% if carousel %}
+            data-columns="{{ columns }}"
+            role="group"
+          {% endif %}
+        >
+          {%- liquid
+            if section.blocks.size > 0
+              for block in section.blocks limit: section.blocks.size
+                assign animation_delay = forloop.index0 | modulo: columns | times: 1
+                assign unique = block.id
+                assign collection = collections[block.settings.collection]
+                assign custom_collection_image = block.settings.custom_collection_image
+                assign heading = block.settings.heading
+                assign custom_bg_color = block.settings.bg_color
+                assign text_color = block.settings.block_text_color
+                assign overlay_type = block.settings.overlay_type
+                assign opacity_overlay = false
+
+                if overlay_type == 'opacity'
+                  assign opacity_overlay = true
+                endif
+
+                # "Buttons list" section specific
+                assign button_link = block.settings.button_link
+                assign border_color = block.settings.border_color
+                if border_color.alpha == 0.0 or border_color == '' or border_color == blank
+                  assign border_color = section.settings.border_color
+                endif
+                if text_color.alpha == 0.0 or text_color == '' or text_color == blank
+                  assign text_color = section.settings.block_text_color
+                endif
+
+                assign intersection_ratio = '0.3'
+                if forloop.index0 <= columns
+                  assign intersection_ratio = '0.15'
+                endif
+
+                capture placeholder_index
+                  cycle 1, 2, 3
+                endcapture
+
+                render 'collection-grid-item', collection: collection, button_link: button_link, custom_collection_image: custom_collection_image, heading: heading, custom_bg_color: custom_bg_color, animation_delay: animation_delay, intersection_ratio: intersection_ratio, carousel: carousel, columns: columns, columns_mobile: columns_mobile, image_shape: image_shape, block_shopify_attributes: block.shopify_attributes, placeholder_index: placeholder_index, text_over_image: text_over_image, text_color: text_color, border_color: border_color, border_radius: border_radius, type_style: type_style, letter_spacing: letter_spacing, enable_product_count: enable_product_count, unique: unique, section_buttons: section_buttons, animations_enabled: animations_enabled, opacity_overlay: opacity_overlay
+              endfor
+            elsif is_main_section
+              comment
+                Show all collections if list collections template and no blocks
+              endcomment
+
+              assign index = 0
+
+              for collection in collections
+                unless collection.handle == 'frontpage'
+                  assign unique = index | append: '--' | append: section.id
+                  assign animation_delay = index | modulo: columns | times: 1
+                  assign intersection_ratio = '0.3'
+                  if index <= columns
+                    assign intersection_ratio = '0.15'
+                  endif
+
+                  render 'collection-grid-item', collection: collection, animation_delay: animation_delay, intersection_ratio: intersection_ratio, carousel: carousel, columns: columns, columns_mobile: columns_mobile, image_shape: image_shape, text_over_image: text_over_image, unique: unique, opacity_overlay: opacity_overlay
+                  assign index = index | plus: 1
+                endunless
+              endfor
+            endif
+          -%}
+        </{{ layout_tag }}>
+      {%- else -%}
+        {%- liquid
+          comment
+            Show no blocks text
+          endcomment
+
+          render 'no-blocks'
+        -%}
+      {%- endif -%}
+    </div>
+  </div>
+</section>
+
+{%- if request.design_mode and carousel -%}
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.listCollectionsBlockSelectHandlerAttached) return;
+      window.listCollectionsBlockSelectHandlerAttached = true;
+
+      document.addEventListener('shopify:block:select', (event) => {
+        let target = event.target;
+        let parent = target.parentNode;
+        const slider = target.closest('grid-slider');
+
+        if (!slider) return;
+
+        const flkty = (window.theme.Flickity && window.theme.Flickity.data(slider)) || null;
+        const currentSection = slider.closest('[data-section-type]');
+
+        // In "Featured collection" section the "block.shopify_attributes" are on an inner element
+        if (currentSection && currentSection.classList.contains('featured-collection')) {
+          parent = parent.parentNode;
+          target = target.parentNode;
+        }
+
+        if (flkty !== null && flkty.isActive) {
+          const index = parseInt([...parent.children].indexOf(target));
+          const slidesPerPage = parseInt(flkty.slides[0].cells.length);
+          const groupIndex = Math.floor(index / slidesPerPage);
+
+          if (!event.detail.load) {
+            flkty.select(groupIndex);
+            return;
+          }
+
+          // Transitionend event if new block is added
+          const onTransitionEnd = () => {
+            requestAnimationFrame(() => {
+              flkty.select(groupIndex);
+              if (typeof slider.setSliderArrowsPosition === 'function') {
+                slider.setSliderArrowsPosition(slider);
+              }
+            });
+
+            flkty.viewport.removeEventListener('transitionend', onTransitionEnd);
+          };
+
+          flkty.viewport.addEventListener('transitionend', onTransitionEnd);
+        } else {
+          const sliderStyle = slider.currentStyle || window.getComputedStyle(slider);
+          const sliderPadding = parseInt(sliderStyle.paddingLeft);
+          const blockPositionLeft = target.offsetLeft - sliderPadding;
+
+          // Native scroll to item
+          slider.scrollTo({
+            top: 0,
+            left: blockPositionLeft,
+            behavior: 'smooth',
+          });
+        }
+      });
+    });
+  </script>
+{%- endif -%}

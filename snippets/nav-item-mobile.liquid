@@ -1,0 +1,161 @@
+{%- liquid
+  assign section_id = section.id
+  assign link_title = link.title | strip_html | escape
+  assign link_title_lowercase = link.title | downcase | strip_html | escape
+  assign highlight_color = false
+  if highlight_item_color.alpha != 0.0 and highlight_item_color != ''
+    assign highlight_color = true
+  endif
+
+  capture style
+    if highlight_color
+      echo '--highlight: ' | append: highlight_item_color | append: ';'
+
+      if enable_custom_badge
+        assign custom_badge_bg_brightness = highlight_item_color | color_brightness | round
+        echo ' --custom-badge-bg-color: ' | append: highlight_item_color | append: ';'
+      endif
+    endif
+
+    if enable_custom_badge and highlight_item_text_color.alpha != 0.0 and highlight_item_text_color != ''
+      echo '--custom-badge-text-color: ' | append: highlight_item_text_color | append: ';'
+    endif
+  endcapture
+-%}
+
+{%- if link.links != blank -%}
+  <li
+    class="mobile-menu__item mobile-menu__item--level-1 mobile-menu__item--has-items{% if link.active %} mobile-menu__item--active{% endif %}"
+    aria-haspopup="true"
+    {% if highlight_color or enable_custom_badge %}
+      style="{{ style }}"
+    {% endif %}
+  >
+    <a
+      href="{{ link.url }}"
+      class="mobile-navlink mobile-navlink--level-1{% if mobile_menu_behaviour == 'trigger' %} mobile-navlink--trigger{% endif %}{% if highlight_item == link_title_lowercase %} mobile-navlink--highlight{% endif %}"
+      data-nav-link-mobile
+    >
+      {{- link_title -}}
+      {%- if enable_custom_badge and custom_badge_text != blank and highlight_item == link_title_lowercase -%}
+        <span class="mobile-navlink__custom-badge">{{ custom_badge_text }}</span>
+      {%- endif -%}
+    </a>
+    <button
+      type="button"
+      class="mobile-nav__trigger mobile-nav__trigger--level-1"
+      aria-expanded="false"
+      aria-controls="MobileNav--{{ link.handle }}-{{ index }}-{{ section_id }}"
+      data-collapsible-trigger
+    >
+      {%- render 'icon-toggle-plus' -%}
+      {%- render 'icon-toggle-minus' -%}
+      <span class="fallback-text">{{ 'layout.navigation.see_more' | t }}</span>
+    </button>
+    <div
+      class="mobile-dropdown"
+      id="MobileNav--{{ link.handle }}-{{ index }}-{{ section_id }}"
+      data-collapsible-container
+    >
+      <ul
+        class="mobile-nav__sublist{% if sub_link.levels == 1 %} mobile-nav__sublist--has-items{% endif %}"
+        data-collapsible-content
+      >
+        {%- for sub_link in link.links -%}
+          {%- assign link_title = sub_link.title | strip_html | escape -%}
+          {%- assign link_title_lowercase = sub_link.title | downcase | strip_html | escape -%}
+
+          {%- capture link_image_markup -%}
+            {%- render 'header-link-image' with enable: show_links_images, link: sub_link, aspect_ratio: links_images_aspect_ratio -%}
+          {%- endcapture -%}
+
+          <li
+            class="mobile-menu__item mobile-menu__item--level-2{% if sub_link.levels == 1 %} mobile-menu__item--has-items{% endif %}{% if sub_link.active %} mobile-menu__item--active{% endif %}"
+            {% if sub_link.levels == 1 %}
+              aria-haspopup="true"
+            {% endif %}
+          >
+            <a
+              href="{{ sub_link.url }}"
+              class="mobile-navlink mobile-navlink--level-2{% if link_image_markup != blank %} mobile-navlink--image{% endif %}{% if sub_link.levels == 1 and mobile_menu_behaviour == 'trigger' %} mobile-navlink--trigger{% endif %}{% if highlight_item == link_title_lowercase %} mobile-navlink--highlight{% endif %}"
+              data-nav-link-mobile
+            >
+              {%- if link_image_markup != blank -%}
+                <div class="mobile-navlink__image">
+                  {{- link_image_markup -}}
+                </div>
+              {%- endif -%}
+
+              <span>
+                {{- link_title -}}
+                {%- if enable_custom_badge and custom_badge_text != blank and highlight_item == link_title_lowercase -%}
+                  <span class="mobile-navlink__custom-badge">{{ custom_badge_text }}</span>
+                {%- endif -%}
+              </span>
+            </a>
+
+            {%- if sub_link.levels == 1 -%}
+              <button
+                type="button"
+                class="mobile-nav__trigger mobile-nav__trigger--level-2"
+                aria-expanded="false"
+                aria-controls="MobileNav--{{ link.handle }}-{{ sub_link.handle }}-{{ index }}-{{ section_id }}"
+                data-collapsible-trigger
+              >
+                {%- render 'icon-toggle-plus' -%}
+                {%- render 'icon-toggle-minus' -%}
+                <span class="fallback-text">{{ 'layout.navigation.see_more' | t }}</span>
+              </button>
+            {%- endif -%}
+
+            {%- if sub_link.levels == 1 -%}
+              <div
+                class="mobile-dropdown"
+                id="MobileNav--{{ link.handle }}-{{ sub_link.handle }}-{{ index }}-{{ section_id }}"
+                data-collapsible-container
+              >
+                <ul class="mobile-nav__sub-sublist" data-collapsible-content>
+                  {%- for sub_sub_link in sub_link.links -%}
+                    {%- assign link_title = sub_sub_link.title | strip_html | escape -%}
+                    {%- assign link_title_lowercase = sub_sub_link.title | downcase | strip_html | escape -%}
+                    <li class="mobile-menu__item mobile-menu__item--level-3{% if sub_sub_link.active %} mobile-menu__item--active{% endif %}">
+                      <a
+                        href="{{ sub_sub_link.url }}"
+                        class="mobile-navlink mobile-navlink--level-3{% if highlight_item == link_title_lowercase %} mobile-navlink--highlight{% endif %}"
+                      >
+                        {{- link_title -}}
+                        {%- if enable_custom_badge
+                          and custom_badge_text != blank
+                          and highlight_item == link_title_lowercase
+                        -%}
+                          <span class="mobile-navlink__custom-badge">{{ custom_badge_text }}</span>
+                        {%- endif -%}
+                      </a>
+                    </li>
+                  {%- endfor -%}
+                </ul>
+              </div>
+            {%- endif -%}
+          </li>
+        {%- endfor -%}
+      </ul>
+    </div>
+  </li>
+{%- else -%}
+  <li
+    class="mobile-menu__item mobile-menu__item--level-1{% if link.active %} mobile-menu__item--active{% endif %}"
+    {% if highlight_color or enable_custom_badge %}
+      style="{{ style }}"
+    {% endif %}
+  >
+    <a
+      href="{{ link.url }}"
+      class="mobile-navlink mobile-navlink--level-1{% if highlight_item == link_title_lowercase %} mobile-navlink--highlight{% endif %}"
+    >
+      {{- link_title -}}
+      {%- if enable_custom_badge and custom_badge_text != blank and highlight_item == link_title_lowercase -%}
+        <span class="mobile-navlink__custom-badge">{{ custom_badge_text }}</span>
+      {%- endif -%}
+    </a>
+  </li>
+{%- endif -%}

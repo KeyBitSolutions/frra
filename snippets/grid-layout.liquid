@@ -1,0 +1,592 @@
+{%- liquid
+  assign desktop_height = section.settings.desktop_height
+  assign enable_mobile_height = section.settings.enable_mobile_height
+  assign mobile_height = section.settings.mobile_height
+  assign section_width = section.settings.width
+  assign mobile_slider = section.settings.enable_slider_mobile
+  assign columns_mobile = section.settings.columns_mobile | plus: 0
+  assign text_over_image = section.settings.overlay_text
+  assign overlayed_text = section.settings.overlayed_text
+  assign color_scheme = 'color-' | append: section.settings.color_scheme
+  assign selected_color_scheme = section.settings.color_scheme | strip
+  assign scheme_bg_color = settings.color_schemes[selected_color_scheme].settings.section_bg
+  assign scheme_bg_gradient = settings.color_schemes[selected_color_scheme].settings.section_bg_gradient
+  assign heading_size = section.settings.heading_size | times: 0.01
+  assign text_size = section.settings.text_size | times: 0.01
+  comment
+    theme-check-disable VariableName
+  endcomment
+  assign button_1_style = section.settings.button_1_style
+  assign button_1_color = section.settings.button_1_color
+  assign button_1_size = section.settings.button_1_size
+  assign button_2_style = section.settings.button_2_style
+  assign button_2_color = section.settings.button_2_color
+  assign button_2_size = section.settings.button_2_size
+  assign add_gutter = section.settings.add_gutter
+  assign block_count = section.blocks.size
+  assign currency_code_enable = settings.currency_code_enable
+  assign animations_enabled = settings.animations_enabled
+  assign section_id = 'sectionMosaicGrid--' | append: section.id
+  assign section_selector_id = '#' | append: section_id
+
+  assign section_class = ''
+
+  if add_gutter
+    assign section_class = section_class | append: ' mosaic--spacing'
+  else
+    assign section_class = section_class | append: ' mosaic--no-spacing'
+  endif
+
+  if mobile_slider
+    assign section_class = section_class | append: ' mosaic--mobile-slider'
+  else
+    assign section_class = section_class | append: ' mosaic--mobile-grid'
+  endif
+
+  if block_count == 1
+    assign section_class = section_class | append: ' mosaic--single-block'
+  elsif block_count > 1
+    assign section_class = section_class | append: ' mosaic--multiple-blocks'
+  endif
+
+  case columns_mobile
+    when 1
+      assign size_mobile = 'mobile--one-whole'
+    when 2
+      assign size_mobile = 'mobile--one-half'
+      assign section_class = section_class | append: ' mosaic--two-columns'
+  endcase
+
+  if text_over_image
+    assign section_class = section_class | append: ' mosaic--content-overlay'
+  else
+    assign section_class = section_class | append: ' mosaic--content-under'
+  endif
+
+  if enable_mobile_height
+    assign section_class = section_class | append: ' has-mobile-height'
+  endif
+
+  assign wrapper_width = '100vw'
+  assign desktop_space = 120
+  assign gutter_space = 0
+  assign tablet_space = 40
+  assign mobile_space = 40
+  if mobile_slider
+    assign mobile_space = 60
+  endif
+
+  if add_gutter
+    assign gutter_space = 20
+  endif
+
+  case section_width
+    when 'wrapper--full'
+      assign desktop_space = 0
+      assign tablet_space = 0
+
+      if add_gutter
+        assign desktop_space = 40
+        assign tablet_space = 40
+      endif
+
+      unless mobile_slider
+        assign mobile_space = 0
+      endunless
+    when 'wrapper'
+      assign wrapper_width = '1440px'
+    when 'wrapper--narrow'
+      assign wrapper_width = '840px'
+  endcase
+
+  assign button_1_advanced_class = 'btn--advanced'
+  if button_1_style != 'btn--text'
+    assign button_1_advanced_class = button_1_advanced_class | append: ' btn--advanced-width-height btn--advanced-adaptive-width'
+  endif
+  assign button_2_advanced_class = 'btn--advanced'
+  if button_2_style != 'btn--text'
+    assign button_2_advanced_class = button_2_advanced_class | append: ' btn--advanced-width-height btn--advanced-adaptive-width'
+  endif
+
+  capture shimmer_class
+    assign blocks_widths = section.blocks | map: 'settings' | where: 'width' | map: 'width'
+    assign widths_count = blocks_widths.size
+    assign uniq_width = blocks_widths | uniq
+    assign width_fraction = 100 | divided_by: uniq_width[0] | round
+
+    echo ' shimmer-sequential'
+    if uniq_width.size == 1 and widths_count > 1 and width_fraction != 1
+      echo ' shimmer-sequential--' | append: width_fraction
+    else
+      echo ' shimmer-sequential--mixed'
+    endif
+  endcapture
+  assign section_class = section_class | append: shimmer_class
+  assign section_class = section_class | append: ' skeleton-loading'
+-%}
+
+{%- if request.design_mode -%}
+  {{ 'section-grid.css' | asset_url | stylesheet_tag }}
+{%- else -%}
+  <link
+    href="{{ 'section-grid.css' | asset_url }}"
+    rel="preload"
+    as="style"
+    onload="this.onload=null;this.rel='stylesheet'"
+  >
+{%- endif -%}
+
+<script src="{{ 'mosaic-component.js' | asset_url }}" defer></script>
+
+{%- if request.design_mode -%}
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.gridLayoutBlockSelectHandlerAttached) return;
+      window.gridLayoutBlockSelectHandlerAttached = true;
+
+      document.addEventListener('shopify:block:select', (event) => {
+        const target = event.target;
+        const grid = target.closest('[data-grid]');
+
+        if (!grid) return;
+
+        const items = grid.querySelectorAll('[data-item]');
+        const wrapperStyle = grid.currentStyle || window.getComputedStyle(grid);
+        const wrapperPadding = parseInt(wrapperStyle.paddingLeft);
+        const blockPositionLeft = target.offsetLeft - wrapperPadding;
+        const firstItem = items[0];
+        const isFirstItem = target.matches(`#${firstItem.id}`);
+
+        // Execute the AOS animations if the selected block contains animatable elements that are not triggered
+        if (!isFirstItem && theme.settings.animationsEnabled == 'true') {
+          const animatable = target.querySelectorAll('[data-aos], [data-aos-anchor]');
+          const isAnimated = [...animatable].some((element) => element.classList.contains('aos-animate'));
+
+          if (!isAnimated) {
+            items.forEach((item) => {
+              const animatable = item.querySelectorAll('[data-aos], [data-aos-anchor]');
+              item.classList.add('aos-animate');
+              animatable.forEach((element) => element.classList.add('aos-animate'));
+            });
+          }
+        }
+
+        // Native scroll to item
+        setTimeout(() => {
+          grid.scrollTo({
+            top: 0,
+            left: blockPositionLeft,
+            behavior: 'smooth',
+          });
+        }, 500);
+      });
+    });
+  </script>
+{%- endif -%}
+
+{%- style -%}
+  {{ section_selector_id }} {
+    --PT: {{ section.settings.padding_top }}px;
+    --PB: {{ section.settings.padding_bottom }}px;
+  }
+
+  {% unless add_gutter -%}
+    {{ section_selector_id }} .mosaic--mobile-grid {
+      --grid-gutter: 0px;
+    }
+  {%- endunless %}
+
+  {{ section_selector_id }} .mosaic__item__heading {
+    --adjust-heading: calc(var(--FONT-ADJUST-HEADING) * {{ heading_size }});
+  }
+  {{ section_selector_id }} .mosaic__item__text {
+    --adjust-body: calc(var(--FONT-ADJUST-BODY) * {{ text_size }});
+  }
+
+  {%  if overlayed_text.alpha != 0.0 and overlayed_text != '' %}
+    @media screen and (min-width: 768px) {
+      {{ section_selector_id }} { --text: {{ overlayed_text }}; }
+    }
+
+    {% if text_over_image %}
+      @media screen and (max-width: 767px) {
+        {{ section_selector_id }} { --text: {{ overlayed_text }}; }
+      }
+    {% endif %}
+  {% endif %}
+{%- endstyle -%}
+
+<section
+  id="{{ section_id }}"
+  class="mosaic{{ section_class }} section-padding {{ color_scheme }}"
+  data-section-id="{{ section.id }}"
+  data-section-type="mosaic"
+>
+  <mosaic-component
+    {% if animations_enabled and mobile_slider %}
+      data-slider-mobile
+    {% endif %}
+  >
+    <div class="mosaic__wrapper {{ section_width }}{% if section_width != 'wrapper--full' %} wrapper--no-full{% endif %}">
+      {%- if block_count > 0 -%}
+        <div class="mosaic__grid{% if mobile_slider %} carousel--mobile{% else %} grid--mobile{% endif %}" data-grid>
+          {%- for block in section.blocks -%}
+            {%- liquid
+              assign image = ''
+              assign block_width = block.settings.width
+              assign text_position = block.settings.text_position
+              assign subheading = block.settings.subheading
+              assign heading = block.settings.title
+              assign show_description = block.settings.show_description
+              assign show_price = block.settings.show_price
+              assign price = ''
+              assign text = block.settings.text
+              assign image_link = false
+              assign button_1_link = block.settings.button_1_link
+              assign button_1_text = block.settings.button_1_text
+              assign button_2_text = block.settings.button_2_text
+              assign button_2_link = block.settings.button_2_link
+              assign block_bg_color = block.settings.block_bg_color
+              assign show_text_background = block.settings.show_text_background
+              assign bg_color = block.settings.bg_color
+              assign text_color = block.settings.text_color
+              assign overlay_type = block.settings.overlay_type
+              assign block_id = 'mosaicItem--' | append: block.id
+              assign block_selector_id = '#' | append: block_id
+              assign content_inner_id = block_id | prepend: 'contentInner--'
+              assign block_anchor = block_selector_id
+              assign content_inner_anchor = '#' | append: content_inner_id
+              assign hover_scale = ''
+
+              case text_position
+                when 'left'
+                  assign text_position_class = 'mosaic__item__content--left'
+                when 'center'
+                  assign text_position_class = 'mosaic__item__content--center'
+                when 'right'
+                  assign text_position_class = 'mosaic__item__content--right'
+                when 'bottom-left'
+                  assign text_position_class = 'mosaic__item__content--bottom-left'
+                when 'bottom-center'
+                  assign text_position_class = 'mosaic__item__content--bottom-center'
+                when 'bottom-right'
+                  assign text_position_class = 'mosaic__item__content--bottom-right'
+                when 'top-left'
+                  assign text_position_class = 'mosaic__item__content--top-left'
+                when 'top-center'
+                  assign text_position_class = 'mosaic__item__content--top-center'
+                when 'top-right'
+                  assign text_position_class = 'mosaic__item__content--top-right'
+              endcase
+
+              capture shimmer_item_class
+                if shimmer_class != ''
+                  echo ' shimmer-sequential__item'
+                endif
+              endcapture
+
+              assign has_image = true
+              if block.type == 'text'
+                assign has_image = false
+              endif
+
+              assign has_content = true
+              assign show_block = true
+              if subheading == blank and heading == blank and text == blank and price == blank and button_1_text == blank and button_2_text == blank
+                assign has_content = false
+
+                if block.type == 'text'
+                  assign show_block = false
+                endif
+              endif
+
+              case block.type
+                when 'product'
+                  assign product = block.settings.product
+                  assign button_1_link = product.url | default: '#!'
+                  assign hover_scale = ' hover-scale'
+                  if product != blank
+                    assign image = product.featured_media.preview_image
+                    assign heading = product.title | strip_html
+                    if product.price == 0
+                      assign price = 'products.product.free' | t
+                    elsif currency_code_enable
+                      assign price = product.price | money_with_currency
+                    else
+                      assign price = product.price | money
+                    endif
+                  else
+                    assign heading = 'homepage.onboarding.product_title' | t
+                    if currency_code_enable
+                      assign price = 10000 | money_with_currency
+                    else
+                      assign price = 10000 | money
+                    endif
+                  endif
+
+                  unless show_price
+                    assign price = ''
+                  endunless
+
+                when 'collection'
+                  assign collection = block.settings.collection
+                  assign button_1_link = collection.url | default: '#!'
+                  assign hover_scale = ' hover-scale'
+                  if collection != blank
+                    assign image = block.settings.image | default: collection.image | default: collection.products[0].featured_media.preview_image
+                    assign heading = collection.title | strip_html
+                    assign text = collection.description | strip_html
+                  else
+                    assign image = block.settings.image | default: ''
+                    assign heading = 'homepage.onboarding.collection_title' | t
+                    assign text = 'homepage.onboarding.single_collection_description' | t
+                  endif
+
+                  unless show_description
+                    assign text = ''
+                  endunless
+
+                when 'image'
+                  assign image = block.settings.image
+
+                  if button_1_link != blank or button_1_text != blank or button_2_text != blank
+                    assign hover_scale = ' hover-scale'
+                  endif
+              endcase
+
+              if button_1_link != blank and button_1_text == blank and button_2_text == blank
+                assign image_link = true
+              endif
+
+              capture block_styles
+                if overlay_opacity != blank
+                  echo '--overlay-opacity: ' | append: overlay_opacity | append: ';'
+                endif
+              endcapture
+
+              assign image_aspect_ratio = image.aspect_ratio | default: 1
+
+              capture img_in_classes
+                echo 'image-in image-in--zoom-out'
+              endcapture
+            -%}
+
+            {%- style -%}
+              {{ block_selector_id }} {
+                --block-width: {{ block_width }}%;
+                --image-ratio: 0;
+                {%- if desktop_height == 'original-height' -%}
+                  --image-ratio: {{ 1 | divided_by: image_aspect_ratio | times: 100 | round: 2 | append: '%' }};
+                {%- endif %}
+              }
+
+              {% if has_image == false -%}
+                {{ block_selector_id }} .mosaic__item__content {
+                  background: {{ block_bg_color }};
+                }
+              {%- endif %}
+
+              @media screen and (max-width: 767px) {
+                {% if enable_mobile_height -%}
+                  {{ block_selector_id }} {
+                    --image-ratio: 0;
+
+                    {%- if mobile_height == 'original-height-mobile' -%}
+                      --image-ratio: {{ 1 | divided_by: image_aspect_ratio | times: 100 | round: 2 | append: '%' }};
+                    {%- endif -%}
+                  }
+                {%- else -%}
+                  {{ block_selector_id }}.original-height {
+                    --min-h: auto;
+                  }
+                {%- endif -%}
+              }
+
+              {%- if show_text_background and bg_color.alpha != 0.0 and bg_color != blank -%}
+                @media screen and (min-width: 768px) {
+                  {{ block_selector_id }} .mosaic__item__content-inner {
+                    --bg: {{ bg_color }};
+                  }
+                }
+
+                @media screen and (max-width: 767px) {
+                  {{ block_selector_id }} .mosaic__item__content-inner {
+                    {%- if text_over_image -%}
+                      --bg: {{ bg_color }};
+                    {%- else -%}
+                      --bg: transparent;
+                    {%- endif -%}
+                  }
+                }
+              {%- endif -%}
+
+              {%- if text_color.alpha != 0.0 and text_color != blank -%}
+                {{ block_selector_id }} .mosaic__item__content-inner {
+                  --text: {{ text_color }};
+
+                  {% unless text_over_image -%}
+                    @media screen and (max-width: 767px) {
+                      --text: var(--COLOR-TEXT);
+                    }
+                  {% endunless %}
+                }
+              {%- endif -%}
+            {%- endstyle -%}
+
+            {%- capture item_attributes -%}
+              id="{{ block_id }}"
+              class="mosaic__item mosaic__item--{{ forloop.index }}{% if has_image %} mosaic__item--with-image{% endif %} {{ desktop_height }}{% if enable_mobile_height %} {{ mobile_height }}{% endif %} {{ size_mobile }}{{ shimmer_item_class }}{{ hover_scale }}"
+              data-item
+              {% if animations_enabled %}
+                data-aos="image-in"
+                data-aos-anchor="{{ block_anchor }}"
+                data-aos-delay="0"
+                data-aos-watch-anchors
+                data-aos-intersection="0.4"
+              {% endif %}
+              {{ block.shopify_attributes }}
+            {%- endcapture -%}
+
+            {%- capture item_image -%}
+              <div class="mosaic__item__image {{ img_in_classes }}">
+                {%- if overlay_type == 'opacity' -%}
+                  <div class="overlay"></div>
+                {%- endif -%}
+
+                {%- liquid
+                  capture placeholder_svg
+                    case block.type
+                      when 'product'
+                        capture index
+                          cycle 1, 2, 3, 4, 5, 6
+                        endcapture
+                        echo 'product-' | append: index
+                      when 'collection'
+                        capture index
+                          cycle 1, 2, 3, 5, 6
+                        endcapture
+                        echo 'collection-' | append: index
+                      when 'image'
+                        capture index
+                          cycle 1, 2
+                        endcapture
+                        echo 'lifestyle-' | append: index
+                    endcase
+                  endcapture
+
+                  assign block_width_percent = block.settings.width | divided_by: 100.0
+
+                  assign img_width_lg = 'calc(((' | append: wrapper_width | append: ' - ' | append: desktop_space | append: 'px) * ' | append: block_width_percent | append: ') - ' | append: gutter_space | append: 'px)'
+                  assign img_width_md = 'calc(((100vw - ' | append: tablet_space | append: 'px) * ' | append: block_width_percent | append: ') - ' | append: gutter_space | append: 'px)'
+                  assign img_width_sm = 'calc(100vw - ' | append: mobile_space | append: 'px)'
+
+                  assign sizes = '(min-width: 1024px) ' | append: img_width_lg | append: ', (min-width: 768px) ' | append: img_width_md | append: ', ' | append: img_width_sm
+
+                  render 'image-fill', is_background: true, img_object: image, sizes: sizes, placeholder_svg: placeholder_svg, cover: true
+                -%}
+              </div>
+            {%- endcapture -%}
+
+            {%- if show_block -%}
+              <div {{ item_attributes }}>
+                <div class="mosaic__item__inner{% unless has_content %} mosaic__item__inner--no-content{% endunless %}">
+                  {%- if image_link -%}
+                    <a href="{{ button_1_link }}" class="mosaic__item__image__link">
+                  {%- endif -%}
+
+                  {%- if has_image -%}
+                    {{ item_image }}
+                  {%- endif -%}
+
+                  <div class="mosaic__item__content {{ text_position_class }}{% if button_1_link == blank %} mosaic__item__content--nolink{% endif %}">
+                    <div
+                      id="{{ content_inner_id }}"
+                      class="mosaic__item__content-inner{% if show_text_background %} text-background{% endif %}"
+                      {% if animations_enabled %}
+                        data-aos="hero"
+                        data-aos-anchor="{{ content_inner_anchor }}"
+                        data-aos-order="{{ forloop.index }}"
+                        data-aos-intersection="0"
+                        data-item-content-inner
+                      {% endif %}
+                    >
+                      {%- if subheading != blank -%}
+                        <p class="mosaic__item__subheading subheading-text">{{ subheading }}</p>
+                      {%- endif -%}
+
+                      {%- if heading != blank -%}
+                        <h3
+                          class="mosaic__item__heading h2"
+                          {% if animations_enabled %}
+                            data-aos="heading"
+                            data-aos-anchor="{{ content_inner_anchor }}"
+                            data-aos-order="{{ forloop.index | plus: 3 }}"
+                            data-aos-intersection="0"
+                          {% endif %}
+                        >
+                          {{ heading }}
+                        </h3>
+                      {%- endif -%}
+
+                      {%- if text != blank -%}
+                        <div class="mosaic__item__text p">
+                          {{- text -}}
+                        </div>
+                      {%- endif -%}
+
+                      {%- if price != blank -%}
+                        <div class="mosaic__item__price p">
+                          {{- price -}}
+                        </div>
+                      {%- endif -%}
+
+                      {%- if button_1_text != blank or button_2_text != blank -%}
+                        <div class="mosaic__item__buttons">
+                          {%- if button_1_text != blank and button_1_link != blank -%}
+                            <a
+                              href="{{ button_1_link }}"
+                              class="mosaic__item__btn btn {{ button_1_style }} {{ button_1_size }} {{ button_1_color }} {{ button_1_advanced_class }}"
+                            >
+                              <hover-button></hover-button>
+                              {{- button_1_text -}}
+                            </a>
+                          {%- elsif button_1_text != blank -%}
+                            <span class="mosaic__item__btn btn {{ button_1_style }} {{ button_1_size }} {{ button_1_color }} {{ button_1_advanced_class }}">
+                              <hover-button></hover-button>
+                              {{- button_1_text -}}
+                            </span>
+                          {%- endif -%}
+
+                          {%- if button_2_text != blank and button_2_link != blank -%}
+                            <a
+                              href="{{ button_2_link }}"
+                              class="mosaic__item__btn btn {{ button_2_style }} {{ button_2_size }} {{ button_2_color }} {{ button_2_advanced_class }}"
+                            >
+                              <hover-button></hover-button>
+                              {{- button_2_text -}}
+                            </a>
+                          {%- elsif button_2_text != blank -%}
+                            <span class="mosaic__item__btn btn {{ button_2_style }} {{ button_2_size }} {{ button_2_color }} {{ button_2_advanced_class }}">
+                              <hover-button></hover-button>
+                              {{- button_2_text -}}
+                            </span>
+                          {%- endif -%}
+                        </div>
+                      {%- endif -%}
+                    </div>
+                  </div>
+
+                  {%- if image_link -%}
+                    </a>
+                  {%- endif -%}
+                </div>
+              </div>
+            {%- endif -%}
+          {%- endfor -%}
+        </div>
+      {%- else -%}
+        {%- render 'no-blocks' -%}
+      {%- endif -%}
+    </div>
+  </mosaic-component>
+</section>

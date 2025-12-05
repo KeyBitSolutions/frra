@@ -1,0 +1,121 @@
+{%- liquid
+  assign collections_list = settings.empty_cart_collection_list
+  assign empty_cart_collection_columns = settings.empty_cart_collection_columns | plus: 0
+  assign empty_cart_collection_size = settings.empty_cart_collection_size | times: 0.01
+  assign text_over_image = settings.empty_cart_collection_overlay
+  assign animation_order = animation_order | default: 1
+  assign overlay_type = settings.empty_cart_collection_overlay_type
+  assign override_overlay_colors = settings.empty_cart_override_overlay_colors
+  assign show_text_background = settings.empty_cart_show_text_background
+  assign bg_color = settings.empty_cart_bg_color
+  assign text_color = settings.empty_cart_text_color
+
+  capture collection_width
+    case empty_cart_collection_columns
+      when 1
+        echo 'one-whole'
+      when 2
+        echo 'one-half'
+    endcase
+  endcapture
+
+  capture collection_title_class
+    case empty_cart_collection_columns
+      when 1
+        if text_over_image
+          echo ' h2'
+        else
+          echo ' h3'
+        endif
+      when 2
+        echo ' h4'
+    endcase
+  endcapture
+
+  assign has_text_background = false
+  if text_over_image and override_overlay_colors and show_text_background
+    assign has_text_background = true
+  endif
+-%}
+
+{% if text_over_image and override_overlay_colors %}
+  {% if show_text_background and bg_color.alpha != 0.0 and bg_color != blank -%}
+    {%- style -%}
+      .cart-collection__title {
+        --bg: {{ bg_color }};
+      }
+    {%- endstyle -%}
+  {%- endif -%}
+
+  {%- if text_color.alpha != 0.0 and text_color != blank -%}
+    {%- style -%}
+      .cart-collection__title {
+        --text: {{ text_color }};
+      }
+    {%- endstyle -%}
+  {%- endif -%}
+{% endif %}
+
+{%- if collections_list.count > 0 -%}
+  <div class="cart-collections">
+    <div class="cart-collections__inner">
+      {% for collection in collections_list %}
+        {%- liquid
+          assign collection_image = collection.image | default: collection.products.first.featured_media.preview_image | default: false
+
+          unless collection_image == false
+            assign image_alt = collection_image.alt | default: collection.title | strip_html | escape
+          endunless
+
+          assign metafield_image = collection.metafields.theme.empty_cart_collection_image
+          if metafield_image != blank
+            assign collection_image = metafield_image.value.src
+            assign image_alt = metafield_image.value.alt
+          endif
+
+          assign img_width_md = 'calc(400px - 2 * 5px)'
+          assign img_width_sm = 'calc(100vw - 2 * 20px)'
+          if empty_cart_collection_columns == 2
+            assign img_width_md = 'calc((400px - 2 * 5px) / 2)'
+            assign img_width_sm = 'calc((100vw - 2 * 20px - 2 * 5px) / 2)'
+          endif
+          assign sizes = '(min-width: 480px) ' | append: img_width_md | append: ', ' | append: img_width_sm
+        -%}
+
+        <div class="cart-collection hover-scale {{ collection_width }}{% if text_over_image %} cart-collection--overlay-text{% endif %}">
+          <a
+            href="{{ collection.url }}"
+            title="{{ collection.title | strip_html | escape }}"
+            class="cart-collection__link"
+            {% if animations_enabled %}
+              data-aos="hero"
+              data-aos-anchor="{{ aos_anchor }}"
+              data-aos-order="{{ animation_order }}"
+              {%- assign animation_order = animation_order | plus: 1 -%}
+            {% endif %}
+          >
+            {% if text_over_image and overlay_type == 'opacity' %}
+              <div class="overlay"></div>
+            {% endif %}
+
+            <div class="cart-collection__image">
+              {%- render 'image-fill',
+                is_background: true,
+                img_object: collection_image,
+                alt: image_alt,
+                sizes: sizes
+              -%}
+            </div>
+
+            <div
+              class="cart-collection__title{{ collection_title_class }}{% if has_text_background %} text-background{% endif %}"
+              style="--adjust-heading: calc(var(--FONT-ADJUST-HEADING) * {{ empty_cart_collection_size }});"
+            >
+              {{- collection.title -}}
+            </div>
+          </a>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+{%- endif -%}

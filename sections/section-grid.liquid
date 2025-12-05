@@ -1,0 +1,734 @@
+{% render 'grid-layout', section: section %}
+
+{% schema %}
+{
+  "name": "Grid",
+  "class": "shopify-section--mosaic",
+  "max_blocks": 6,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "desktop_height",
+      "label": "Desktop height",
+      "default": "five-fifty-height",
+      "options": [
+        {"value": "full-height", "label": "Full screen"},
+        {"value": "seven-fifty-height", "label": "750px"},
+        {"value": "six-fifty-height", "label": "650px"},
+        {"value": "five-fifty-height", "label": "550px"},
+        {"value": "four-fifty-height", "label": "450px"},
+        {"value": "three-fifty-height", "label": "350px"},
+        {"value": "two-fifty-height", "label": "250px"},
+        {"value": "original-height", "label": "Image height"}
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_mobile_height",
+      "label": "Enable mobile height",
+      "default": false
+    },
+    {
+      "type": "select",
+      "id": "mobile_height",
+      "label": "Mobile height",
+      "default": "four-fifty-height-mobile",
+      "options": [
+        {"value": "full-height-mobile", "label": "Full screen"},
+        {"value": "seven-fifty-height-mobile", "label": "750px"},
+        {"value": "six-fifty-height-mobile", "label": "650px"},
+        {"value": "five-fifty-height-mobile", "label": "550px"},
+        {"value": "four-fifty-height-mobile", "label": "450px"},
+        {"value": "three-fifty-height-mobile", "label": "350px"},
+        {"value": "two-fifty-height-mobile", "label": "250px"},
+        {"value": "original-height-mobile", "label": "Image height"}
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Text"
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "label": "Heading size",
+      "default": 130,
+      "min": 50,
+      "max": 200,
+      "step": 10,
+      "unit": "%"
+    },
+    {
+      "type": "range",
+      "id": "text_size",
+      "label": "Text size",
+      "default": 100,
+      "min": 70,
+      "max": 150,
+      "step": 10,
+      "unit": "%"
+    },
+    {
+      "type": "header",
+      "content": "Buttons"
+    },
+    {
+      "type": "select",
+      "id": "button_1_color",
+      "label": "Button color",
+      "default": "btn--white",
+      "options": [
+        {"label": "Primary", "value": "btn--primary"},
+        {"label": "Secondary", "value": "btn--secondary"},
+        {"label": "White", "value": "btn--white"},
+        {"label": "Black", "value": "btn--black"}
+      ]
+    },
+    {
+      "type": "select",
+      "id": "button_1_style",
+      "label": "Button style",
+      "default": "btn--text",
+      "options": [
+        {"label": "Solid", "value": "btn--solid"},
+        {"label": "Outline", "value": "btn--outline"},
+        {"label": "Solid with border", "value": "btn--solid-border"},
+        {"label": "Soft", "value": "btn--soft"},
+        {"label": "Text", "value": "btn--text"}
+      ]
+    },
+    {
+      "type": "select",
+      "id": "button_1_size",
+      "label": "Size",
+      "default": "btn--medium",
+      "options": [
+        {"label": "Small", "value": "btn--small"},
+        {"label": "Medium", "value": "btn--medium"},
+        {"label": "Large", "value": "btn--large"}
+      ]
+    },
+    {
+      "type": "select",
+      "id": "button_2_color",
+      "label": "Secondary button color",
+      "default": "btn--black",
+      "options": [
+        {"label": "Primary", "value": "btn--primary"},
+        {"label": "Secondary", "value": "btn--secondary"},
+        {"label": "White", "value": "btn--white"},
+        {"label": "Black", "value": "btn--black"}
+      ]
+    },
+    {
+      "type": "select",
+      "id": "button_2_style",
+      "label": "Button style",
+      "default": "btn--text",
+      "options": [
+        {"label": "Solid", "value": "btn--solid"},
+        {"label": "Outline", "value": "btn--outline"},
+        {"label": "Solid with border", "value": "btn--solid-border"},
+        {"label": "Soft", "value": "btn--soft"},
+        {"label": "Text", "value": "btn--text"}
+      ]
+    },
+    {
+      "type": "select",
+      "id": "button_2_size",
+      "label": "Size",
+      "default": "btn--medium",
+      "options": [
+        {"label": "Small", "value": "btn--small"},
+        {"label": "Medium", "value": "btn--medium"},
+        {"label": "Large", "value": "btn--large"}
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "color",
+      "id": "overlayed_text",
+      "label": "Overlayed text",
+      "default": "#ffffff",
+      "alpha": true
+    },
+    {
+      "type": "header",
+      "content": "Mobile"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_slider_mobile",
+      "label": "Enable slider",
+      "default": true,
+      "info": "Horizontal slider in mobile layout."
+    },
+    {
+      "type": "select",
+      "id": "columns_mobile",
+      "label": "Items per row",
+      "default": "1",
+      "options": [
+        {"label": "1", "value": "1"},
+        {"label": "2", "value": "2"}
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "overlay_text",
+      "label": "Overlay text on images",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Section spacing"
+    },
+    {
+      "type": "select",
+      "id": "width",
+      "label": "Width",
+      "default": "wrapper",
+      "options": [
+        {"value": "wrapper--full", "label": "Full width"},
+        {"value": "wrapper--full-padded", "label": "Full width padded"},
+        {"value": "wrapper", "label": "Page width"},
+        {"value": "wrapper--narrow", "label": "Page width narrow"}
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "add_gutter",
+      "label": "Add spacing",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "label": "Padding top",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "label": "Padding bottom",
+      "default": 60
+    }
+  ],
+  "blocks": [
+    {
+      "type": "collection",
+      "name": "Collection",
+      "settings": [
+        {
+          "type": "header",
+          "content": "Layout"
+        },
+        {
+          "type": "select",
+          "id": "width",
+          "label": "Width",
+          "default": "33.33",
+          "options": [
+            {"label": "25%", "value": "25"},
+            {"label": "33%", "value": "33.33"},
+            {"label": "50%", "value": "50"},
+            {"label": "66%", "value": "66.66"},
+            {"label": "100%", "value": "100"}
+          ]
+        },
+        {
+          "type": "collection",
+          "id": "collection",
+          "label": "Collection"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Replacement image"
+        },
+        {
+          "type": "select",
+          "id": "overlay_type",
+          "label": "Overlay type",
+          "default": "disabled",
+          "options": [
+            {"value": "disabled", "label": "Disabled"},
+            {"value": "opacity", "label": "Opacity overlay"}
+          ]
+        },
+        {
+          "type": "header",
+          "content": "Text"
+        },
+        {
+          "type": "select",
+          "id": "text_position",
+          "label": "Content position",
+          "default": "center",
+          "options": [
+            {"value": "left", "label": "Left"},
+            {"value": "center", "label": "Center"},
+            {"value": "right", "label": "Right"},
+            {"value": "bottom-left", "label": "Bottom left"},
+            {"value": "bottom-center", "label": "Bottom center"},
+            {"value": "bottom-right", "label": "Bottom right"},
+            {"value": "top-left", "label": "Top left"},
+            {"value": "top-center", "label": "Top center"},
+            {"value": "top-right", "label": "Top right"}
+          ]
+        },
+        {
+          "type": "text",
+          "id": "subheading",
+          "label": "Subheading"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_description",
+          "label": "Show description",
+          "default": true
+        },
+        {
+          "type": "header",
+          "content": "Buttons"
+        },
+        {
+          "type": "text",
+          "id": "button_1_text",
+          "label": "Button text",
+          "default": "Shop Now"
+        },
+        {
+          "type": "header",
+          "content": "Colors"
+        },
+        {
+          "type": "paragraph",
+          "content": "Overrides color scheme. Set to Transparent to revert back to using color schemes."
+        },
+        {
+          "type": "checkbox",
+          "id": "show_text_background",
+          "label": "Show text background",
+          "default": false
+        },
+        {
+          "type": "color",
+          "id": "bg_color",
+          "label": "Background",
+          "alpha": true
+        },
+        {
+          "type": "color",
+          "id": "text_color",
+          "label": "Text",
+          "alpha": true
+        }
+      ]
+    },
+    {
+      "type": "product",
+      "name": "Product",
+      "settings": [
+        {
+          "type": "header",
+          "content": "Layout"
+        },
+        {
+          "type": "select",
+          "id": "width",
+          "label": "Width",
+          "default": "33.33",
+          "options": [
+            {"label": "25%", "value": "25"},
+            {"label": "33%", "value": "33.33"},
+            {"label": "50%", "value": "50"},
+            {"label": "66%", "value": "66.66"},
+            {"label": "100%", "value": "100"}
+          ]
+        },
+        {
+          "type": "product",
+          "id": "product",
+          "label": "Product"
+        },
+        {
+          "type": "select",
+          "id": "overlay_type",
+          "label": "Overlay type",
+          "default": "disabled",
+          "options": [
+            {"value": "disabled", "label": "Disabled"},
+            {"value": "opacity", "label": "Opacity overlay"}
+          ]
+        },
+        {
+          "type": "header",
+          "content": "Text"
+        },
+        {
+          "type": "select",
+          "id": "text_position",
+          "label": "Content position",
+          "default": "center",
+          "options": [
+            {"value": "left", "label": "Left"},
+            {"value": "center", "label": "Center"},
+            {"value": "right", "label": "Right"},
+            {"value": "bottom-left", "label": "Bottom left"},
+            {"value": "bottom-center", "label": "Bottom center"},
+            {"value": "bottom-right", "label": "Bottom right"},
+            {"value": "top-left", "label": "Top left"},
+            {"value": "top-center", "label": "Top center"},
+            {"value": "top-right", "label": "Top right"}
+          ]
+        },
+        {
+          "type": "text",
+          "id": "subheading",
+          "label": "Subheading"
+        },
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Text"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_price",
+          "label": "Show price",
+          "default": true
+        },
+        {
+          "type": "header",
+          "content": "Buttons"
+        },
+        {
+          "type": "text",
+          "id": "button_1_text",
+          "label": "Button text",
+          "default": "Shop Now"
+        },
+        {
+          "type": "header",
+          "content": "Colors"
+        },
+        {
+          "type": "paragraph",
+          "content": "Overrides color scheme. Set to Transparent to revert back to using color schemes."
+        },
+        {
+          "type": "checkbox",
+          "id": "show_text_background",
+          "label": "Show text background",
+          "default": false
+        },
+        {
+          "type": "color",
+          "id": "bg_color",
+          "label": "Background",
+          "alpha": true
+        },
+        {
+          "type": "color",
+          "id": "text_color",
+          "label": "Text",
+          "alpha": true
+        }
+      ]
+    },
+    {
+      "type": "image",
+      "name": "Image",
+      "settings": [
+        {
+          "type": "header",
+          "content": "Layout"
+        },
+        {
+          "type": "select",
+          "id": "width",
+          "label": "Width",
+          "default": "33.33",
+          "options": [
+            {"label": "25%", "value": "25"},
+            {"label": "33%", "value": "33.33"},
+            {"label": "50%", "value": "50"},
+            {"label": "66%", "value": "66.66"},
+            {"label": "100%", "value": "100"}
+          ]
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "select",
+          "id": "overlay_type",
+          "label": "Overlay type",
+          "default": "disabled",
+          "options": [
+            {"value": "disabled", "label": "Disabled"},
+            {"value": "opacity", "label": "Opacity overlay"}
+          ]
+        },
+        {
+          "type": "header",
+          "content": "Text"
+        },
+        {
+          "type": "select",
+          "id": "text_position",
+          "label": "Content position",
+          "default": "center",
+          "options": [
+            {"value": "left", "label": "Left"},
+            {"value": "center", "label": "Center"},
+            {"value": "right", "label": "Right"},
+            {"value": "bottom-left", "label": "Bottom left"},
+            {"value": "bottom-center", "label": "Bottom center"},
+            {"value": "bottom-right", "label": "Bottom right"},
+            {"value": "top-left", "label": "Top left"},
+            {"value": "top-center", "label": "Top center"},
+            {"value": "top-right", "label": "Top right"}
+          ]
+        },
+        {
+          "type": "text",
+          "id": "subheading",
+          "label": "Subheading"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Heading",
+          "default": "Image"
+        },
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Description",
+          "default": "Add more info or delete this text"
+        },
+        {
+          "type": "header",
+          "content": "Buttons"
+        },
+        {
+          "type": "text",
+          "id": "button_1_text",
+          "label": "Button text",
+          "info": "Leave blank to link entire block",
+          "default": "Shop Now"
+        },
+        {
+          "type": "url",
+          "id": "button_1_link",
+          "label": "Button link"
+        },
+        {
+          "type": "text",
+          "id": "button_2_text",
+          "label": "Second button text"
+        },
+        {
+          "type": "url",
+          "id": "button_2_link",
+          "label": "Second button link"
+        },
+        {
+          "type": "header",
+          "content": "Colors"
+        },
+        {
+          "type": "paragraph",
+          "content": "Overrides color scheme. Set to Transparent to revert back to using color schemes."
+        },
+        {
+          "type": "checkbox",
+          "id": "show_text_background",
+          "label": "Show text background",
+          "default": false
+        },
+        {
+          "type": "color",
+          "id": "bg_color",
+          "label": "Background",
+          "alpha": true
+        },
+        {
+          "type": "color",
+          "id": "text_color",
+          "label": "Text",
+          "alpha": true
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "Text",
+      "settings": [
+        {
+          "type": "header",
+          "content": "Layout"
+        },
+        {
+          "type": "select",
+          "id": "width",
+          "label": "Width",
+          "default": "33.33",
+          "options": [
+            {"label": "25%", "value": "25"},
+            {"label": "33%", "value": "33.33"},
+            {"label": "50%", "value": "50"},
+            {"label": "66%", "value": "66.66"},
+            {"label": "100%", "value": "100"}
+          ]
+        },
+        {
+          "type": "header",
+          "content": "Text"
+        },
+        {
+          "type": "select",
+          "id": "text_position",
+          "label": "Content position",
+          "default": "center",
+          "options": [
+            {"value": "left", "label": "Left"},
+            {"value": "center", "label": "Center"},
+            {"value": "right", "label": "Right"},
+            {"value": "bottom-left", "label": "Bottom left"},
+            {"value": "bottom-center", "label": "Bottom center"},
+            {"value": "bottom-right", "label": "Bottom right"},
+            {"value": "top-left", "label": "Top left"},
+            {"value": "top-center", "label": "Top center"},
+            {"value": "top-right", "label": "Top right"}
+          ]
+        },
+        {
+          "type": "text",
+          "id": "subheading",
+          "label": "Subheading"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Heading",
+          "default": "Text"
+        },
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Description",
+          "default": "Add more info or delete this text"
+        },
+        {
+          "type": "header",
+          "content": "Buttons"
+        },
+        {
+          "type": "text",
+          "id": "button_1_text",
+          "label": "Button text",
+          "default": "Shop Now",
+          "info": "Leave blank to link entire block"
+        },
+        {
+          "type": "url",
+          "id": "button_1_link",
+          "label": "Button link"
+        },
+        {
+          "type": "text",
+          "id": "button_2_text",
+          "label": "Second button text"
+        },
+        {
+          "type": "url",
+          "id": "button_2_link",
+          "label": "Second button link"
+        },
+        {
+          "type": "header",
+          "content": "Colors"
+        },
+        {
+          "type": "color",
+          "id": "block_bg_color",
+          "label": "Background",
+          "default": "#cfcfcf",
+          "alpha": true
+        },
+        {
+          "type": "color",
+          "id": "text_color",
+          "label": "Text",
+          "alpha": true
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Grid",
+      "category": "Storytelling",
+      "blocks": [
+        {
+          "type": "image",
+          "settings": {
+            "title": "Trending",
+            "width": "100"
+          }
+        },
+        {
+          "type": "image",
+          "settings": {
+            "title": "Clearance",
+            "width": "33.33"
+          }
+        },
+        {
+          "type": "image",
+          "settings": {
+            "title": "Best Sellers",
+            "width": "33.33"
+          }
+        },
+        {
+          "type": "image",
+          "settings": {
+            "title": "New Arrivals",
+            "width": "33.33"
+          }
+        }
+      ]
+    }
+  ],
+  "disabled_on": {
+    "groups": ["header", "aside", "footer"]
+  }
+}
+{% endschema %}

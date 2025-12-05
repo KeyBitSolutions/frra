@@ -1,0 +1,186 @@
+{%- liquid
+  assign subheading = section.settings.subheading
+  assign heading = section.settings.title
+  assign color_scheme = 'color-' | append: section.settings.color_scheme
+  assign animations_enabled = settings.animations_enabled
+  assign animation_anchor = '#Locations--' | append: section.id
+  assign animation_delay = 150
+
+  comment
+    Images sizes
+  endcomment
+  # Desktop widths
+  assign wrapper_width_lg = '(1440px - 120px)'
+  assign img_width_lg = 'calc(' | append: wrapper_width_lg | append: ' / 2)'
+  # Tablet widths
+  assign wrapper_width_md = '(100vw - 2 * 20px)'
+  assign img_width_md = 'calc(' | append: wrapper_width_md | append: ' / 2)'
+  # Mobile widths
+  assign img_width_sm = 'calc(' | append: wrapper_width_md | append: ')'
+
+  assign sizes = '(min-width: 1024px) ' | append: img_width_lg | append: ', (min-width: 768px) ' | append: img_width_md | append: ', ' | append: img_width_sm
+-%}
+
+<link
+  href="{{ 'section-locations.css' | asset_url }}"
+  rel="preload"
+  as="style"
+  onload="this.onload=null;this.rel='stylesheet'"
+>
+
+<script src="{{ 'locations-component.js' | asset_url }}" defer></script>
+
+{%- if request.design_mode -%}
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.locationsBlockSelectHandlerAttached) return;
+      window.locationsBlockSelectHandlerAttached = true;
+
+      document.addEventListener('shopify:block:select', (event) => {
+        const target = event.target;
+        const locations = target.closest('locations-component');
+
+        if (!locations) return;
+        const index = parseInt([...target.parentNode.children].indexOf(target));
+        const sliderNav = locations.querySelector('[data-slider-info]');
+        const slider = locations.querySelector('[data-slider-gallery]');
+        const flktyNav = (window.theme.Flickity && window.theme.Flickity.data(sliderNav)) || null;
+        const flkty = (window.theme.Flickity && window.theme.Flickity.data(slider)) || null;
+
+        if (flktyNav !== null && flktyNav.isActive) {
+          flktyNav.select(index);
+        }
+
+        if (flkty !== null && flkty.isActive) {
+          flkty.select(index);
+        }
+      });
+    });
+  </script>
+{%- endif -%}
+
+{%- style -%}
+  #Locations--{{ section.id }} {
+    --PT: {{ section.settings.padding_top }}px;
+    --PB: {{ section.settings.padding_bottom }}px;
+  }
+{%- endstyle -%}
+
+<section id="Locations--{{ section.id }}" class="section-padding locations {{ color_scheme }}">
+  <locations-component>
+    <div class="wrapper locations__wrapper">
+      <div class="locations__info">
+        {%- if subheading != blank or heading != blank -%}
+          <div class="section__header text-left">
+            {%- if subheading != blank -%}
+              <p
+                class="locations__info-subheading subheading-text"
+                {% if animations_enabled %}
+                  data-aos="fade-up"
+                  data-aos-anchor="{{ animation_anchor }}"
+                  data-aos-delay="{{ animation_delay }}"
+                  {%- assign animation_delay = animation_delay | plus: 150 -%}
+                {% endif %}
+              >
+                {{ subheading }}
+              </p>
+            {% endif %}
+
+            {%- if heading != blank -%}
+              <h2
+                class="locations__info-heading"
+                {% if animations_enabled %}
+                  data-aos="fade-up"
+                  data-aos-anchor="{{ animation_anchor }}"
+                  data-aos-delay="{{ animation_delay }}"
+                  {%- assign animation_delay = animation_delay | plus: 150 -%}
+                {% endif %}
+              >
+                {{ heading }}
+              </h2>
+              {%- if settings.show_spacer_lines -%}
+                <hr
+                  class="section__heading-line"
+                  {% if animations_enabled %}
+                    data-aos="fade-up"
+                    data-aos-anchor="{{ animation_anchor }}"
+                    data-aos-delay="{{ animation_delay }}"
+                    {%- assign animation_delay = animation_delay | plus: 150 -%}
+                  {% endif %}
+                >
+              {%- endif -%}
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+
+        <div
+          class="locations__stores"
+          data-slider-info
+          {% if animations_enabled %}
+            data-aos="fade-up"
+            data-aos-anchor="{{ animation_anchor }}"
+            data-aos-delay="{{ animation_delay }}"
+            {%- assign animation_delay = 150 -%}
+          {% endif %}
+        >
+          {%- if section.blocks.size > 0 -%}
+            {%- for block in section.blocks -%}
+              <div class="location__store" {{ block.shopify_attributes }} data-slide-item>
+                {%- if block.settings.title != blank -%}
+                  <h3 class="location__address h4">{{ block.settings.title }}</h3>
+                {%- endif -%}
+
+                {%- if block.settings.working_time != blank -%}
+                  {{- block.settings.working_time -}}
+                {%- endif -%}
+              </div>
+            {%- endfor -%}
+          {%- else -%}
+            {%- for i in (1..3) -%}
+              <div class="location__store" data-slide-item>
+                <h3 class="location__address h4">{{ 'homepage.onboarding.locations.address' | t }}</h3>
+
+                {{ 'homepage.onboarding.locations.working_hours_html' | t }}
+              </div>
+            {%- endfor -%}
+          {%- endif -%}
+        </div>
+      </div>
+
+      {%- if section.blocks.size > 0 -%}
+        <div
+          class="locations__gallery"
+          data-slider-gallery
+          {% if animations_enabled %}
+            data-aos="fade"
+            data-aos-anchor="{{ animation_anchor }}"
+            data-aos-delay="{{ animation_delay }}"
+          {% endif %}
+        >
+          {%- for block in section.blocks -%}
+            {%- render 'image-fill',
+              img_object: block.settings.image,
+              sizes: sizes,
+              aspect_ratio: 1,
+              classes: 'location__image'
+            -%}
+          {%- endfor -%}
+        </div>
+      {%- else -%}
+        <div
+          class="locations__gallery"
+          data-slider-gallery
+          {% if animations_enabled %}
+            data-aos="fade"
+            data-aos-anchor="{{ animation_anchor }}"
+            data-aos-delay="{{ animation_delay }}"
+          {% endif %}
+        >
+          {%- for i in (1..3) -%}
+            {%- render 'image-fill', img_object: '', aspect_ratio: 1, classes: 'location__image' -%}
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+    </div>
+  </locations-component>
+</section>

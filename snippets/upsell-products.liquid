@@ -1,0 +1,136 @@
+{%- liquid
+  assign upsell_products = upsell_products | strip_newlines | split: ','
+  assign unique = unique | default: section.id
+  assign button_style = settings.upsells_button_style | default: 'btn--solid-border'
+  assign button_color = settings.upsells_button_color | default: 'btn--secondary'
+  assign button_size = settings.upsells_button_size | default: 'btn--medium'
+
+  assign button_advanced_class = 'btn--advanced'
+  if button_style != 'btn--text'
+    assign button_advanced_class = button_advanced_class | append: ' btn--advanced-width-height btn--advanced-adaptive-width'
+  endif
+-%}
+
+{%- for product_handle in upsell_products -%}
+  {%- liquid
+    assign upsell_product = all_products[product_handle]
+    assign upsell_form_id = 'upsellForm--' | append: unique | append: '--' | append: upsell_product.id
+    assign upsell_button_id = 'upsellButton--' | append: unique | append: '--' | append: upsell_product.id
+    assign upsell_link = upsell_product.url | default: '#!'
+    assign upsell_variant = upsell_product.selected_or_first_available_variant
+    assign upsell_variant_image = upsell_variant.featured_media | default: upsell_product.media[0]
+
+    if upsell_product.title == '' or upsell_variant == null
+      assign upsell_error = true
+    endif
+  -%}
+
+  {%- unless upsell_error -%}
+    {%- capture product_info_price -%}
+      <p class="product-upsell__price">
+        {%- render 'product-price', product: upsell_product, namespace: 'product-upsell' -%}
+      </p>
+    {%- endcapture -%}
+    <div class="product-upsell__holder product-upsell__holder--cart" data-upsell-holder>
+      <div class="product-upsell">
+        <a
+          class="product-upsell__image"
+          href="{{ upsell_link }}"
+          aria-label="{{ upsell_product.title | strip_html | escape }}"
+        >
+          {%- liquid
+            assign image = upsell_variant_image.preview_image
+            assign image_alt = image.alt | escape | default: upsell_product.title
+
+            comment
+              Images sizes
+            endcomment
+            assign image_widths = '200, 225, 250, 275, 300, 325, 350, 375, 400, 425, 450, 475, 500, 525, 550, 575, 600, 625, 650, 675, 700, 725, 750, 775, 800, 840'
+
+            # Desktop widths
+            assign settings_width = settings.upsells_image_width | divided_by: 100.0
+            assign img_width_lg = 'calc((400px - 2 * 20px - 2 * 12px) * ' | append: settings_width | append: ')'
+            assign img_width_sm = 'calc((100vw - 2 * 20px - 2 * 12px) * ' | append: settings_width | append: ')'
+            assign sizes = '(min-width: 480px) ' | append: img_width_lg | append: ', ' | append: img_width_sm
+
+            if template.name == 'cart'
+              assign img_width_lg = 'calc((350px - 2 * 12px) * ' | append: settings_width | append: ')'
+              assign img_width_md = 'calc((280px - 2 * 12px) * ' | append: settings_width | append: ')'
+              assign sizes = '(min-width: 1024px) ' | append: img_width_lg | append: ', (min-width: 768px) ' | append: img_width_md | append: ', ' | append: img_width_sm
+            endif
+
+            render 'image-fill', is_background: true, img_object: image, widths: image_widths, sizes: sizes, placeholder_svg: 'product-apparel-1', alt: image_alt
+          -%}
+        </a>
+
+        <div class="product-upsell__content">
+          <p class="product-upsell__subtitle">{{ 'general.upsell.pair_products' | t }}</p>
+
+          <div class="product-upsell__row">
+            <p class="product-upsell__title h3">
+              <a href="{{ upsell_link }}">{{ upsell_product.title | strip_html | escape }}</a>
+            </p>
+
+            {{ product_info_price }}
+          </div>
+
+          {%- if upsell_product.variants.size == 1 -%}
+            {%- form 'product', upsell_product, data-product-form-upsell: '', id: upsell_form_id -%}
+              <input type="hidden" name="id" value="{{ upsell_product.first_available_variant.id }}">
+
+              <button
+                type="button"
+                name="add"
+                class="product-upsell__btn btn {{ button_style }} {{ button_size }} {{ button_color }} {{ button_advanced_class }}"
+                id="{{ upsell_button_id }}"
+                data-add-to-cart
+                data-upsell-btn
+                data-handle="{{ upsell_product.handle }}"
+              >
+                <quick-add-button></quick-add-button>
+                <hover-button></hover-button>
+                <span class="product-upsell__btn-hidden" data-upsell-btn-text>
+                  {{ 'general.upsell.add_to_cart' | t }}
+                </span>
+
+                <span class="product-upsell__btn-text">
+                  {{ 'general.upsell.add_to_cart' | t }}
+                </span>
+
+                <span class="product-upsell__btn-progress">
+                  <svg height="18" width="18" class="svg-loader">
+                    <circle r="7" cx="9" cy="9" />
+                    <circle stroke-dasharray="87.96459430051421 87.96459430051421" r="7" cx="9" cy="9" />
+                  </svg>
+                </span>
+
+                <span class="product-upsell__btn-check">&nbsp;</span>
+              </button>
+            {%- endform -%}
+          {%- else -%}
+            <a
+              class="product-upsell__btn btn {{ button_style }} {{ button_size }} {{ button_color }} {{ button_advanced_class }}"
+              href="{{ upsell_link }}"
+              data-handle="{{ upsell_product.handle }}"
+              data-button-quick-view
+            >
+              <quick-view-button></quick-view-button>
+              <hover-button></hover-button>
+              <span class="product-upsell__btn-text">{{ 'general.upsell.quick_view' | t }}</span>
+              <span class="product-upsell__btn-progress">
+                <svg height="18" width="18" class="svg-loader">
+                  <circle r="7" cx="9" cy="9" />
+                  <circle stroke-dasharray="87.96459430051421 87.96459430051421" r="7" cx="9" cy="9" />
+                </svg>
+              </span>
+
+              <span class="product-upsell__btn-check">&nbsp;</span>
+            </a>
+          {%- endif -%}
+
+          <div data-cart-errors-container role="alert" class="product-upsell__errors"></div>
+        </div>
+      </div>
+    </div>
+  {%- endunless -%}
+{%- endfor -%}

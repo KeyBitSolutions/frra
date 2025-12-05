@@ -1,0 +1,67 @@
+/*================ "Image with title" ================*/
+.banner {
+  position: relative;
+  overflow: hidden;
+}
+.banner .wrapper--narrow {
+  width: 100%;
+  max-width: var(--site-width-narrow);
+}
+@media only screen and (max-width: 767px) {
+  .banner .collection__header hr {
+    margin-top: 25px;
+    margin-bottom: 25px;
+  }
+}
+.banner .collection__title,
+.banner .collection__description {
+  color: inherit;
+}
+.banner .collection__description {
+  width: auto;
+}
+
+.banner--collection {
+  background: var(--bg);
+}
+
+.banner-inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  position: relative;
+}
+
+.banner-content {
+  width: 100%;
+  padding-top: var(--gutter);
+  padding-bottom: var(--gutter);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.align--middle-left .banner-content, .align--bottom-left .banner-content {
+  justify-content: flex-start;
+}
+.align--middle-right .banner-content, .align--bottom-right .banner-content {
+  justify-content: flex-end;
+}
+.align--bottom-left .banner-content, .align--bottom-right .banner-content {
+  align-items: flex-end;
+}
+
+.banner__image-container {
+  padding-top: var(--container-padding-top, 0);
+}
+
+.banner__image-container,
+.banner-content {
+  grid-row-start: 1;
+  grid-column-start: 1;
+  min-height: 100%;
+}
+@media only screen and (max-width: 767px) and (orientation: landscape) {
+  .banner__image-container,
+  .banner-content {
+    min-height: auto;
+  }
+}

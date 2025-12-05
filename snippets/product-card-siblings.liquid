@@ -1,0 +1,115 @@
+<!-- /snippets/product-card-siblings.liquid -->
+
+{%- liquid
+  assign animation_attributes = animation_attributes | default: ''
+  assign show_siblings_images = settings.show_siblings_images
+
+  capture swatch_class
+    echo 'siblings__swatch'
+    case settings.color_swatches_product_style
+      when 'circle'
+        echo ' siblings__swatch--circle'
+      when 'rectangle'
+        echo ' siblings__swatch--rectangle'
+    endcase
+
+    unless show_siblings_images
+      echo ' siblings__swatch--colors'
+    else
+      echo ' siblings__swatch--image'
+    endunless
+  endcapture
+-%}
+
+{%- for entry in metaobjects[settings.theme_siblings].values -%}
+  {%- assign sibling_products = entry.product_list.value -%}
+  {%- assign has_siblings = sibling_products | has: 'id', product.id -%}
+
+  {%- if has_siblings and sibling_products != blank -%}
+    <fieldset class="siblings siblings--pc">
+      {%- for sib_product in sibling_products limit: 50 -%}
+        {%- liquid
+          assign is_current_product = false
+          if sib_product.handle == product.handle
+            assign is_current_product = true
+          endif
+
+          assign sib_swatch_class = swatch_class
+          if sib_product.available == false
+            assign sib_swatch_class = sib_swatch_class | append: ' siblings__swatch--sold-out'
+          endif
+
+          assign title_safe = sib_product.title | strip_html | escape
+          assign color_name = title_safe
+          assign color_name_handle = color_name | handle
+          assign swatch_name_handle = swatch_name | handle
+
+          unless show_siblings_images
+            assign sib_swatch_class = sib_swatch_class | append: ' swatches swatch__button'
+            assign swatch_style = '--swatch: var(--' | append: color_name_handle | append: ');'
+          endunless
+
+          assign swatch_color_list = settings.swatch_color_list
+          assign lines = swatch_color_list | newline_to_br | split: '<br />'
+
+          for line in lines
+            assign clean_line = line | replace: '\n', ''
+            assign style_parts = clean_line | split: ':'
+            assign swatch_name = style_parts[0] | handle
+            assign swatch_color = style_parts[1] | strip | downcase | replace: ';', ''
+            assign swatch_name_handle = swatch_name | handle
+
+            if swatch_name == color_name_handle
+              if swatch_color == '#000' or swatch_color == '#000000'
+                assign swatch_name_handle = 'black'
+              elsif swatch_color == '#fff' or swatch_color == '#ffffff'
+                assign swatch_name_handle = 'white'
+              endif
+              break
+            endif
+          endfor
+        -%}
+
+        <a
+          href="{{ sib_product.url }}"
+          class="{{ sib_swatch_class }}"
+          data-sibling-swatch
+          data-sibling-featured-image-url="{{ sib_product.featured_media.preview_image | image_url: width: 800 }}"
+          {% if is_current_product %}
+            aria-current="true"
+          {%- endif -%}
+        >
+          <tooltip-component
+            class="siblings__button"
+            data-tooltip="{{ color_name }}"
+            data-swatch="{{ swatch_name_handle }}"
+            {% unless show_siblings_images %}
+              style="{{ swatch_style }}"
+            {% endunless %}
+          >
+            {%- if show_siblings_images -%}
+              {%- liquid
+                assign image = sib_product.featured_media.preview_image
+                assign image_widths = '44, 88'
+                assign sizes = '44px'
+                if settings.color_swatches_product_style == 'rectangle'
+                  assign image_widths = '56, 112'
+                  assign sizes = '56px'
+                endif
+                assign placeholder_svg = 'product-' | append: forloop.index
+
+                render 'image', image: image, widths: image_widths, sizes: sizes, cover: true, placeholder_svg: placeholder_svg, preload: true
+              -%}
+            {%- else -%}
+              {%- if is_current_product and sib_product.available -%}
+                <span class="icon icon-check"></span>
+              {%- endif -%}
+            {%- endif -%}
+
+            <span class="visually-hidden">{{ color_name }}</span>
+          </tooltip-component>
+        </a>
+      {%- endfor -%}
+    </fieldset>
+  {%- endif -%}
+{%- endfor -%}

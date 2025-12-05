@@ -1,0 +1,136 @@
+{%- comment -%} /snippets/nav-drawer.liquid {%- endcomment -%}
+{%- liquid
+  assign highlight_item = section.settings.highlight_item | downcase | strip_html | escape
+  assign highlight_item_color = section.settings.highlight_item_color
+  assign highlight_item_text_color = section.settings.highlight_item_text_color
+  assign mobile_menu_behaviour = settings.mobile_menu_behaviour
+  assign show_links_images = section.settings.show_images
+  assign links_images_aspect_ratio = section.settings.image_aspect_ratio
+  assign enable_custom_badge = section.settings.enable_custom_badge
+  assign custom_badge_text = section.settings.custom_badge_text
+-%}
+
+{%- capture logo -%}
+  {%- if image != blank -%}
+    {%- liquid
+      assign image_alt = image.alt | escape
+      assign image_height = image_width | divided_by: image.aspect_ratio
+    -%}
+    {%- capture sizes -%}(max-width: {{ image_width | times: 2 }}px) 50vw, {{ image_width }}px{%- endcapture -%}
+    {%- capture widths -%}{{ image_width }}, {{ image_width | times: 1.5 | round }}, {{ image_width | times: 2 }}{%- endcapture -%}
+
+    <a href="{{ routes.root_url }}" class="drawer__logo" style="--logo-width: {{ image_width }}px">
+      {{ image | image_url: width: 500 | image_tag:
+        widths: widths,
+        height: image_height,
+        width: image_width,
+        alt: image_alt,
+        sizes: sizes,
+        class: 'drawer__logo-image'
+      }}
+    </a>
+  {%- endif -%}
+{%- endcapture -%}
+
+<drawer-element
+  class="drawer drawer--left drawer--header cv-h"
+  id="nav-drawer-header"
+  role="navigation"
+  data-drawer-header
+  {% if style != '' %}
+    style="{{ style }}"
+  {% endif %}
+>
+  <div class="drawer__header">
+    {%- if logo != blank -%}
+      <div class="drawer__title">{{ logo }}</div>
+    {%- endif -%}
+
+    <button type="button" class="drawer__close-button" aria-controls="nav-drawer-header">
+      <drawer-toggle></drawer-toggle>
+      <span class="visually-hidden">{{ 'general.accessibility.close_drawer' | t }}</span>
+      {%- render 'icon-close' -%}
+    </button>
+  </div>
+
+  {%- comment -%} Mobile Navigation {%- endcomment -%}
+  <collapsible-elements>
+    <ul class="mobile-nav mobile-nav--weight-{{ settings.nav_font_weight }}{% unless settings.nav_caps_letter_spacing %} letter-spacing-nav{% endunless %}">
+      {%- for link in linklists[section.settings['main-menu']].links -%}
+        {%- render 'nav-item-mobile',
+          link: link,
+          mobile_menu_behaviour: mobile_menu_behaviour,
+          show_links_images: show_links_images,
+          links_images_aspect_ratio: links_images_aspect_ratio,
+          index: 0,
+          highlight_item: highlight_item,
+          highlight_item_color: highlight_item_color,
+          highlight_item_text_color: highlight_item_text_color,
+          enable_custom_badge: enable_custom_badge,
+          custom_badge_text: custom_badge_text
+        -%}
+      {%- endfor -%}
+
+      {%- for link in linklists[section.settings.main_menu_secondary].links -%}
+        {%- render 'nav-item-mobile',
+          link: link,
+          mobile_menu_behaviour: mobile_menu_behaviour,
+          show_links_images: show_links_images,
+          links_images_aspect_ratio: links_images_aspect_ratio,
+          index: 1,
+          highlight_item: highlight_item,
+          highlight_item_color: highlight_item_color,
+          highlight_item_text_color: highlight_item_text_color,
+          enable_custom_badge: enable_custom_badge,
+          custom_badge_text: custom_badge_text
+        -%}
+      {%- endfor -%}
+    </ul>
+  </collapsible-elements>
+
+  {%- if shop.customer_accounts_enabled or settings.show_header_search -%}
+    <ul class="mobile-nav mobile-nav--bottom mobile-nav--weight-{{ settings.nav_font_weight }}">
+      {%- if shop.customer_accounts_enabled -%}
+        {%- if customer -%}
+          <li class="mobile-menu__item{% if request.path contains routes.account_url %} mobile-menu__item--active{% endif %}">
+            <a href="{{ routes.account_url }}" class="mobile-navlink mobile-navlink--small">
+              {{- 'customer.account.title' | t -}}
+            </a>
+          </li>
+          <li class="mobile-menu__item{% if request.path contains routes.account_logout_url %} mobile-menu__item--active{% endif %}">
+            <a href="{{ routes.account_logout_url }}" class="mobile-navlink mobile-navlink--small">
+              {{- 'layout.customer.log_out' | t -}}
+            </a>
+          </li>
+        {%- else -%}
+          <li class="mobile-menu__item{% if request.path contains routes.account_login_url %} mobile-menu__item--active{% endif %}">
+            <a
+              href="{{ routes.account_login_url }}"
+              class="mobile-navlink mobile-navlink--small"
+              id="customer_login_link"
+            >
+              {{- 'layout.customer.log_in' | t -}}
+            </a>
+          </li>
+          <li class="mobile-menu__item{% if request.path contains routes.account_register_url %} mobile-menu__item--active{% endif %}">
+            <a
+              href="{{ routes.account_register_url }}"
+              class="mobile-navlink mobile-navlink--small"
+              id="customer_register_link"
+            >
+              {{- 'layout.customer.create_account' | t -}}
+            </a>
+          </li>
+        {%- endif -%}
+      {%- endif -%}
+
+      {%- if settings.show_header_search -%}
+        <li class="mobile-menu__item{% if request.path contains routes.search_url %} mobile-menu__item--active{% endif %}">
+          <a href="{{ routes.search_url }}" class="mobile-navlink mobile-navlink--small" data-nav-search-open>
+            {{- 'layout.navigation.search' | t -}}
+          </a>
+        </li>
+      {%- endif -%}
+    </ul>
+  {%- endif -%}
+</drawer-element>

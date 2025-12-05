@@ -1,0 +1,42 @@
+{% comment %}
+  Enhanced text decorations options - Render title with highlights
+  Any headings or bullet/numbered list tags are stripped so that we end up having a simple text string
+  Line breaks are omitted too
+
+  Dependencies:
+    - Title liquid object from settings: `assign title = section.settings.title`
+    - Boolean - `has_text_highlight` variable from `title-text-highlights.liquid`
+{% endcomment %}
+
+{%- liquid
+  capture title_stripped
+    render 'title-stripped', title: title, paragraph_wrap: true
+  endcapture
+  assign title_stripped = title_stripped | replace: '<p>', '<span class="text-highlight__break">' | replace: '</p>', '</span>' | replace: '<br/>', ''
+
+  if has_text_highlight
+    assign title_with_links = title_stripped | split: '<a'
+    assign title_mod  = ''
+
+    if title_with_links.size > 1
+      for link_html_part in title_with_links
+        if link_html_part != blank
+          assign link_html_mod = link_html_part
+          if link_html_part contains ' href='
+            assign link_html_mod = link_html_part | prepend: '<a'
+          endif
+
+          if link_html_part contains 'text-highlight'
+            assign link_html_mod = link_html_mod | replace_first: '><text-highlight class="text-highlight', ' data-has-highlight><text-highlight class="text-highlight'
+          endif
+
+          assign title_mod = title_mod | append: link_html_mod
+        endif
+      endfor
+
+      assign title_stripped = title_mod
+    endif
+  endif
+-%}
+
+{{- title_stripped -}}

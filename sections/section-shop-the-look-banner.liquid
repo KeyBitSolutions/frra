@@ -1,0 +1,1143 @@
+<!-- /sections/shop-the-look-banner.liquid -->
+
+{%- liquid
+  assign image_desktop = section.settings.image
+  assign aspect_ratio_desktop = section.settings.aspect_ratio_desktop
+  assign show_arrow = section.settings.show_arrow
+  assign initial_open_card = section.settings.initial_open_card
+  assign product_card_aspect_ratio = section.settings.product_card_aspect_ratio
+  assign button_color = section.settings.button_color
+  assign button_style = section.settings.button_style
+  assign heading = section.settings.title
+  assign heading_size = section.settings.heading_size | times: 0.01
+  assign text = section.settings.text
+  assign text_size = section.settings.text_size | times: 0.01
+  assign text_alignment = section.settings.text_alignment
+  assign image_mobile = section.settings.image_mobile
+  assign aspect_ratio_mobile = section.settings.aspect_ratio_mobile
+  assign popup_heading = section.settings.popup_heading
+  assign show_free_shipping_message = section.settings.show_free_shipping_message
+  assign text_color = section.settings.text_color
+  assign hotspot_color = section.settings.hotspot_color
+  assign color_scheme = 'color-' | append: section.settings.color_scheme
+  assign selected_color_scheme = section.settings.color_scheme | strip
+  assign scheme_bg_color = settings.color_schemes[selected_color_scheme].settings.section_bg
+  assign hotspot_contents_bg_color = section.settings.hotspot_contents_bg_color
+  assign section_width = section.settings.width
+  assign padding_top = section.settings.padding_top
+  assign padding_bottom = section.settings.padding_bottom
+  assign blocks_size = section.blocks.size
+  assign arrow_style = settings.arrow_style
+  assign line_thickness = settings.line_thickness
+  assign animations_enabled = settings.animations_enabled
+  assign animation_anchor = '#sTLBanner--' | append: section.id
+
+  if hotspot_contents_bg_color.alpha != 0.0 and hotspot_contents_bg_color != ''
+    capture hotspot_contents_props
+      echo '--bg: ' | append: hotspot_contents_bg_color | append: '; '
+    endcapture
+
+    assign hotspot_contents_bg_color_brightness = hotspot_contents_bg_color | color_brightness | round
+    if hotspot_contents_bg_color_brightness < 153
+      assign color_scheme = color_scheme | append: ' palette--dark'
+    else
+      assign color_scheme = color_scheme | append: ' palette--light'
+    endif
+  else
+    assign scheme_bg_color_brightness = scheme_bg_color | color_brightness | round
+    if scheme_bg_color_brightness < 153
+      assign color_scheme = color_scheme | append: ' palette--dark'
+    else
+      assign color_scheme = color_scheme | append: ' palette--light'
+    endif
+  endif
+
+  assign heading_size_mobile = heading_size
+  if heading_size > 1.5
+    assign heading_size_mobile = heading_size | times: 0.85
+  endif
+  assign text_size_mobile = text_size
+  if text_size > 1.5
+    assign text_size_mobile = text_size | times: 0.85
+  endif
+
+  if section_width == 'wrapper--full-padded'
+    assign sizes = '(min-width: 1024px) calc(100vw - 2 * 60px), calc(100vw - 2 * 20px)'
+  endif
+  if section_width == 'wrapper--full'
+    assign sizes = '100vw'
+  endif
+
+  capture button_arrow
+    if show_arrow
+      if arrow_style == 'chevron' and line_thickness == 'normal'
+        render 'icon-chevron-right'
+      elsif arrow_style == 'chevron' and line_thickness == 'bold'
+        render 'icon-chevron-right-bold'
+      elsif arrow_style == 'arrow' and line_thickness == 'normal'
+        render 'icon-arrow-right'
+      elsif arrow_style == 'arrow' and line_thickness == 'bold'
+        render 'icon-arrow-right-bold'
+      endif
+    endif
+  endcapture
+-%}
+
+<link
+  href="{{ 'section-shop-the-look-banner.css' | asset_url }}"
+  rel="preload"
+  as="style"
+  onload="this.onload=null;this.rel='stylesheet'"
+>
+
+<script src="{{ 'shop-the-look.js' | asset_url }}" defer></script>
+
+{% if request.design_mode %}
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // Use a flag to ensure this logic is only attached once,
+      // even if multiple "Shop the Look" sections are on the page.
+      if (window.stlBlockSelectHandlerAttached || typeof window.theme?.debounce !== 'function') {
+        return;
+      }
+      window.stlBlockSelectHandlerAttached = true;
+
+      // Programmatically triggers a 'click' event to open a PhotoSwipe popup
+      function triggerPopupOpening(target) {
+        requestAnimationFrame(() => target.dispatchEvent(new Event('click')));
+      }
+      // Handles opening a new popup, especially when another section's popup might be active
+      function openFreshPopup(target, initiatorId) {
+        // A delay is needed to allow any existing popup to finish with its closing animation
+        setTimeout(() => {
+          triggerPopupOpening(target);
+          requestAnimationFrame(() => {
+            const pswpElement = document.querySelector('.pswp');
+            if (!pswpElement) return;
+            pswpElement.addEventListener(
+              'animationend',
+              () => {
+                // Tag the popup with the ID of the section that opened it
+                pswpElement.setAttribute('data-initiator-id', initiatorId);
+              },
+              {once: true}
+            );
+          });
+        }, 400);
+      }
+
+      // Main handler for the 'shopify:block:select' event
+      function handleBlockSelect(event) {
+        const target = event.target;
+
+        // Query the popup globally, as only one can be open at a time,
+        // regardless of which section it belongs to
+        const quickViewPopup = document.querySelector('[data-quick-view-inner]');
+        const pswpElement = quickViewPopup?.closest('.pswp');
+
+        // If no popup element exists in the DOM, trigger an opening event that would initialize it
+        if (!pswpElement) {
+          openFreshPopup(target, event.detail.sectionId);
+          return;
+        }
+
+        // If a "Shop the look" popup is already open
+        if (
+          pswpElement.classList.contains('pswp--open') &&
+          pswpElement.classList.contains('popup-quick-view--shop-the-look')
+        ) {
+          const currentSectionId = event.detail.sectionId;
+          const initiatorId = pswpElement.dataset.initiatorId;
+
+          // If the open popup was initiated by a different section,
+          // we need to open a new one for the current section
+          if (currentSectionId !== initiatorId) {
+            openFreshPopup(target, currentSectionId);
+            return;
+          }
+
+          pswpElement.setAttribute('data-initiator-id', event.detail.sectionId);
+
+          // Switch to the selected product within the currently open popup
+          const holder = pswpElement.querySelector(`[data-hotspot="${target.getAttribute('data-hotspot')}"]`);
+          const quickViewItemHolders = pswpElement.querySelectorAll('[data-quick-view-item-holder]');
+
+          if (holder) {
+            holder.classList.add('is-active');
+            quickViewItemHolders.forEach((element) => {
+              if (element !== holder) {
+                element.classList.remove('is-active');
+              }
+            });
+          }
+        } else {
+          // If the popup element exists but is currently closed, simply open it
+          openFreshPopup(target, event.detail.sectionId);
+        }
+      }
+
+      // Debounce the handler to prevent it from firing too rapidly during
+      // quick selections in the theme editor
+      const debouncedHandler = window.theme.debounce((e) => handleBlockSelect(e), 500);
+
+      // Event listeners for Shopify design mode
+      const handleShopifyEvent = (event) => {
+        const {type, target} = event;
+        const isSectionEvent = type.includes('section');
+        const shopTheLook = isSectionEvent ? target.querySelector('shop-the-look') : target.closest('shop-the-look');
+
+        if (!shopTheLook) return;
+
+        const hotspots = shopTheLook.querySelector('stl-hotspots');
+        if (!hotspots) return;
+
+        switch (type) {
+          case 'shopify:section:select':
+          case 'shopify:block:deselect':
+            if (typeof hotspots.restoreAnimations === 'function') hotspots.restoreAnimations();
+            break;
+
+          case 'shopify:section:deselect':
+            if (typeof hotspots.deselectAll === 'function') hotspots.deselectAll(event);
+            break;
+
+          case 'shopify:block:select':
+            debouncedHandler(event);
+
+            if (hotspots.animationsTimeout) {
+              clearTimeout(hotspots.animationsTimeout);
+              hotspots.animationsTimeout = null;
+            }
+
+            if (typeof hotspots.removeAnimations === 'function') hotspots.removeAnimations();
+            if (typeof hotspots.deselectAll === 'function') hotspots.deselectAll(event);
+
+            const targetIndex = hotspots.targets.indexOf(target);
+            if (targetIndex !== -1 && typeof hotspots.select === 'function') hotspots.select(targetIndex);
+            break;
+        }
+      };
+
+      ['shopify:section:select', 'shopify:section:deselect', 'shopify:block:select', 'shopify:block:deselect'].forEach(
+        (eventName) => {
+          document.addEventListener(eventName, handleShopifyEvent);
+        }
+      );
+    });
+  </script>
+{% endif %}
+
+{%- if blocks_size > 0 -%}
+  {%- liquid
+    assign block_anchor = '#hotspotItem--' | append: section.blocks[0].id
+    assign quick_view_items_template = ''
+    assign data_hotspot_array = ''
+    assign hotspot_markup = ''
+
+    for i in (1..blocks_size)
+      assign data_hotspot_array = data_hotspot_array | append: '@@' | append: i
+    endfor
+    assign data_hotspot_array = data_hotspot_array | split: '@@'
+  -%}
+
+  {%- for block in section.blocks -%}
+    {%- liquid
+      assign index = forloop.index
+      assign index_0 = forloop.index0
+      assign product = all_products[block.settings.product]
+      if product != blank
+        assign hotspot_title = product.title | strip_html | escape
+        assign hotspot_url = product.url | within: collection
+      else
+        assign hotspot_title = 'homepage.onboarding.product_title' | t
+        assign hotspot_url = '#!'
+      endif
+      comment
+        theme-check-disable VariableName
+      endcomment
+      capture a11y_title
+        echo 'general.accessibility.view' | t | append: ' '
+        echo 'general.pagination.shop_the_look_quick_view' | t: current: index, total: blocks_size
+        echo ': ' | append: product.title
+      endcapture
+
+      assign position_x_desktop = block.settings.position_x_desktop
+      assign position_y_desktop = block.settings.position_y_desktop
+      assign position_x_mobile = block.settings.position_x_mobile
+      assign position_y_mobile = block.settings.position_y_mobile
+      assign unique = 'quick-view-item-' | append: block.id
+      assign data_hotspot = section.id | append: '--' | append: data_hotspot_array[index]
+      assign info_bubbles_position_desktop = block.settings.info_bubbles_position_desktop
+      assign info_bubbles_position_mobile = block.settings.info_bubbles_position_mobile
+      assign hide_info_bubbles_desktop = block.settings.hide_info_bubbles_desktop
+      assign hide_info_bubbles_mobile = block.settings.hide_info_bubbles_mobile
+
+      capture hotspot_postions
+        echo ' --hotspot-x-lg: ' | append: position_x_desktop | append: '%;'
+        echo ' --hotspot-y-lg: ' | append: position_y_desktop | append: '%;'
+        echo ' --hotspot-x-sm: ' | append: position_x_mobile | append: '%;'
+        echo ' --hotspot-y-sm: ' | append: position_y_mobile | append: '%;'
+      endcapture
+
+      capture info_bubble_styles
+        # Alignment in "display: grid"
+        ## right half of the clock face
+        if info_bubbles_position_desktop > 0 and info_bubbles_position_desktop < 30
+          echo ' --justify-lg: start;'
+        endif
+        if info_bubbles_position_mobile > 0 and info_bubbles_position_mobile < 30
+          echo ' --justify-sm: start;'
+        endif
+        if info_bubbles_position_desktop == 15
+          echo ' --align-lg: center;'
+        endif
+        if info_bubbles_position_mobile == 15
+          echo ' --align-sm: center;'
+        endif
+        ## left half of the clock face
+        if info_bubbles_position_desktop > 30 and info_bubbles_position_desktop < 60
+          echo ' --justify-lg: end;'
+        endif
+        if info_bubbles_position_mobile > 30 and info_bubbles_position_mobile < 60
+          echo ' --justify-sm: end;'
+        endif
+        if info_bubbles_position_desktop == 45
+          echo ' --align-lg: center;'
+        endif
+        if info_bubbles_position_mobile == 45
+          echo ' --align-sm: center;'
+        endif
+
+        # Logical start and end offsets
+        ## 0-15 --- inset-block-start: auto;
+        ## 0-15 --- inset-inline-end: auto;
+        ## 15-30 -- inset-block-end: auto;
+        ## 15-30 -- inset-inline-end: auto;
+        ## 30-45 -- inset-block-end: auto;
+        ## 30-45 -- inset-inline-start: auto;
+        ## 45-60 -- inset-block-start: auto;
+        ## 45-60 -- inset-inline-start: auto;
+        if info_bubbles_position_desktop == 0
+          echo ' --inset-block-lg: auto calc(100% + var(--hotspot-offset));'
+          echo ' --inset-inline-lg: auto auto;'
+        endif
+        if info_bubbles_position_mobile == 0
+          echo ' --inset-block-sm: auto calc(100% + var(--hotspot-offset));'
+          echo ' --inset-inline-sm: auto auto;'
+        endif
+        if info_bubbles_position_desktop == 5
+          echo '--inset-block-lg: auto calc(100% + var(--hotspot-offset) - var(--hotspot-offset) * 0.33);'
+          echo '--inset-inline-lg: calc(33% + var(--hotspot-offset)) auto;'
+        endif
+        if info_bubbles_position_mobile == 5
+          echo '--inset-block-sm: auto calc(100% + var(--hotspot-offset) - var(--hotspot-offset) * 0.33);'
+          echo '--inset-inline-sm: calc(33% + var(--hotspot-offset)) auto;'
+        endif
+        if info_bubbles_position_desktop == 10
+          echo '--inset-block-lg: auto calc(33% + var(--hotspot-offset));'
+          echo '--inset-inline-lg: calc(100% + var(--hotspot-offset) - var(--hotspot-offset) * 0.33) auto;'
+        endif
+        if info_bubbles_position_mobile == 10
+          echo '--inset-block-sm: auto calc(33% + var(--hotspot-offset));'
+          echo '--inset-inline-sm: calc(100% + var(--hotspot-offset) - var(--hotspot-offset) * 0.33) auto;'
+        endif
+        if info_bubbles_position_desktop == 15
+          echo ' --inset-block-lg: auto auto;'
+          echo ' --inset-inline-lg: calc(0% + var(--hotspot-width) + var(--hotspot-offset)) auto;'
+        endif
+        if info_bubbles_position_mobile == 15
+          echo ' --inset-block-sm: auto auto;'
+          echo ' --inset-inline-sm: calc(0% + var(--hotspot-width) + var(--hotspot-offset)) auto;'
+        endif
+        if info_bubbles_position_desktop == 20
+          echo '--inset-block-lg: calc(33% + var(--hotspot-offset)) auto;'
+          echo '--inset-inline-lg: calc(100% + var(--hotspot-offset) - var(--hotspot-offset) * 0.33) auto;'
+        endif
+        if info_bubbles_position_mobile == 20
+          echo '--inset-block-sm: calc(33% + var(--hotspot-offset)) auto;'
+          echo '--inset-inline-sm: calc(100% + var(--hotspot-offset) - var(--hotspot-offset) * 0.33) auto;'
+        endif
+        if info_bubbles_position_desktop == 25
+          echo '--inset-block-lg: calc(100% + var(--hotspot-offset) - var(--hotspot-offset) * 0.33) auto;'
+          echo '--inset-inline-lg: calc(33% + var(--hotspot-offset)) auto;'
+        endif
+        if info_bubbles_position_mobile == 25
+          echo '--inset-block-sm: calc(100% + var(--hotspot-offset) - var(--hotspot-offset) * 0.33) auto;'
+          echo '--inset-inline-sm: calc(33% + var(--hotspot-offset)) auto;'
+        endif
+        if info_bubbles_position_desktop == 30
+          echo ' --inset-block-lg: calc(100% + var(--hotspot-offset)) auto;'
+          echo ' --inset-inline-lg: auto auto;'
+        endif
+        if info_bubbles_position_mobile == 30
+          echo ' --inset-block-sm: calc(100% + var(--hotspot-offset)) auto;'
+          echo ' --inset-inline-sm: auto auto;'
+        endif
+        if info_bubbles_position_desktop == 35
+          echo '--inset-block-lg: calc(100% + var(--hotspot-offset) - var(--hotspot-offset) * 0.33) auto;'
+          echo '--inset-inline-lg: auto calc(33% + var(--hotspot-offset));'
+        endif
+        if info_bubbles_position_mobile == 35
+          echo '--inset-block-sm: calc(100% + var(--hotspot-offset) - var(--hotspot-offset) * 0.33) auto;'
+          echo '--inset-inline-sm: auto calc(33% + var(--hotspot-offset));'
+        endif
+        if info_bubbles_position_desktop == 40
+          echo '--inset-block-lg: calc(33% + var(--hotspot-offset)) auto;'
+          echo '--inset-inline-lg: auto calc(100% + var(--hotspot-offset) - var(--hotspot-offset) * 0.33);'
+        endif
+        if info_bubbles_position_mobile == 40
+          echo '--inset-block-sm: calc(33% + var(--hotspot-offset)) auto;'
+          echo '--inset-inline-sm: auto calc(100% + var(--hotspot-offset) - var(--hotspot-offset) * 0.33);'
+        endif
+        if info_bubbles_position_desktop == 45
+          echo ' --inset-block-lg: auto auto;'
+          echo ' --inset-inline-lg: auto calc(0% + var(--hotspot-width) + var(--hotspot-offset));'
+        endif
+        if info_bubbles_position_mobile == 45
+          echo ' --inset-block-sm: auto auto;'
+          echo ' --inset-inline-sm: auto calc(0% + var(--hotspot-width) + var(--hotspot-offset));'
+        endif
+        if info_bubbles_position_desktop == 50
+          echo ' --inset-block-lg: auto calc(33% + var(--hotspot-offset));'
+          echo ' --inset-inline-lg: auto calc(100% + var(--hotspot-offset) - var(--hotspot-offset) * 0.33);'
+        endif
+        if info_bubbles_position_mobile == 50
+          echo ' --inset-block-sm: auto calc(33% + var(--hotspot-offset));'
+          echo ' --inset-inline-sm: auto calc(100% + var(--hotspot-offset) - var(--hotspot-offset) * 0.33);'
+        endif
+        if info_bubbles_position_desktop == 55
+          echo ' --inset-block-lg: auto calc(100% + var(--hotspot-offset) - var(--hotspot-offset) * 0.33);'
+          echo ' --inset-inline-lg: auto calc(33% + var(--hotspot-offset));'
+        endif
+        if info_bubbles_position_mobile == 55
+          echo ' --inset-block-sm: auto calc(100% + var(--hotspot-offset) - var(--hotspot-offset) * 0.33);'
+          echo ' --inset-inline-sm: auto calc(33% + var(--hotspot-offset));'
+        endif
+
+        # Hotspot line rotation values
+        ## Draw each line from a single center point
+        ## Starting from 90deg at the value of 0
+        ## Each next info bubble position, with a step of 5, adds another 30deg
+        assign rotation_lg = info_bubbles_position_desktop | divided_by: 5 | times: 30 | plus: 90
+        assign rotation_sm = info_bubbles_position_mobile | divided_by: 5 | times: 30 | plus: 90
+        echo ' --rotate-lg: ' | append: rotation_lg | append: 'deg;'
+        echo ' --rotate-sm: ' | append: rotation_sm | append: 'deg;'
+      endcapture
+
+      capture info_bubble_classes
+        if hide_info_bubbles_desktop and hide_info_bubbles_mobile == false
+          echo ' hotspot--hide-info-desktop'
+        elsif hide_info_bubbles_mobile and hide_info_bubbles_desktop == false
+          echo ' hotspot--hide-info-mobile'
+        elsif hide_info_bubbles_desktop and hide_info_bubbles_mobile
+          echo ' hotspot--hide-info'
+        endif
+      endcapture
+    -%}
+
+    {%- capture hotspot_markup -%}
+      {{ hotspot_markup }}
+
+      <div id="hotspotItem--{{ block.id }}"
+        class="hotspot{{ info_bubble_classes }}"
+        style="{{ hotspot_postions }} {{ info_bubble_styles }}"
+        {% if index_0 == 0 %}aria-current="true"{% endif %}
+        data-stl-hotspots-item
+        {% if animations_enabled %}
+          data-aos="fade"
+          data-aos-duration="200"
+          data-aos-anchor="{{ block_anchor }}"
+          data-aos-trigger="{{ block_anchor }}"
+          data-aos-intersection="0.5"
+        {% endif %}
+      >
+        <button type="button"
+          class="hotspot__target js-only"
+          aria-label="{{ a11y_title | strip_html | escape }}"
+          aria-expanded="{% if index_0 == 0 %}true{% else %}false{% endif %}"
+          data-stl-hotspots-target
+          data-handle="{{ product.handle }}"
+          data-hotspot="{{ data_hotspot }}"
+          data-button-quick-view
+          data-shop-the-look-quick-view
+          {{ block.shopify_attributes }}
+        >
+          <quick-view-button></quick-view-button>
+          <span class="hotspot__target-inner"></span>
+
+          {%- liquid
+            assign nav_thumbs = ''
+            assign nav_thumbs_class = 'popup-quick-view__nav-thumbs'
+          -%}
+
+          {%- for product_block in section.blocks -%}
+            {%- liquid
+              assign current_product = all_products[product_block.settings.product]
+              assign current_index = forloop.index
+              assign current_index_0 = forloop.index0
+
+              if current_product != blank
+                assign product_title = current_product.title | strip_html | escape
+                assign product_url = current_product.url
+              else
+                assign product_title = 'homepage.onboarding.product_title' | t
+                assign product_url = '#!'
+              endif
+
+              for i in (1..blocks_size)
+                if current_index == i
+                  assign current_data_hotspot = section.id | append: '--' | append: data_hotspot_array[current_index]
+                endif
+              endfor
+            -%}
+
+            {%- capture nav_media -%}
+              <div class="popup-quick-view__nav-media">
+                {%- if current_product != blank -%}
+                  {%- liquid
+                    assign product_block_unique = unique | append: '-' | append: current_product.id
+                    assign current_variant = current_product.selected_or_first_available_variant
+                    assign featured_media = current_variant.featured_media | default: current_product.featured_media
+                  -%}
+
+                  {%- if current_product.media.size > 0 -%}
+                    {%- render 'media-thumb',
+                      media: featured_media,
+                      featured_media: featured_media,
+                      unique: product_block_unique,
+                      has_link: false,
+                      product_title: product_title
+                    -%}
+                  {%- else -%}
+                    <div class="popup-quick-view__thumbnail">
+                      {%- render 'image-fill', is_background: true, aspect_ratio: 1, img_object: '', alt: product_title, placeholder_svg: 'image' -%}
+                    </div>
+                  {%- endif -%}
+
+                {%- else -%}
+                  <div class="popup-quick-view__thumbnail">
+                    {{- 'product-5' | placeholder_svg_tag: 'placeholder-svg' -}}
+                  </div>
+                {%- endif -%}
+              </div>
+            {%- endcapture -%}
+
+            {%- capture nav_thumbs -%}
+              {{- nav_thumbs -}}
+
+              <a href="{{ product_url }}"
+                class="popup-quick-view__nav-thumb{% if current_index_0 == index_0 %} is-active{% endif %}"
+                aria-label="{{ product_title }}"
+                data-shop-the-look-thumb
+                data-hotspot-ref="{{ current_data_hotspot }}">
+                {{- nav_media -}}
+              </a>
+            {%- endcapture -%}
+          {%- endfor -%}
+
+          {% capture quick_view_nav %}
+            <div class="popup-quick-view__nav{% if popup_heading == blank %} popup-quick-view__nav--thumbs-only{% endif %}" data-quick-view-nav>
+              {%- if popup_heading != blank -%}
+                <p class="popup-quick-view__nav-title h3">
+                  {{ popup_heading }}
+                </p>
+              {%- endif -%}
+
+              <div class="{{ nav_thumbs_class }}">
+                {{- nav_thumbs -}}
+              </div>
+            </div>
+          {% endcapture %}
+
+          {%- capture quick_view_item -%}
+            <div class="stl-banner__quick-view-item stl-banner__quick-view-item--{{ block.id }}{% if index_0 == 0 %} is-active{% endif %}"
+              data-hotspot="{{ data_hotspot }}"
+              data-quick-view-item-holder
+            >
+              <product-info class="popup-quick-view__item"
+                {% if product == blank %} data-quick-view-onboarding{% endif %}
+                data-section="api-quickview"
+                data-quick-view-item
+                data-product-handle="{{ product.handle }}"
+                data-product-id="{{ product.id }}"
+                data-url="{{ product.url }}"
+                data-update-url="false"
+              >
+                {%- render 'product',
+                  product: product,
+                  section_id: 'api-quickview',
+                  section: nil,
+                  section_type: 'quickview',
+                  quick_view_nav: quick_view_nav,
+                  multiple_quick_view_items: true,
+                  show_free_shipping_message: show_free_shipping_message
+                -%}
+              </product-info>
+            </div>
+          {%- endcapture -%}
+
+          {%- assign quick_view_items_template = quick_view_items_template | append: quick_view_item -%}
+        </button>
+
+        <span class="hotspot__line js-only"></span>
+
+        <div class="hotspot__info-bubble js-only">
+          <span class="hotspot__title h6" data-stl-hotspots-trigger>
+            {{ hotspot_title }}
+
+            {% if button_arrow != blank %}
+              {{ button_arrow }}
+            {% endif %}
+          </span>
+        </div>
+
+        <div class="hotspot__content">
+          {%- liquid
+            capture button_classes
+              echo button_color | append: ' '
+              echo button_style | append: ' '
+              echo 'btn--advanced btn--advanced-width-height btn--advanced-adaptive-width'
+            endcapture
+          -%}
+          {%- if product != blank -%}
+            {%- render 'product-card-inline',
+              product: product,
+              image_aspect_ratio_setting: product_card_aspect_ratio,
+              button_classes: button_classes,
+              animations_enabled: false
+            %}
+          {%- else -%}
+            {%- render 'product-card-inline--onboarding',
+              title: 'Product Title',
+              placeholder_index: index,
+              image_aspect_ratio_setting: product_card_aspect_ratio,
+              button_classes: button_classes,
+              animations_enabled: false
+            -%}
+          {%- endif -%}
+        </div>
+      </div>
+    {%- endcapture -%}
+  {%- endfor -%}
+{%- endif -%}
+
+{%- style -%}
+  #sTLBanner--{{ section.id }} {
+    --PT: {{ padding_top }}px;
+    --PB: {{ padding_bottom }}px;
+    {% if heading != blank -%}
+      --adjust-heading-desktop: calc(var(--FONT-ADJUST-HEADING) * {{ heading_size }});
+      --adjust-heading-mobile: calc(var(--FONT-ADJUST-HEADING) * {{ heading_size_mobile }});
+    {%- endif %}
+    --adjust-body-desktop: calc(var(--FONT-ADJUST-BODY) * {{ text_size }});
+    --adjust-body-mobile: calc(var(--FONT-ADJUST-BODY) * {{ text_size_mobile }});
+    --product-media-padding-top: {{ product_card_aspect_ratio | times: 100 | append: '%' }};
+  }
+
+  {% if hotspot_color.alpha != 0.0 and hotspot_color != '' -%}
+    #sTLBanner--{{ section.id }} .hotspot {
+      --hotspot-color: {{ hotspot_color | color_modify: 'alpha', 0.80 }};
+    }
+  {%- endif -%}
+{%- endstyle -%}
+
+<section
+  id="sTLBanner--{{ section.id }}"
+  data-section-id="{{ section.id }}"
+  data-section-type="shop-the-look-banner"
+  class="stl-banner section-padding {{ color_scheme }}"
+  {% if animations_enabled %}
+    data-aos-watch-anchors
+  {% endif %}
+>
+  <div class="{{ section_width }}">
+    <shop-the-look
+      class="stl-banner__wrapper {{ text_alignment }} {{ text_color }}{% if heading == blank and text == blank %} stl-banner__wrapper--hero-only{% endif %}"
+      style="--aspect-ratio-desktop: {{ aspect_ratio_desktop }}; --aspect-ratio-mobile: {{ aspect_ratio_mobile }};"
+      {% if animations_enabled %}
+        data-aos="fade"
+        data-aos-duration="0"
+        data-aos-anchor="{{ animation_anchor }}"
+      {% endif %}
+    >
+      {%- if heading != blank or text != blank or blocks_size > 0 -%}
+        {%- unless heading == blank and text == blank -%}
+          <div class="stl-banner__head">
+            {%- if heading != blank -%}
+              <h3
+                class="stl-banner__heading h2"
+                {% if animations_enabled %}
+                  data-aos="come-up"
+                  data-aos-duration="400"
+                  data-aos-anchor="{{ animation_anchor }}"
+                {% endif %}
+              >
+                {{- heading -}}
+              </h3>
+
+              {%- if settings.show_spacer_lines -%}
+                <hr
+                  {% if animations_enabled %}
+                    data-aos="fade-up"
+                    data-aos-duration="400"
+                    data-aos-anchor="{{ animation_anchor }}"
+                  {% endif %}
+                >
+              {%- endif -%}
+            {%- endif -%}
+
+            {%- if text != blank -%}
+              <div
+                class="stl-banner__rte"
+                {% if animations_enabled %}
+                  data-aos="fade-up"
+                  data-aos-duration="400"
+                  data-aos-anchor="{{ animation_anchor }}"
+                {% endif %}
+              >
+                {{- text -}}
+              </div>
+            {%- endif -%}
+          </div>
+        {%- endunless -%}
+      {%- endif -%}
+
+      <div
+        id="sTLBannerHero--{{ section.id }}"
+        class="stl-banner__hero"
+        {% if animations_enabled %}
+          data-aos="image-in"
+          data-aos-anchor="#sTLBannerHero--{{ section.id }}"
+          data-aos-intersection="0.25"
+        {% endif %}
+      >
+        <div class="stl-banner__image" style="contain: paint;">
+          {%- render 'image-fill',
+            is_background: false,
+            image_desktop: image_desktop,
+            image_mobile: image_mobile,
+            use_ratio_props: true,
+            sizes: sizes,
+            widths: '294, 336, 385, 422, 588, 654, 672, 770, 844, 900, 1236, 1308, 1540, 1688, 1800, 2472',
+            classes: 'image-in image-in--zoom-out',
+            placeholder_svg: 'collection-1'
+          -%}
+        </div>
+
+        <stl-hotspots
+          id="sTLBannerHotspots--{{ section.id }}"
+          class="stl-banner__hotspots"
+          {% if hotspot_contents_props != blank %}
+            style="{{ hotspot_contents_props }}"
+          {% endif %}
+          {% if initial_open_card %}
+            data-stl-initial-open
+          {% endif %}
+          {% if animations_enabled %}
+            data-aos="fade"
+            data-aos-duration="200"
+            data-aos-anchor="{{ block_anchor }}"
+          {% endif %}
+        >
+          {{ hotspot_markup }}
+        </stl-hotspots>
+      </div>
+
+      {%- if quick_view_items_template != '' -%}
+        <script src="{{ 'product-info.js' | asset_url }}" defer="defer"></script>
+
+        <template data-quick-view-items-template>
+          <div class="stl-banner__quick-view-items">
+            <div
+              class="popup-quick-view__inner"
+              data-section-id="{{ 'sTLBannerQuickViewItems--' | append: section.id }}"
+              data-quick-view-inner
+            >
+              {{- quick_view_items_template -}}
+            </div>
+          </div>
+        </template>
+      {%- endif -%}
+    </shop-the-look>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Shop the Look Banner",
+  "class": "section-stl-banner",
+  "max_blocks": 4,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Image"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Image"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "aspect_ratio_desktop",
+      "label": "Image scaling ratio",
+      "info": "Wide to tall",
+      "min": 0.3,
+      "max": 1,
+      "step": 0.1,
+      "unit": ":1",
+      "default": 0.6
+    },
+    {
+      "type": "checkbox",
+      "id": "show_arrow",
+      "label": "Show product titles arrow",
+      "default": true
+    },
+    {
+      "id": "initial_open_card",
+      "type": "checkbox",
+      "label": "Default to open",
+      "info": "Enabling this will show the first hotspot's product card open in the active state",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "product_card_aspect_ratio",
+      "label": "Product card image aspect ratio",
+      "min": 0.5,
+      "max": 1.5,
+      "step": 0.1,
+      "unit": ":1",
+      "default": 0.9
+    },
+    {
+      "type": "select",
+      "id": "button_color",
+      "label": "Button color",
+      "default": "btn--black",
+      "options": [
+        {"label": "Primary", "value": "btn--primary"},
+        {"label": "Secondary", "value": "btn--secondary"},
+        {"label": "White", "value": "btn--white"},
+        {"label": "Black", "value": "btn--black"}
+      ]
+    },
+    {
+      "type": "select",
+      "id": "button_style",
+      "label": "Button style",
+      "default": "btn--solid",
+      "options": [
+        {"label": "Solid", "value": "btn--solid"},
+        {"label": "Outline", "value": "btn--outline"},
+        {"label": "Solid with border", "value": "btn--solid-border"},
+        {"label": "Soft", "value": "btn--soft"}
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Text"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Heading",
+      "default": "Shop the Look Banner"
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "label": "Heading size",
+      "default": 120,
+      "min": 70,
+      "max": 200,
+      "step": 10,
+      "unit": "%"
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "Text",
+      "default": "<p>Our most popular looks of the season</p>"
+    },
+    {
+      "type": "range",
+      "id": "text_size",
+      "label": "Text size",
+      "default": 100,
+      "min": 75,
+      "max": 175,
+      "step": 5,
+      "unit": "%"
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "label": "Text alignment",
+      "default": "text-left",
+      "options": [
+        {"label": "Center", "value": "text-center"},
+        {"label": "Left", "value": "text-left"}
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Mobile"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_mobile",
+      "label": "Mobile image",
+      "info": "Optional"
+    },
+    {
+      "type": "range",
+      "id": "aspect_ratio_mobile",
+      "label": "Image scaling ratio",
+      "info": "Wide to tall",
+      "min": 0.8,
+      "max": 2,
+      "step": 0.1,
+      "unit": ":1",
+      "default": 1.5
+    },
+    {
+      "type": "text",
+      "id": "popup_heading",
+      "label": "Popup heading",
+      "default": "Shop the Look"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_free_shipping_message",
+      "label": "Show free shipping message",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "paragraph",
+      "content": "Section"
+    },
+    {
+      "type": "color",
+      "id": "hotspot_color",
+      "label": "Hotspot color",
+      "alpha": true
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "paragraph",
+      "content": "Hotspot contents"
+    },
+    {
+      "type": "color",
+      "id": "hotspot_contents_bg_color",
+      "label": "Background",
+      "alpha": true
+    },
+    {
+      "type": "header",
+      "content": "Section spacing"
+    },
+    {
+      "type": "select",
+      "id": "width",
+      "label": "Width",
+      "default": "wrapper--full-padded",
+      "options": [
+        {"value": "wrapper--full", "label": "Full width"},
+        {"value": "wrapper--full-padded", "label": "Full width padded"}
+      ]
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "label": "Padding top",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "label": "Padding bottom",
+      "default": 60
+    }
+  ],
+  "blocks": [
+    {
+      "name": "Product",
+      "type": "product",
+      "settings": [
+        {
+          "type": "product",
+          "id": "product",
+          "label": "Product"
+        },
+        {
+          "type": "header",
+          "content": "Hotspot position"
+        },
+        {
+          "type": "paragraph",
+          "content": "Desktop"
+        },
+        {
+          "type": "range",
+          "id": "position_x_desktop",
+          "min": 10,
+          "max": 90,
+          "step": 1,
+          "label": "Horizontal",
+          "unit": "%",
+          "default": 50
+        },
+        {
+          "type": "range",
+          "id": "position_y_desktop",
+          "min": 10,
+          "max": 90,
+          "step": 1,
+          "label": "Vertical",
+          "unit": "%",
+          "default": 50
+        },
+        {
+          "type": "paragraph",
+          "content": "Mobile"
+        },
+        {
+          "type": "range",
+          "id": "position_x_mobile",
+          "min": 10,
+          "max": 90,
+          "step": 1,
+          "label": "Horizontal",
+          "unit": "%",
+          "default": 50
+        },
+        {
+          "type": "range",
+          "id": "position_y_mobile",
+          "min": 10,
+          "max": 90,
+          "step": 1,
+          "label": "Vertical",
+          "unit": "%",
+          "default": 50
+        },
+        {
+          "type": "header",
+          "content": "Product title position",
+          "info": "Values replicate the movement of the minute hand on a clock"
+        },
+        {
+          "type": "paragraph",
+          "content": "Desktop"
+        },
+        {
+          "type": "checkbox",
+          "id": "hide_info_bubbles_desktop",
+          "label": "Hide product titles",
+          "default": false
+        },
+        {
+          "type": "range",
+          "id": "info_bubbles_position_desktop",
+          "min": 0,
+          "max": 55,
+          "step": 5,
+          "label": "Placement",
+          "unit": "min",
+          "visible_if": "{{ block.settings.hide_info_bubbles_desktop == false }}",
+          "default": 30
+        },
+        {
+          "type": "paragraph",
+          "content": "Mobile"
+        },
+        {
+          "type": "checkbox",
+          "id": "hide_info_bubbles_mobile",
+          "label": "Hide product titles",
+          "default": false
+        },
+        {
+          "type": "range",
+          "id": "info_bubbles_position_mobile",
+          "min": 0,
+          "max": 55,
+          "step": 5,
+          "label": "Placement",
+          "unit": "min",
+          "visible_if": "{{ block.settings.hide_info_bubbles_mobile == false }}",
+          "default": 30
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Shop the Look Banner",
+      "category": "Products",
+      "blocks": [
+        {
+          "type": "product",
+          "settings": {
+            "position_x_desktop": 31,
+            "position_y_desktop": 41,
+            "info_bubbles_position_desktop": 55,
+            "position_x_mobile": 21,
+            "position_y_mobile": 42,
+            "info_bubbles_position_mobile": 5
+          }
+        },
+        {
+          "type": "product",
+          "settings": {
+            "position_x_desktop": 69,
+            "position_y_desktop": 46,
+            "info_bubbles_position_desktop": 5,
+            "position_x_mobile": 75,
+            "position_y_mobile": 45,
+            "info_bubbles_position_mobile": 30
+          }
+        },
+        {
+          "type": "product",
+          "settings": {
+            "position_x_desktop": 43,
+            "position_y_desktop": 70,
+            "info_bubbles_position_desktop": 15,
+            "position_x_mobile": 39,
+            "position_y_mobile": 66,
+            "info_bubbles_position_mobile": 25
+          }
+        }
+      ]
+    }
+  ],
+  "disabled_on": {
+    "groups": ["header", "aside", "footer"]
+  }
+}
+{% endschema %}

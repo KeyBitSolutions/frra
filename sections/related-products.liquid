@@ -1,0 +1,427 @@
+{%- liquid
+  assign enable_tabs = section.settings.enable_tabs
+  assign type_style = section.settings.type_style
+  assign tab_heading_size = section.settings.tab_heading_size | times: 0.01
+  assign color_scheme = 'color-' | append: section.settings.color_scheme
+  assign selected_color_scheme = section.settings.color_scheme | strip
+  assign scheme_bg_color = settings.color_schemes[selected_color_scheme].settings.section_bg
+  assign scheme_bg_gradient = settings.color_schemes[selected_color_scheme].settings.section_bg_gradient
+  assign section_width = section.settings.width
+  assign columns_mobile = section.settings.columns_mobile | plus: 0
+
+  assign columns = settings.products_per_row_on_desktop
+  assign animations_enabled = settings.animations_enabled
+
+  assign section_id = 'relatedProducts--' | append: section.id
+  assign related_id = section_id | append: '--' | append: 'productsList'
+  assign selector_id = '#' | append: section_id
+  assign animation_anchor = selector_id
+  assign related_anchor = '#' | append: related_id
+  assign animation_delay = 150
+
+  assign related_block = section.blocks | map: 'type' | where: 'related'
+  assign recent_block = section.blocks | map: 'type' | where: 'recent'
+
+  assign recomendations_limit = section.blocks | map: 'settings' | where: 'product_recommendations_limit'
+  assign recomendations_limit = recomendations_limit[0].product_recommendations_limit | default: 4
+
+  assign tabs = ''
+  assign tabs_navigation = ''
+  assign show_tabs = false
+  if enable_tabs and related_block != blank and recent_block != blank
+    assign show_tabs = true
+  endif
+
+  assign enable_carousel = false
+  if section.settings.layout == 'carousel'
+    assign enable_carousel = true
+  endif
+
+  assign container_class = 'grid__container'
+  assign layout_class = 'grid grid--mobile'
+  assign layout_tag = 'div'
+
+  if enable_carousel
+    assign container_class = 'carousel__container'
+    assign layout_class = 'carousel carousel--inactive carousel--mobile'
+    assign layout_tag = 'grid-slider'
+  endif
+
+  capture type_adjustment
+    case type_style
+      when 'font-heading'
+        echo 'var(--adjust-heading)'
+      when 'font-body'
+        echo 'var(--adjust-body)'
+      when 'subheading-text'
+        echo 'var(--adjust-accent)'
+    endcase
+  endcapture
+
+  assign scheme_bg_color_brightness = scheme_bg_color | color_brightness | round
+  if scheme_bg_color_brightness < 153
+    assign color_scheme = color_scheme | append: ' palette--dark'
+  else
+    assign color_scheme = color_scheme | append: ' palette--light'
+  endif
+-%}
+
+{{ 'section-related-products.css' | asset_url | stylesheet_tag }}
+
+{%- style -%}
+  {{ selector_id }} {
+    --PT: {{ section.settings.padding_top }}px;
+    --PB: {{ section.settings.padding_bottom }}px;
+
+    {% if scheme_bg_gradient != '' %}
+      --bg: {{ scheme_bg_color }};
+    {% endif %}
+  }
+  {{ selector_id }} .tabs__nav { --text-size: calc({{ type_adjustment }} * {{ tab_heading_size }}); }
+
+  @media screen and (max-width: 767px) {
+    {{ selector_id }} .grid--mobile,
+    {{ selector_id }} .carousel--mobile {
+      grid-template-columns: repeat({{ columns_mobile }}, minmax(0, 1fr));
+    }
+  }
+
+  {% if columns_mobile > 1 -%}
+    @media screen and (max-width: 767px) {
+      {{ selector_id }} .carousel--mobile { --item-width-mobile: calc(90% / {{ columns_mobile }} - var(--grid-gutter)); }
+    }
+  {%- endif -%}
+{%- endstyle -%}
+
+{%- if request.design_mode -%}
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.relatedProductsBlockSelectHandlerAttached) return;
+      window.relatedProductsBlockSelectHandlerAttached = true;
+
+      document.addEventListener('shopify:block:select', (event) => {
+        // Show tab content on block select
+        const tabsComponent = event.target.closest('tabs-component');
+        if (tabsComponent) {
+          const tab = event.target;
+
+          if (tab.hasAttribute('data-tabs-link')) {
+            tab.dispatchEvent(new Event('click'));
+          }
+
+          tab.parentNode.scrollTo({
+            top: 0,
+            left: tab.offsetLeft - tab.clientWidth,
+            behavior: 'smooth',
+          });
+        }
+      });
+    });
+  </script>
+{%- endif -%}
+
+<script src="{{ 'related-products.js' | asset_url }}" defer="defer"></script>
+
+<related-products
+  id="{{ section_id }}"
+  class="related-products section-padding js-only {{ color_scheme }}"
+  data-section-type="related-products"
+  data-section-id="{{ section.id }}"
+  data-product-id="{{ product.id }}"
+  {% if related_block != blank %}
+    data-limit="{{ recomendations_limit }}"
+  {% endif %}
+>
+  <div class="{{ section_width }}">
+    {%- if section.blocks.size > 0 -%}
+      {%- for block in section.blocks -%}
+        {%- liquid
+          assign block_heading = block.settings.title
+          assign product_recommendations_limit = block.settings.product_recommendations_limit
+          assign product_recently_limit = block.settings.product_recently_limit
+        -%}
+
+        {%- capture headings_markup -%}
+          {%- if block_heading != blank and show_tabs != true -%}
+            <div class="section__header">
+              <h2 class="section__heading h3"
+                {% if animations_enabled %}
+                  data-aos="fade-up"
+                  data-aos-delay="{{ animation_delay }}"
+                  data-aos-anchor="{{ animation_anchor }}"
+                  {%- assign animation_delay = animation_delay | plus: 150 -%}
+                {% endif %}
+              >
+                {{- block_heading -}}
+              </h2>
+
+              {%- if settings.show_spacer_lines -%}
+                <hr class="section__heading-line"
+                  {% if animations_enabled %}
+                    data-aos="fade-up"
+                    data-aos-delay="{{ animation_delay }}"
+                    data-aos-anchor="{{ animation_anchor }}"
+                    {%- assign animation_delay = animation_delay | plus: 150 -%}
+                  {% endif %}
+                >
+              {%- endif -%}
+            </div>
+          {%- endif -%}
+        {%- endcapture -%}
+
+        {%- capture tabs_navigation -%}
+          {{ tabs_navigation }}
+
+          <li class="tabs__link{% if forloop.first %} current{% endif %}"
+            data-tabs-link="{{ forloop.index0 }}"
+            data-block-id="{{ block.id }}"
+            tabindex="0"
+            {{ block.shopify_attributes }}>
+            <span>{{ block_heading }}</span>
+          </li>
+        {%- endcapture -%}
+
+        {%- capture tabs -%}
+          {{ tabs }}
+
+          <div class="tab{% if enable_tabs == false or forloop.first %} current{% endif -%}" data-tab="{{ forloop.index0 }}">
+            {%- comment -%} "Related products" markup {%- endcomment -%}
+            {%- if block.type == 'related' and product.collections.size > 0 -%}
+              <div id="{{ related_id }}" data-related-products>
+                {%- if recommendations.performed and recommendations.products_count > 0 -%}
+                  {{ headings_markup }}
+
+                  <div class="{{ container_class }}">
+                    <{{ layout_tag }} class="{{ layout_class }}"
+                      {% if enable_carousel %}
+                        data-columns="{{ columns }}"
+                      {% endif %}
+                      tabindex="0"
+                      role="group"
+                    >
+                      {%- for product in recommendations.products -%}
+                        {%- assign animation_delay = forloop.index0 -%}
+                        {%- render 'product-grid-item',
+                          product: product,
+                          carousel: enable_carousel,
+                          columns: columns,
+                          columns_mobile: columns_mobile,
+                          animation_delay: animation_delay,
+                          section_width: section_width,
+                          animation_anchor: related_anchor
+                        -%}
+                      {%- endfor -%}
+                    </{{ layout_tag }}>
+                  </div>
+                {%- endif -%}
+              </div>
+            {%- endif -%}
+
+            {%- comment -%} "Recently viewed products" markup {%- endcomment -%}
+            {%- if block.type == 'recent' -%}
+              {{ headings_markup }}
+
+              {%- render 'products-recently-viewed',
+                product: product,
+                enable_carousel: enable_carousel,
+                container_class: container_class,
+                layout_class: layout_class,
+                section_width: section_width,
+                limit: product_recently_limit,
+                product_recently_minimum: 1,
+                block: block,
+                columns: columns,
+                columns_mobile: columns_mobile
+              -%}
+            {%- endif -%}
+          </div>
+        {%- endcapture -%}
+      {%- endfor -%}
+
+      <tabs-component class="tabs{% unless show_tabs %} tabs--stacked{% endunless %}" data-tabs-holder>
+        {%- if show_tabs -%}
+          <div
+            class="tabs__head"
+            {% if animations_enabled %}
+              data-aos="fade-up"
+              data-aos-anchor="{{ animation_anchor }}"
+              data-aos-delay="{{ animation_delay }}"
+              {%- assign animation_delay = animation_delay | plus: 150 -%}
+            {% endif %}
+          >
+            <custom-scrollbar class="tabs-scrollbar">
+              <div class="tabs-scrollbar__holder" data-custom-scrollbar-holder>
+                <ul class="tabs__nav {{ type_style }}" data-custom-scrollbar-items>
+                  {{ tabs_navigation }}
+                </ul>
+
+                <div class="custom-scrollbar" data-custom-scrollbar>
+                  <div class="custom-scrollbar__thumb" data-custom-scrollbar-thumb></div>
+                </div>
+              </div>
+            </custom-scrollbar>
+          </div>
+        {%- endif -%}
+
+        <div class="tabs__contents" data-tabs-contents>
+          {{ tabs }}
+        </div>
+      </tabs-component>
+    {%- else -%}
+      {%- render 'no-blocks' -%}
+    {%- endif -%}
+  </div>
+</related-products>
+
+{% schema %}
+{
+  "name": "Product recommendations",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_tabs",
+      "label": "Enable tabs",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "Layout",
+      "default": "grid",
+      "options": [
+        {"label": "Grid", "value": "grid"},
+        {"label": "Carousel", "value": "carousel"}
+      ]
+    },
+    {
+      "type": "select",
+      "id": "columns_mobile",
+      "label": "Products per row on mobile",
+      "default": "1",
+      "options": [
+        {"label": "1", "value": "1"},
+        {"label": "2", "value": "2"}
+      ]
+    },
+    {
+      "type": "select",
+      "label": "Tab heading style",
+      "id": "type_style",
+      "default": "subheading-text",
+      "options": [
+        {"label": "Heading", "value": "font-heading"},
+        {"label": "Body", "value": "font-body"},
+        {"label": "Accent", "value": "subheading-text"}
+      ]
+    },
+    {
+      "type": "range",
+      "id": "tab_heading_size",
+      "label": "Tab heading size",
+      "default": 120,
+      "min": 100,
+      "max": 200,
+      "step": 5,
+      "unit": "%"
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "Section spacing"
+    },
+    {
+      "type": "select",
+      "id": "width",
+      "label": "Width",
+      "default": "wrapper",
+      "options": [
+        {"value": "wrapper--full-padded", "label": "Full width padded"},
+        {"value": "wrapper", "label": "Page width"}
+      ]
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "label": "Padding top",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "label": "Padding bottom",
+      "default": 60
+    }
+  ],
+  "blocks": [
+    {
+      "type": "related",
+      "name": "Related products",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "Dynamic recommendations change and improve with time. [Learn more](https://help.shopify.com/en/themes/development/recommended-products)"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Heading",
+          "default": "You May Also Like"
+        },
+        {
+          "type": "range",
+          "id": "product_recommendations_limit",
+          "min": 1,
+          "max": 8,
+          "step": 1,
+          "label": "Product limit",
+          "default": 4
+        }
+      ]
+    },
+    {
+      "type": "recent",
+      "name": "Recently viewed products",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Heading",
+          "default": "Recently viewed"
+        },
+        {
+          "type": "range",
+          "id": "product_recently_limit",
+          "min": 1,
+          "max": 8,
+          "step": 1,
+          "label": "Product limit",
+          "default": 4
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,85 @@
+{%- liquid
+  assign block_id = block.id
+  assign star_rating = block.settings.star_rating
+  assign heading = block.settings.heading
+  assign text_size = block.settings.text_size | times: 0.01
+  assign subheading = block.settings.subheading
+  assign percent = star_rating | divided_by: 5.0 | times: 100
+  assign enable_border = block.settings.enable_border
+  assign block_color = block.settings.block_color
+  assign text_color = block.settings.text_color
+  assign text_alignment = block.settings.text_alignment
+  assign testimonial_text_class = 'testimonial__text'
+
+  if text_size > 1.5
+    assign testimonial_text_class = 'testimonial__text testimonial__text--large'
+  endif
+-%}
+
+{%- unless heading == blank and subheading == blank -%}
+  <div class="testimonial__item testimonial__item--slide__text testimonial__item--{{ block_id }} {{ text_alignment }}{% if enable_border %} testimonial__item--border{% endif %}"
+    data-item
+    {{ block.shopify_attributes }}>
+
+    {%- style -%}
+      [data-section-id="{{ section.id }}"] .testimonial__item--{{ block_id }} .testimonial__text { --adjust-body: calc(var(--FONT-ADJUST-BODY) * {{ text_size }}); }
+
+      {%- if block_color.alpha != 0.0 and block_color != '' -%}
+        [data-section-id="{{ section.id }}"] .testimonial__item--{{ block_id }} .testimonial__item__inner { background: {{ block_color }}; }
+      {%- endif -%}
+
+      {%- if text_color.alpha != 0.0 and text_color != '' -%}
+        [data-section-id="{{ section.id }}"] .testimonial__item--{{ block_id }} .testimonial__item__inner { --text: {{ text_color }}; }
+      {%- endif -%}
+    {%- endstyle -%}
+
+    <div class="testimonial__item__inner"
+      {% if animations_enabled and enable_border or block_color.alpha != 0.0 and block_color != '' %}
+        data-aos="fade-up"
+        data-aos-anchor="{{ animation_anchor }}"
+        data-aos-delay="{{ animation_delay }}"
+        {%- assign animation_delay = animation_delay | plus: 150 -%}
+      {% endif %}>
+      <div class="testimonial__item__content">
+
+        <div class="{{ testimonial_text_class }}"
+          {% if animations_enabled %}
+            data-aos="fade-up"
+            data-aos-anchor="{{ animation_anchor }}"
+            data-aos-delay="{{ animation_delay }}"
+            {%- assign animation_delay = animation_delay | plus: 150 -%}
+          {% endif %}>{{ heading }}</div>
+
+        {%- unless star_rating == 0 -%}
+          <div class="testimonial__stars"
+            {% if animations_enabled %}
+              data-aos="fade-up"
+              data-aos-anchor="{{ animation_anchor }}"
+              data-aos-delay="{{ animation_delay }}"
+              {%- assign animation_delay = animation_delay | plus: 150 -%}
+            {% endif %}>
+            <span class="rating__star" aria-hidden="true" style="--percent: {{ 100 | minus: percent }}%">
+              <span class="rating__star__empty">
+                {%- for i in (1..5) -%}<svg width="25px" height="25px" viewBox="0 0 25 25" class="icon icon-star icon-star--empty"><polygon fill-rule="nonzero" points="16.2212909 8.77064179 12.5128412 0.870224269 8.80343056 8.77064179 0.512841234 10.0374085 6.51243703 16.1862739 5.09643337 24.8702243 12.5128412 20.7696377 19.9292491 24.8702243 18.5122845 16.1862739 24.5128412 10.0374085"></polygon></svg>{%- endfor -%}
+              </span>
+
+              <span class="rating__star__full">
+                {%- for i in (1..5) -%}<svg width="25px" height="25px" viewBox="0 0 25 25" class="icon icon-star icon-star--full"><polygon fill-rule="nonzero" points="16.2212909 8.77064179 12.5128412 0.870224269 8.80343056 8.77064179 0.512841234 10.0374085 6.51243703 16.1862739 5.09643337 24.8702243 12.5128412 20.7696377 19.9292491 24.8702243 18.5122845 16.1862739 24.5128412 10.0374085"></polygon></svg>{%- endfor -%}
+              </span>
+            </span>
+          </div>
+        {%- endunless -%}
+
+        {%- if subheading != blank -%}
+          <div
+            {% if animations_enabled %}
+              data-aos="fade-up"
+              data-aos-anchor="{{ animation_anchor }}"
+              data-aos-delay="{{ animation_delay }}"
+              {%- assign animation_delay = animation_delay | plus: 150 -%}
+            {% endif %}>{{ subheading }}</div>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+{%- endunless -%}

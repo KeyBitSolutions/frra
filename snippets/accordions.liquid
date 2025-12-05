@@ -1,0 +1,271 @@
+{%- comment -%} Accordions section {%- endcomment -%}
+
+{%- liquid
+  assign section_width = section.settings.width
+  assign animations_enabled = settings.animations_enabled
+  assign animation_anchor = '#Accordions--' | append: section.id
+  assign animation_delay = 150
+  assign heading = section.settings.title
+  assign type_style = section.settings.type_style
+  assign heading_size = section.settings.heading_size | times: 0.01
+  assign subheading = section.settings.subheading
+  assign text = section.settings.text
+  assign layout = section.settings.layout
+  assign content_alignment = section.settings.content_alignment
+  assign show_accordion_divider = section.settings.show_accordion_divider
+  assign color_body_bg = settings.color_body_bg
+  assign color_scheme = 'color-' | append: section.settings.color_scheme
+  assign selected_color_scheme = section.settings.color_scheme | strip
+  assign scheme_bg_color = settings.color_schemes[selected_color_scheme].settings.section_bg
+  assign scheme_bg_gradient = settings.color_schemes[selected_color_scheme].settings.section_bg_gradient
+  assign border_color = section.settings.border_color
+
+  if scheme_bg_gradient != ''
+    assign scheme_bg_color = scheme_bg_gradient
+  endif
+
+  assign tabs_bg_color = section.settings.tabs_bg_color
+  assign padded = true
+  assign border_opacity = 0
+  assign margin_bottom = 10
+  if scheme_bg_color == tabs_bg_color or tabs_bg_color == '' or tabs_bg_color.alpha == 0.0
+    assign padded = false
+    assign margin_bottom = 0
+
+    if show_accordion_divider
+      assign border_opacity = 1
+    endif
+  endif
+
+  assign block_size = section.blocks.size
+  assign blocks_count_round = block_size | modulo: 2
+  assign blocks_in_column = block_size | divided_by: 2
+
+  if blocks_count_round == 1
+    assign blocks_in_column = blocks_in_column | plus: 1
+  endif
+
+  assign border_width = 1
+  if section.settings.line_thickness == 'bold'
+    assign border_width = 2
+  endif
+
+  capture type_adjustment
+    case type_style
+      when 'font-heading'
+        echo 'var(--adjust-heading)'
+      when 'font-body'
+        echo 'var(--adjust-body)'
+      when 'subheading-text'
+        echo 'var(--adjust-accent)'
+    endcase
+  endcapture
+-%}
+
+<link
+  href="{{ 'section-accordions.css' | asset_url }}"
+  rel="preload"
+  as="style"
+  onload="this.onload=null;this.rel='stylesheet'"
+>
+
+{%- style -%}
+  #Accordions--{{ section.id }} {
+    --PT: {{ section.settings.padding_top }}px;
+    --PB: {{ section.settings.padding_bottom }}px;
+    --border-opacity: {{ border_opacity }};
+    --border-width: {{ border_width }}px;
+    --MB: {{ margin_bottom }}px;
+    --padding-left: 0;
+
+    {% if padded -%}
+      {%- unless tabs_bg_color.alpha != 0.0 -%}
+        --bg-padded-line: #fff;
+      {%- else -%}
+        --bg-padded-line: var(--bg);
+      {%- endunless -%}
+    {%- endif %}
+
+    {% if border_color.alpha != 0.0 and border_color != '' and border_color != blank %}
+      --border: {{ border_color }};
+    {% endif %}
+  }
+  #Accordions--{{ section.id }} .section__heading { --heading-size: calc({{ type_adjustment }} * {{ heading_size }}); }
+
+  {% if tabs_bg_color.alpha != 0.0 and tabs_bg_color != '' -%}
+    #Accordions--{{ section.id }} .accordion__item { --bg-item: {{ tabs_bg_color }}; }
+  {%- endif %}
+{%- endstyle -%}
+
+{% capture section_heading %}
+  {%- unless heading == blank and subheading == blank and text == blank -%}
+    <div class="accordion__header">
+      <div class="section__header {{ content_alignment }}">
+        {%- if subheading != blank -%}
+          <h4 class="accordion__subheading subheading-text"
+            {% if animations_enabled %}
+              data-aos="fade-up"
+              data-aos-anchor="{{ animation_anchor }}"
+              data-aos-delay="{{ animation_delay }}"
+              {%- assign animation_delay = animation_delay | plus: 150 -%}
+            {% endif %}
+          >
+            {{ subheading }}
+          </h4>
+        {%- endif -%}
+
+        {%- if heading != blank -%}
+          <h2 class="section__heading h2 {{ type_style }}"
+            {% if animations_enabled %}
+              data-aos="fade-up"
+              data-aos-anchor="{{ animation_anchor }}"
+              data-aos-delay="{{ animation_delay }}"
+              {%- assign animation_delay = animation_delay | plus: 150 -%}
+            {% endif %}
+          >
+            {{ heading }}
+          </h2>
+
+          {%- if settings.show_spacer_lines -%}
+            <hr class="section__heading-line"
+              {% if animations_enabled %}
+                data-aos="fade-up"
+                data-aos-anchor="{{ animation_anchor }}"
+                data-aos-delay="{{ animation_delay }}"
+                {%- assign animation_delay = animation_delay | plus: 150 -%}
+              {% endif %}
+            >
+          {%- endif -%}
+        {%- endif -%}
+
+        {%- if text != blank -%}
+          <div class="rte"
+            {% if animations_enabled %}
+              data-aos="fade-up"
+              data-aos-anchor="{{ animation_anchor }}"
+              data-aos-delay="{{ animation_delay }}"
+              {%- assign animation_delay = animation_delay | plus: 150 -%}
+            {% endif %}
+          >
+            {{ text }}
+          </div>
+        {%- endif -%}
+      </div>
+    </div>
+  {%- endunless -%}
+
+  {%- assign animation_delay_header = animation_delay -%}
+  {%- assign animation_delay_mobile = animation_delay -%}
+{% endcapture %}
+
+{% comment %}theme-check-disable UnclosedHTMLElement{% endcomment %}
+{% capture accordions %}
+  {%- if layout == 'one-column' -%}
+    <ul class="accordion__list">
+  {%- else -%}
+    <div class="accordion__columns">
+      <div class="accordion__column">
+        <ul class="accordion__list">
+  {%- endif -%}
+      {%- for block in section.blocks -%}
+        {%- liquid
+          assign title = block.settings.title
+          assign block_text = pages[block.settings.raw_content].content | default: block.settings.text
+          assign block_index = forloop.index
+          assign accordion_id = 'Accordion--' | append: block.id
+
+          assign icon_image = block.settings.icon_image
+          assign icon_aspect_ratio = icon_image.aspect_ratio | default: 1
+          assign icon_width = block.settings.icon_width
+          assign icon_size = icon_width
+          assign icon_position = block.settings.icon_position
+
+          assign icon_class = 'accordion__title-icon'
+          if icon_aspect_ratio < 1
+            assign icon_class = icon_class | append: ' accordion__title-icon--portrait'
+            assign icon_width = icon_width | times: icon_aspect_ratio
+          endif
+
+          assign retina_size = icon_width | times: 2
+          assign image_widths = icon_width | append: ', ' | append: retina_size
+          assign sizes = icon_width | append: 'px'
+        -%}
+
+        {%- unless title == blank -%}
+          <li id="{{ accordion_id }}" class="accordion__item{% if forloop.index == 1 %} accordion__item--first{% endif %}{% if padded %} accordion__item--padded{% endif %}"
+            aria-haspopup="true"
+            {% if animations_enabled %}
+              style="--AD: {{ animation_delay_mobile }}ms"
+              data-aos="fade-up"
+              data-aos-anchor="{{ animation_anchor }}"
+              data-aos-delay="{{ animation_delay }}"
+              {%- assign animation_delay = animation_delay | plus: 150 -%}
+              {%- assign animation_delay_mobile = animation_delay_mobile | plus:  150 -%}
+            {% endif %}
+            {{ block.shopify_attributes }}>
+            <button
+              class="accordion__title{% if icon_position == 'inline-left' %} accordion__title--row{% endif %}"
+              {% if icon_image != blank %}
+                style="--icon-size: {{ icon_size }}px;"
+              {% endif %}
+              aria-expanded="false"
+              aria-controls="Accordions-item--{{ forloop.index0 }}-{{ section.id }}"
+              data-collapsible-trigger
+            >
+              {%- if icon_image != blank -%}
+                <div class="{{ icon_class }}">
+                  {%- render 'image', image: icon_image, width: retina_size, widths: image_widths, sizes: sizes, cover: false -%}
+                </div>
+              {%- endif -%}
+              <span class="accordion__title-text">{{ title }}</span>
+
+              {%- render 'icon-toggle-plus' -%}
+              {%- render 'icon-toggle-minus' -%}
+            </button>
+
+            <div class="accordion__text-wrapper" id="Accordions-item--{{ forloop.index0 }}-{{ section.id }}" data-collapsible-container>
+              <div class="accordion__text rte" data-collapsible-content>
+                {{- block_text -}}
+              </div>
+            </div>
+          </li>
+        {%- endunless -%}
+
+        {%- if block_index == blocks_in_column and layout == 'two-columns' -%}
+          {% comment %} Close the column and start a new one when reaching half of the blocks {% endcomment %}
+            </ul>
+          </div>
+
+          <div class="accordion__column">
+            {%- assign animation_delay = animation_delay_header -%}
+            <ul class="accordion__list accordion__list--{{ layout }}">
+        {%- endif -%}
+      {%- endfor -%}
+  {%- if layout == 'one-column' -%}
+    </ul>
+  {%- else -%}
+        </ul>
+      </div>
+    </div>
+  {%- endif -%}
+{% endcapture %}
+{% comment %}theme-check-enable UnclosedHTMLElement{% endcomment %}
+
+<section
+  data-section-id="{{ section.id }}"
+  id="Accordions--{{ section.id }}"
+  data-section-type="accordions"
+  class="section-padding accordions-section{% if content_alignment == 'text-left' %} accordions-section--left{% endif %} {{ color_scheme }}"
+>
+  <div class="{{ section_width }}">
+    {{ section_heading }}
+
+    {%- if block_size > 0 -%}
+      <collapsible-elements class="accordion__content" data-collapsible-single>
+        {{ accordions }}
+      </collapsible-elements>
+    {%- else -%}
+      {%- render 'no-blocks' -%}
+    {%- endif -%}
+  </div>
+</section>

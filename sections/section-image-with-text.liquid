@@ -1,0 +1,1297 @@
+{%- liquid
+  assign layout = section.settings.layout
+  assign show_accordion_divider = section.settings.show_accordion_divider
+  assign image_location = section.settings.image_location
+  assign image_width = section.settings.image_width
+  assign section_height = section.settings.section_height
+  assign enable_mobile_height = section.settings.enable_mobile_height
+  assign mobile_height = section.settings.mobile_height
+  assign section_width = section.settings.section_width
+  assign image = section.settings.image
+  assign increase_border_radius = section.settings.increase_border_radius
+  assign block_bg_color = section.settings.block_bg_color
+  assign color_scheme = 'color-' | append: section.settings.color_scheme
+  assign selected_color_scheme = section.settings.color_scheme | strip
+  assign scheme_bg_color = settings.color_schemes[selected_color_scheme].settings.section_bg
+  assign scheme_bg_gradient = settings.color_schemes[selected_color_scheme].settings.section_bg_gradient
+  assign add_gutter = section.settings.add_gutter
+  assign items_layout_class = ''
+  assign unique = section.id
+  assign id = 'ImageWithText--' | append: section.id
+  assign selector_id = '#' | append: id
+  assign animation_anchor = selector_id
+  assign animations_enabled = settings.animations_enabled
+  assign animation_delay = 150
+
+  case layout
+    when 'inline'
+      case image_location
+        when 'left'
+          assign items_layout_class = items_layout_class | append: ' image-with-text__items--inline-left'
+        when 'right'
+          assign items_layout_class = items_layout_class | append: ' image-with-text__items--inline-right'
+      endcase
+    when 'overlay'
+      assign items_layout_class = items_layout_class | append: section_height
+
+      case image_location
+        when 'left'
+          assign items_layout_class = items_layout_class | append: ' image-with-text__items--overlay-left'
+        when 'right'
+          assign items_layout_class = items_layout_class | append: ' image-with-text__items--overlay-right'
+      endcase
+  endcase
+
+  case image_width
+    when 'extra-narrow'
+      assign image_width_class = 'image-with-text--image-thirty'
+      assign block_width_percent = 0.3
+    when 'narrow'
+      assign image_width_class = 'image-with-text--image-forty'
+      assign block_width_percent = 0.4
+    when 'standard'
+      assign image_width_class = 'image-with-text--image-fifty'
+      assign block_width_percent = 0.5
+    when 'wide'
+      assign image_width_class = 'image-with-text--image-sixty'
+      assign block_width_percent = 0.6
+    when 'extra-wide'
+      assign image_width_class = 'image-with-text--image-seventy'
+      assign block_width_percent = 0.7
+  endcase
+
+  assign block_color_set = false
+  assign has_gutter = false
+  if block_bg_color.alpha != 0.0 and block_bg_color != '' and block_bg_color != scheme_bg_color or scheme_bg_gradient != ''
+    assign block_color_set = true
+
+    if add_gutter and layout == 'inline'
+      assign has_gutter = true
+    endif
+  endif
+
+  assign border_opacity = 0
+
+  if show_accordion_divider
+    assign border_opacity = 1
+  endif
+
+  assign desktop_space = 120
+  assign tablet_space = 40
+  assign mobile_space = 40
+  case section_width
+    when 'wrapper--full'
+      assign wrapper_width = '100vw'
+      assign desktop_space = 0
+      assign tablet_space = 0
+      assign mobile_space = 0
+    when 'wrapper--full-padded'
+      assign wrapper_width = '100vw'
+    when 'wrapper'
+      assign wrapper_width = '1440px'
+  endcase
+
+  if layout == 'overlay'
+    assign block_width_percent = 0.85
+    assign tablet_space = 40
+    assign mobile_space = 0
+  endif
+
+  assign button_advanced_class = 'btn--advanced'
+  if button_style != 'btn--text'
+    assign button_advanced_class = button_advanced_class | append: ' btn--advanced-width-height'
+  endif
+-%}
+
+<link
+  href="{{ 'section-image-with-text.css' | asset_url }}"
+  rel="preload"
+  as="style"
+  onload="this.onload=null;this.rel='stylesheet'"
+>
+<link
+  href="{{ 'section-accordions.css' | asset_url }}"
+  rel="preload"
+  as="style"
+  onload="this.onload=null;this.rel='stylesheet'"
+>
+
+{%- style -%}
+  {{ selector_id }} {
+    --PT: {{ section.settings.padding_top }}px;
+    --PB: {{ section.settings.padding_bottom }}px;
+
+    {% if mobile_height == 'one-fifty-height-mobile' -%}
+      --content-offset: 70px;
+    {%- endif %}
+  }
+
+  {% if increase_border_radius -%}
+    {{ selector_id }} .image-with-text__image,
+    {{ selector_id }} .image-with-text__content {
+      --radius: 34px;
+    }
+
+    {{ selector_id }} .image-with-text__accordion {
+      --radius: 8px;
+    }
+  {%- endif %}
+
+  {% if block_color_set -%}
+    {{ selector_id }} .image-with-text__content {
+      --bg: {{ block_bg_color }};
+    }
+  {% else %}
+    {{ selector_id }} .wrapper--full-padded .image-with-text__items--inline-right .image-with-text__content,
+    {{ selector_id }} .wrapper .image-with-text__items--inline-right .image-with-text__content {
+      padding-left: 0;
+    }
+
+    {{ selector_id }} .wrapper--full-padded .image-with-text__items--inline-left .image-with-text__content,
+    {{ selector_id }} .wrapper .image-with-text__items--inline-left .image-with-text__content  {
+      padding-right: 0;
+    }
+  {% endif %}
+{%- endstyle -%}
+
+{%- capture content -%}
+  {%- if section.blocks.size > 0 -%}
+    {%- liquid
+      assign inside_accordion_group = false
+      assign accordion_group = ''
+    -%}
+
+    {%- for block in section.blocks -%}
+      {%- liquid
+        assign size = block.settings.size | times: 0.01
+        assign text_position = block.settings.text_position
+        capture block_style
+          echo '--block-spacing-bottom: ' | append: block.settings.spacing_bottom | append: 'px;'
+        endcapture
+      -%}
+
+      {%- case block.type -%}
+        {%- when 'accordion' -%}
+          {%- liquid
+            assign heading = block.settings.heading
+            assign type_style = block.settings.type_style
+            assign heading_size = block.settings.heading_size | times: 0.01
+            assign text = block.settings.text
+            assign text_size = block.settings.text_size | times: 0.01
+            assign block_index = forloop.index
+            assign icon_image = block.settings.icon_image
+            assign icon_aspect_ratio = icon_image.aspect_ratio | default: 1
+            assign icon_width = block.settings.icon_width
+            assign icon_size = icon_width
+            assign icon_position = block.settings.icon_position
+            assign tabs_bg_color = block.settings.tabs_bg_color
+            assign line_thickness = block.settings.line_thickness
+
+            assign prev_block_spaced_out = false
+            assign prev_index = forloop.index0 | minus: 1
+            assign prev_block = section.blocks[prev_index]
+            if prev_block.type == 'accordion' and prev_block.settings.spacing_bottom > 0
+              assign prev_block_spaced_out = true
+            endif
+
+            assign has_bg_color = false
+            if tabs_bg_color.alpha != 0.0 and tabs_bg_color != '' and tabs_bg_color != scheme_bg_color or scheme_bg_gradient != ''
+              if block_bg_color.alpha != 0.0 and block_bg_color != '' and tabs_bg_color != block_bg_color
+                assign has_bg_color = true
+                assign border_opacity = 0
+              elsif block_bg_color.alpha == 0.0 or block_bg_color == ''
+                assign has_bg_color = true
+                assign border_opacity = 0
+              endif
+            endif
+
+            assign border_width = 1
+            if line_thickness == 'bold'
+              assign border_width = 2
+            endif
+
+            capture type_adjustment
+              case type_style
+                when 'font-heading'
+                  echo 'var(--adjust-heading)'
+                when 'font-body'
+                  echo 'var(--adjust-body)'
+                when 'subheading-text'
+                  echo 'var(--adjust-accent)'
+              endcase
+            endcapture
+
+            assign icon_class = 'accordion__title-icon'
+            if icon_aspect_ratio < 1
+              assign icon_class = icon_class | append: ' accordion__title-icon--portrait'
+              assign icon_width = icon_width | times: icon_aspect_ratio
+            endif
+
+            assign retina_size = icon_width | times: 2
+            assign image_widths = icon_width | append: ', ' | append: retina_size
+            assign sizes = icon_width | append: 'px'
+          -%}
+
+          {%- unless heading == blank -%}
+            {%- unless inside_accordion_group -%}
+              {%- assign inside_accordion_group = true -%}
+              {%- assign is_first_accordion = true -%}
+              {%- capture accordion_group -%}
+                {% comment %} ".image-with-text__accordion" opening tag {% endcomment %}
+                <div class="image-with-text__accordion accordion">
+              {%- endcapture -%}
+            {%- endunless -%}
+
+            {%- capture accordion_group -%}
+              {{ accordion_group }}
+
+              {%- style -%}
+                #ImageWithText--{{ block.id }}.accordion__item {
+                  --border-opacity: {{ border_opacity }};
+                  --border-width: {{ border_width }}px;
+                  --padding-left: 0;
+
+                  {% if has_bg_color -%}
+                    --bg-item: {{ tabs_bg_color }};
+                    --padding-left: var(--gutter-mobile);
+                  {%- else -%}
+                    --bg-item: transparent;
+                  {%- endif %}
+                }
+
+                #ImageWithText--{{ block.id }} .accordion__title-text {
+                  --heading-size: calc({{ type_adjustment }} * {{ heading_size }});
+                  --text-size: calc(1rem * {{ type_adjustment }});
+                }
+
+                #ImageWithText--{{ block.id }} .accordion__text {
+                  --body-size: calc(var(--adjust-body) * {{ text_size }});
+                }
+              {%- endstyle -%}
+
+              <div class="accordion__item{% if is_first_accordion or prev_block_spaced_out %} accordion__item--border-top{% endif %} block-spacing"
+                id="ImageWithText--{{ block.id }}"
+                style="{{ block_style }} --AD: {{ animation_delay }}ms;"
+                {% if animations_enabled %}
+                  data-aos="fade-up"
+                  data-aos-anchor="{{ animation_anchor }}"
+                  data-aos-delay="{{ animation_delay }}"
+                  {%- assign animation_delay = animation_delay | plus: 150 -%}
+                {% endif %}
+                {{ block.shopify_attributes }}
+              >
+                <button
+                  class="accordion__title{% if icon_position == 'inline-left' %} accordion__title--row{% endif %}"
+                  {% if icon_image != blank %}
+                    style="--icon-size: {{ icon_size }}px;"
+                  {% endif %}
+                  aria-expanded="false"
+                  aria-controls="ImageWithText--{{ forloop.index0 }}-{{ block.id }}"
+                  data-collapsible-trigger
+                >
+                  {%- if icon_image != blank -%}
+                    <div class="{{ icon_class }}">
+                      {%- render 'image', image: icon_image, width: retina_size, widths: image_widths, sizes: sizes, cover: false -%}
+                    </div>
+                  {%- endif -%}
+                  <span class="accordion__title-text {{ type_style }}">{{ heading }}</span>
+
+                  {%- render 'icon-toggle-plus' -%}
+                  {%- render 'icon-toggle-minus' -%}
+                </button>
+
+                <div class="accordion__text-wrapper" id="ImageWithText--{{ forloop.index0 }}-{{ block.id }}" data-collapsible-container>
+                  <div class="accordion__text rte" data-collapsible-content>
+                    {{- text -}}
+                  </div>
+                </div>
+              </div>
+
+              {%- assign is_first_accordion = false -%}
+            {%- endcapture -%}
+          {%- endunless -%}
+
+        {%- else -%}
+          {%- if inside_accordion_group -%}
+              {{ accordion_group }}
+            </div>{% comment %} ".image-with-text__accordion" closing tag {% endcomment %}
+            {%- assign inside_accordion_group = false -%}
+          {%- endif -%}
+
+          {%- case block.type -%}
+            {%- when 'subheading' -%}
+              {%- assign subheading = block.settings.subheading -%}
+
+              {%- if subheading != blank -%}
+                {%- style -%}
+                  #ImageWithText--{{ block.id }}.image-with-text__subheading {
+                    --adjust-body: calc(var(--FONT-ADJUST-SUBHEADING) * {{ size }});
+                  }
+                {%- endstyle -%}
+
+                <div class="image-with-text__subheading subheading-text main-subheading text-{{ text_position }} block-spacing"
+                  id="ImageWithText--{{ block.id }}"
+                  style="{{ block_style }}"
+                  {% if animations_enabled %}
+                    data-aos="fade-up"
+                    data-aos-anchor="{{ animation_anchor }}"
+                    data-aos-delay="{{ animation_delay }}"
+                    {%- assign animation_delay = animation_delay | plus: 150 -%}
+                  {% endif %}
+                  {{ block.shopify_attributes }}
+                >
+                  {{ subheading }}
+                </div>
+              {%- endif -%}
+
+            {%- when 'heading' -%}
+              {%- liquid
+                assign title = block.settings.title
+                assign heading_highlight_type = block.settings.heading_highlight_type
+                assign highlight_color = block.settings.highlight_color
+                assign highlight_text_color = block.settings.highlight_text_color
+                assign heading_size = block.settings.heading_size | times: 0.01
+              -%}
+
+              {%- if title != blank -%}
+                <div class="image-with-text__header text-{{ text_position }} block-spacing" style="{{ block_style }}" {{ block.shopify_attributes }}>{% comment %}
+  Enhanced text decorations options - Liquid variables
+
+  Dependencies:
+    - Title liquid object from settings: `assign title = section.settings.title`
+    - Highlight type from settings: `assign heading_highlight_type = section.settings.heading_highlight_type`
+    - Highlight color from settings: `assign highlight_color = section.settings.highlight_color or assign highlight_color = block.settings.highlight_color`
+    - SVG icons:
+      - icon-squiggle.svg (assets)
+      - icon-circle.liquid (snippet)
+{% endcomment %}
+
+{%- liquid
+  comment
+   Highlighted words count
+  endcomment
+  assign title_temp = title | split: '<em>'
+  assign em_arr = ''
+  if title_temp.size > 1
+    for text_part in title_temp offset: 1
+      assign em_text = text_part | split: '</em>' | first
+      assign em_arr = em_arr | append: '#separator#' | append: em_text
+    endfor
+  endif
+  assign em_arr = em_arr | split: '#separator#'
+  assign words_count_arr = ''
+  assign letters_count_arr = ''
+  if em_arr.size > 0
+    for words in em_arr offset: 1
+      assign word = words | split: ' '
+      assign words_count_arr = words_count_arr | append: word.size | append: ', '
+      assign letters_count_arr = letters_count_arr | append: words.size | append: ', '
+    endfor
+  endif
+
+  assign words_count_arr = words_count_arr | replace_last: ', ', '' | split: ', '
+  assign letters_count_arr = letters_count_arr | replace_last: ', ', '' | split: ', '
+
+  comment
+   Main highlight types logic
+  endcomment
+  assign icon_url = ''
+  assign icon_color = 'var(--heading)'
+
+  if highlight_color != 'rgba(0,0,0,0)' and highlight_color != ''
+    assign icon_color = highlight_color
+  endif
+
+  capture text_highlight_icon
+    assign has_text_highlight = false
+
+    if title contains '<em>'
+      case heading_highlight_type
+        when 'squiggle'
+          assign icon_url = 'icon-squiggle.svg' | asset_url
+        when 'circle' or 'circle-hand-drawn' or 'underline-hand-drawn'
+          echo '<span class="text-highlight__icon" data-highlight-holder>'
+
+            when 'circle'
+              render 'icon-circle'
+            when 'circle-hand-drawn'
+              render 'icon-circle-hand-drawn'
+            when 'underline-hand-drawn'
+              render 'icon-underline-hand-drawn'
+
+          echo '</span>'
+        when 'highlight' or 'squiggle'
+          echo '<span class="text-highlight__icon text-highlight__icon--pseudo" data-highlight-holder></span>'
+        when 'stroke' or 'circle' or 'circle-hand-drawn' or 'squiggle' or 'highlight' or 'highlight-color' or 'underline' or 'underline-hand-drawn' or 'alternate-font'
+          assign has_text_highlight = true
+      endcase
+    endif
+  endcapture
+
+  capture icon_bg
+    if icon_url != ''
+      echo 'url( "' | append: icon_url | append: '" )'
+    else
+      echo 'none'
+    endif
+  endcapture
+  capture icon_styles
+    assign icon_bg = icon_bg | replace: '"', "'"
+    echo 'style="--icon-url: ' | append: icon_bg | append: ';' | append: '--icon-color: ' | append: icon_color | append: ';"'
+  endcapture
+
+  assign text_highlight_wrapper_class = 'text-highlight-wrapper' | append: ' text-highlight-wrapper--' | append: heading_highlight_type
+  capture text_highlight_start
+    echo '<text-highlight class="text-highlight" ' | append: icon_styles | append: ' data-highlight-type="' | append: heading_highlight_type | append: '">'
+    case heading_highlight_type
+      when 'stroke' or 'highlight-color' or 'underline' or 'alternate-font'
+        echo '<span class="text-highlight__string" data-highlight-holder>'
+    endcase
+  endcapture
+  capture text_highlight_end
+    echo text_highlight_icon
+    case heading_highlight_type
+      when 'stroke' or 'highlight-color' or 'underline' or 'alternate-font'
+        echo '</span>'
+    endcase
+    echo '</text-highlight>'
+  endcapture
+
+  if title != blank and title contains '<em>'
+    case heading_highlight_type
+      when 'squiggle' or 'circle' or 'circle-hand-drawn' or 'stroke' or 'highlight' or 'highlight-color' or 'underline' or 'underline-hand-drawn' or 'alternate-font'
+        assign title = title | replace: '<em>', text_highlight_start | replace: '</em>', text_highlight_end
+
+      when 'circle' or 'circle-hand-drawn'
+        comment
+          Update icon's holder class based on the italicised words count
+        endcomment
+        assign title = title | split: 'class="text-highlight"'
+        assign title_mod = ''
+        for title_part in title offset: 1
+          assign current_part = title_part
+
+          if title_part contains 'text-highlight__icon'
+            capture highlight_icon_classes
+              echo 'text-highlight__icon'
+              assign current_count = words_count_arr[forloop.index0] | times: 1
+              assign letters_count = letters_count_arr[forloop.index0] | times: 1
+              if current_count == 1
+                echo ' text-highlight__icon--single-word'
+              endif
+              if letters_count < 6
+                echo ' text-highlight__icon--short'
+                echo ' text-highlight__icon--l' | append: letters_count
+              endif
+              if letters_count > 15
+                echo ' text-highlight__icon--long'
+              endif
+            endcapture
+
+            assign current_part = title_part | replace: 'text-highlight__icon', highlight_icon_classes
+          endif
+
+          unless forloop.last
+            assign title_mod = title_mod | append: current_part | append: 'class="text-highlight"'
+          else
+            assign title_mod = title_mod | append: current_part
+          endunless
+        endfor
+        assign title_first_part = title | first | append: 'class="text-highlight"'
+        assign title_mod = title_mod | prepend: title_first_part
+        assign title = title_mod
+    endcase
+  endif
+-%}{%- style -%}
+                    #ImageWithText--{{ block.id }}.image-with-text__heading {
+                      --adjust-heading: calc(var(--FONT-ADJUST-HEADING) * {{ size }});
+
+                      {%- if heading_highlight_type != 'highlight' -%}
+                        --highlight-color: var(--text);
+                      {%- endif -%}
+
+                      {%- if highlight_color.alpha != 0.0 and highlight_color != '' -%}
+                        --highlight-color: {{ highlight_color }};
+                      {%- endif -%}
+
+                      {%- if highlight_text_color.alpha != 0.0 and highlight_text_color != '' -%}
+                        --highlight-text-color: {{ highlight_text_color }};
+                      {%- endif -%}
+                    }
+                  {%- endstyle -%}{% comment %}
+  Modify text in title whenever there is a percentage off string, such as "20% off", so that output will include HTML tags with which to style promo texts better
+
+  Dependencies:
+    - title: {Object} Liquid object from settings that contains the heading that would be modified and rendered - `assign title = section.settings.title`
+
+  Returns variables:
+    - has_percent_off: {Boolean}
+    - has_number_percent: {Boolean}
+{%- endcomment -%}
+
+{%- liquid
+  assign numbers_string = '0%,1%,2%,3%,4%,5%,6%,7%,8%,9%' | split: ','
+  assign has_percent_off = false
+  assign has_number_percent = false
+  for num in numbers_string
+    if title contains num
+      assign has_number_percent = true
+    endif
+  endfor
+
+  if has_number_percent
+    assign title = title | replace: '%', '<sup>%</sup>'
+
+    if title contains '<sup>%</sup> off' or title contains '<sup>%</sup> OFF' or title contains '<sup>%</sup> Off'
+      assign has_percent_off = true
+      assign title = title | replace: '<sup>%</sup> off', '<sup>%</sup> <small>off</small>'
+      assign title = title | replace: '<sup>%</sup> OFF', '<sup>%</sup> <small>OFF</small>'
+      assign title = title | replace: '<sup>%</sup> Off', '<sup>%</sup> <small>Off</small>'
+    endif
+  endif
+-%}{%- capture title_attributes -%}
+                    class="image-with-text__heading h2{% if has_text_highlight %} {{ text_highlight_wrapper_class }}{% endif %}{% if has_percent_off %} haspercentoff{% elsif has_number_percent %} hasnumberpercent{% endif %}"
+                    id="ImageWithText--{{ block.id }}"
+                    {% if animations_enabled %}
+                      data-aos="fade-up"
+                      data-aos-anchor="{{ animation_anchor }}"
+                      data-aos-delay="{{ animation_delay }}"
+                      {%- assign animation_delay = animation_delay | plus: 150 -%}
+                    {% endif %}
+                  {%- endcapture -%}
+
+                  {% render 'title-text-reveal-and-highlights',
+                    title: title,
+                    title_attributes: title_attributes,
+                    has_text_highlight: has_text_highlight
+                  %}
+
+                  {%- if settings.show_spacer_lines -%}
+                    <hr
+                      {% if animations_enabled %}
+                        data-aos="fade-up"
+                        data-aos-delay="{{ animation_delay }}"
+                        data-aos-anchor="{{ animation_anchor }}"
+                      {% endif %}>
+                    {%- assign animation_delay = animation_delay | plus: 150 -%}
+                  {%- endif -%}
+                </div>
+              {%- endif -%}
+
+            {%- when 'text' -%}
+              {%- assign text = block.settings.text -%}
+
+              {%- if text != blank -%}
+                {%- style -%}
+                  #ImageWithText--{{ block.id }}.image-with-text__text {
+                    --adjust-body: calc(var(--FONT-ADJUST-BODY) * {{ size }});
+                  }
+                {%- endstyle -%}
+
+                <div
+                  class="image-with-text__text text-{{ text_position }} block-spacing"
+                  id="ImageWithText--{{ block.id }}"
+                  style="{{ block_style }}"
+                  {% if animations_enabled %}
+                    data-aos="fade-up"
+                    data-aos-anchor="{{ animation_anchor }}"
+                    data-aos-delay="{{ animation_delay }}"
+                    {%- assign animation_delay = animation_delay | plus: 150 -%}
+                  {% endif %}
+                  {{ block.shopify_attributes }}
+                >
+                  {{ text }}
+                </div>
+              {%- endif -%}
+
+            {%- when 'button' -%}
+              {%- liquid
+                assign video_link = block.settings.video_link
+                assign button_text = block.settings.button_text
+                assign button_link = block.settings.button_link
+                assign button_style = block.settings.button_style
+                assign button_color = block.settings.button_color
+                assign button_size = block.settings.button_size
+
+                assign hover_scale = ''
+                assign entire_image_link = false
+                if button_text == blank and button_link != blank
+                  assign entire_image_link = true
+                  assign hover_scale = ' hover-scale'
+                endif
+              -%}
+
+              {%- if button_text != blank -%}
+                <div class="image-with-text__buttons main-buttons text-{{ text_position }} block-spacing" style="{{ block_style }}">
+                  <div class="main-buttons__item"
+                    {% if animations_enabled %}
+                      data-aos="fade-up"
+                      data-aos-anchor="{{ animation_anchor }}"
+                      data-aos-delay="{{ animation_delay }}"
+                      {%- assign animation_delay = animation_delay | plus: 150 -%}
+                    {% endif %}
+                    {{ block.shopify_attributes }}>
+                    <a href="{{ button_link }}" class="btn {{ button_style }} {{ button_size }} {{ button_color }} {{ button_advanced_class }}" aria-label="{{ button_text }}">
+                      <hover-button></hover-button>
+                      {{ button_text }}
+                    </a>
+                  </div>
+                </div>
+              {%- endif -%}
+
+              {%- capture video_link -%}
+                {%- unless video_link == blank -%}
+                  {%- render 'video-popup' video_link: video_link, unique: unique  -%}
+
+                  <video-popup class="image-with-text__video-link"
+                    {% if animations_enabled %}
+                      data-aos="fade-up"
+                      data-aos-anchor="{{ animation_anchor }}"
+                      data-aos-delay="150"
+                    {% endif %}
+                  >
+                    <a class="play-button"
+                      href="{{ video_link }}"
+                      data-video-play="{%- render 'photoswipe-video-html' item_link: video_link , item_link_type: video_type, item_link_id: video_id, item_id: video_parent_id -%}">
+                      {%- render 'icon-play' -%}
+                    </a>
+                  </video-popup>
+                {%- endunless -%}
+              {%- endcapture -%}
+          {%- endcase -%}
+      {%- endcase -%}
+    {%- endfor -%}
+
+    {%- if inside_accordion_group -%}
+        {{ accordion_group }}
+      </div>{% comment %} ".image-with-text__accordion" closing tag {% endcomment %}
+    {%- endif -%}
+  {%- endif -%}
+{%- endcapture -%}
+
+{%- liquid
+  if content == blank
+    assign items_layout_class = items_layout_class | append: ' image-with-text__items--no-content'
+  endif
+-%}
+
+<section id="{{ id }}"
+  class="section-padding image-with-text {{ image_width_class }} {{ color_scheme }}{% if has_gutter %} image-with-text--gap{% endif %}{%- render 'button-fallback-classes', primary_color: button_color -%}"
+  data-section-id="{{ section.id }}"
+  data-section-type="image-with-text"
+  data-prevent-transparent-header>
+  <div class="image-with-text__wrapper">
+    <div class="{{ section_width }}{% if section_width != 'wrapper--full' %} wrapper--no-full{% endif %}">
+      <div class="image-with-text__items {{ items_layout_class }}">
+        <div class="image-with-text__image {{ section_height}}{% if enable_mobile_height %} {{ mobile_height }}{% endif %}{{ hover_scale }}">
+          {%- if entire_image_link -%}
+            <a class="image-with-text__link" href="{{ button_link }}"></a>
+          {%- endif -%}
+
+          {%- liquid
+            assign animation_delay = 150
+            assign img_width_lg = 'calc((' | append: wrapper_width | append: ' - ' | append: desktop_space | append: 'px) * ' | append: block_width_percent | append: ')'
+            assign img_width_md = 'calc((100vw - ' | append: tablet_space | append: 'px) * ' | append: block_width_percent | append: ')'
+            assign img_width_sm = 'calc(100vw - ' | append: mobile_space | append: 'px)'
+            assign sizes = '(min-width: 1024px) ' | append: img_width_lg | append: ', (min-width: 768px) ' | append: img_width_md | append: ', ' | append: img_width_sm
+          -%}
+
+          {%- capture image_attributes -%}
+            {% if animations_enabled %}
+              data-aos="fade"
+              data-aos-anchor="{{ animation_anchor }}"
+              data-aos-delay="{{ animation_delay }}"
+            {% endif %}
+          {%- endcapture -%}
+
+          {%- render 'image-fill', is_background: true, img_object: image, sizes: sizes, image_attributes: image_attributes, classes: 'image-with-text__image-bg', placeholder_svg: 'lifestyle-1' -%}
+
+          {{- video_link -}}
+        </div>
+
+        {%- unless content == blank -%}
+          <collapsible-elements class="image-with-text__content{% if block_color_set %} image-with-text__content--has-color{% endif %}"
+            data-collapsible-single
+            {% if animations_enabled %}
+              data-aos="fade-up"
+              data-aos-anchor="{{ animation_anchor }}"
+            {% endif %}>
+            <div class="image-with-text__content-items">
+              {{- content -}}
+            </div>
+          </collapsible-elements>
+        {%- endunless -%}
+      </div>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+    "name": "Image with text",
+    "class": "supports-transparent-header",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Layout"
+      },
+      {
+        "type": "checkbox",
+        "id": "show_accordion_divider",
+        "label": "Show divider lines",
+        "default": true,
+        "info": "For transparent accordions background only"
+      },
+      {
+        "type": "checkbox",
+        "id": "increase_border_radius",
+        "label": "Increase border radius",
+        "default": false,
+        "info": "When rounded corners are enabled, applies to images and content with a block background color."
+      },
+      {
+        "type": "select",
+        "id": "section_height",
+        "label": "Desktop Height",
+        "default": "six-fifty-height",
+        "options": [
+          { "value": "full-height", "label": "Full screen" },
+          { "value": "seven-fifty-height", "label": "750px" },
+          { "value": "six-fifty-height", "label": "650px" },
+          { "value": "five-fifty-height ", "label": "550px" },
+          { "value": "four-fifty-height", "label": "450px" },
+          { "value": "three-fifty-height", "label": "350px" },
+          { "value": "three-hundred-height", "label": "300px" },
+          { "value": "two-fifty-height", "label": "250px" },
+          { "value": "two-hundred-height", "label": "200px" },
+          { "value": "one-fifty-height", "label": "150px" },
+          { "value": "one-hundred-height", "label": "100px" }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "id": "enable_mobile_height",
+        "label": "Enable mobile height",
+        "default": false
+      },
+      {
+        "type": "select",
+        "id": "mobile_height",
+        "label": "Mobile height",
+        "default": "four-fifty-height-mobile",
+        "options": [
+          { "value": "full-height-mobile", "label": "Full screen" },
+          { "value": "seven-fifty-height-mobile", "label": "750px" },
+          { "value": "six-fifty-height-mobile", "label": "650px" },
+          { "value": "five-fifty-height-mobile", "label": "550px" },
+          { "value": "four-fifty-height-mobile", "label": "450px" },
+          { "value": "three-fifty-height-mobile", "label": "350px" },
+          { "value": "two-fifty-height-mobile", "label": "250px" },
+          { "value": "one-fifty-height-mobile", "label": "150px" }
+        ]
+      },
+      {
+        "type": "select",
+        "id": "layout",
+        "label": "Layout style",
+        "default": "inline",
+        "options": [
+          { "label": "Inline", "value": "inline" },
+          { "label": "Overlay", "value": "overlay" }
+        ]
+      },
+      {
+        "type": "select",
+        "id": "image_location",
+        "label": "Image position",
+        "default": "left",
+        "options": [
+          { "value": "left", "label": "Left" },
+          { "value": "right", "label": "Right" }
+        ]
+      },
+      {
+        "type": "select",
+        "id": "image_width",
+        "label": "Image width",
+        "default": "standard",
+        "info": "Only applies to the 'inline' layout",
+        "options": [
+          { "value": "extra-narrow", "label": "Extra narrow" },
+          { "value": "narrow", "label": "Narrow" },
+          { "value": "standard", "label": "Standard" },
+          { "value": "wide", "label": "Wide" },
+          { "value": "extra-wide", "label": "Extra wide" }
+        ]
+      },
+      {
+        "type": "header",
+        "content": "Image"
+      },
+      {
+        "type": "image_picker",
+        "id": "image",
+        "label": "Image"
+      },
+      {
+        "type": "header",
+        "content": "Colors"
+      },
+      {
+        "type": "color",
+        "id": "block_bg_color",
+        "label": "Block background",
+        "alpha": true
+      },
+      {
+        "type": "color_scheme",
+        "id": "color_scheme",
+        "label": "Color scheme",
+        "default": "scheme-1"
+      },
+      {
+        "type": "header",
+        "content": "Section spacing"
+      },
+      {
+        "type": "select",
+        "id": "section_width",
+        "label": "Width",
+        "default": "wrapper",
+        "options": [
+          { "value": "wrapper--full", "label": "Full width" },
+          { "value": "wrapper--full-padded", "label": "Full width padded" },
+          { "value": "wrapper", "label": "Page width" }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "id": "add_gutter",
+        "label": "Add spacing",
+        "default": true
+      },
+      {
+        "type": "range",
+        "id": "padding_top",
+        "min": 0,
+        "max": 100,
+        "step": 2,
+        "unit": "px",
+        "label": "Padding top",
+        "default": 60
+      },
+      {
+        "type": "range",
+        "id": "padding_bottom",
+        "min": 0,
+        "max": 100,
+        "step": 2,
+        "unit": "px",
+        "label": "Padding bottom",
+        "default": 60
+      }
+    ],
+    "blocks": [
+      {
+        "type": "subheading",
+        "name": "Subheading",
+        "settings": [
+          {
+            "type": "text",
+            "id": "subheading",
+            "label": "Subheading",
+            "default": "Introducing"
+          },
+          {
+            "type": "range",
+            "id": "size",
+            "label": "Size",
+            "min": 50,
+            "max": 300,
+            "default": 75,
+            "step": 5,
+            "unit": "%"
+          },
+          {
+            "type": "select",
+            "id": "text_position",
+            "label": "Text position",
+            "default": "left",
+            "options": [
+              { "value": "left", "label": "Left" },
+              { "value": "center", "label": "Center" },
+              { "value": "right", "label": "Right" }
+            ]
+          },
+          {
+            "type": "header",
+            "content": "Block spacing"
+          },
+          {
+            "type": "range",
+            "id": "spacing_bottom",
+            "min": 0,
+            "max": 50,
+            "step": 2,
+            "unit": "px",
+            "label": "Padding bottom",
+            "default": 12
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "name": "Heading",
+        "settings": [
+          {
+            "type": "richtext",
+            "id": "title",
+            "label": "Heading",
+            "default": "<p>Image with text</p>",
+            "info": "Highlight one or two key words in your heading by italicizing them, then choose the highlight option below."
+          },
+          {
+            "type": "range",
+            "id": "size",
+            "label": "Size",
+            "min": 50,
+            "max": 300,
+            "default": 120,
+            "step": 5,
+            "unit": "%"
+          },
+          {
+            "type": "select",
+            "id": "text_position",
+            "label": "Text position",
+            "default": "left",
+            "options": [
+              { "value": "left", "label": "Left" },
+              { "value": "center", "label": "Center" },
+              { "value": "right", "label": "Right" }
+            ]
+          },
+          {
+            "type": "header",
+            "content": "Highlight"
+          },
+          {
+            "type": "select",
+            "id": "heading_highlight_type",
+            "label": "Type",
+            "default": "underline-hand-drawn",
+            "info": "The font choice for the \"Alternate font\" type can be configured in the theme typography settings.",
+            "options": [
+              { "value": "italics", "label": "Italics (no decoration)" },
+              { "value": "highlight", "label": "Highlight" },
+              { "value": "highlight-color", "label": "Text color" },
+              { "value": "underline", "label": "Underline (digital)" },
+              { "value": "underline-hand-drawn", "label": "Underline (hand-drawn)" },
+              { "value": "squiggle", "label": "Squiggle" },
+              { "value": "circle", "label": "Circle (digital)" },
+              { "value": "circle-hand-drawn", "label": "Circle (hand-drawn)" },
+              { "value": "stroke", "label": "Stroke (outlined text)" },
+              { "value": "alternate-font", "label": "Alternate font" }
+            ]
+          },
+          {
+            "type": "color",
+            "id": "highlight_color",
+            "label": "Highlight color",
+            "default": "#000",
+            "alpha": true
+          },
+          {
+            "type": "color",
+            "id": "highlight_text_color",
+            "label": "Text color",
+            "alpha": true
+          },
+          {
+            "type": "header",
+            "content": "Block spacing"
+          },
+          {
+            "type": "range",
+            "id": "spacing_bottom",
+            "min": 0,
+            "max": 50,
+            "step": 2,
+            "unit": "px",
+            "label": "Padding bottom",
+            "default": 12
+          }
+        ]
+      },
+      {
+        "type": "text",
+        "name": "Text",
+        "settings": [
+          {
+            "type": "richtext",
+            "id": "text",
+            "label": "Text",
+            "default": "<p>Use this text to share information about your brand with your customers. Describe a product, share announcements, or welcome customers to your store.</p>"
+          },
+          {
+            "type": "range",
+            "id": "size",
+            "label": "Size",
+            "min": 50,
+            "max": 300,
+            "default": 100,
+            "step": 5,
+            "unit": "%"
+          },
+          {
+            "type": "select",
+            "id": "text_position",
+            "label": "Text position",
+            "default": "left",
+            "options": [
+              { "value": "left", "label": "Left" },
+              { "value": "center", "label": "Center" },
+              { "value": "right", "label": "Right" }
+            ]
+          },
+          {
+            "type": "header",
+            "content": "Block spacing"
+          },
+          {
+            "type": "range",
+            "id": "spacing_bottom",
+            "min": 0,
+            "max": 50,
+            "step": 2,
+            "unit": "px",
+            "label": "Padding bottom",
+            "default": 12
+          }
+        ]
+      },
+      {
+        "type": "button",
+        "name": "Button",
+        "limit": 1,
+        "settings": [
+          {
+            "type": "text",
+            "id": "button_text",
+            "label": "Text",
+            "default":"Button text",
+            "info": "Leave blank to link entire image"
+          },
+          {
+            "type": "url",
+            "id": "button_link",
+            "label": "URL"
+          },
+          {
+            "type": "select",
+            "id": "button_color",
+            "label": "Color",
+            "default": "btn--black",
+            "options": [
+              { "label": "Primary", "value": "btn--primary" },
+              { "label": "Secondary", "value": "btn--secondary" },
+              { "label": "White", "value": "btn--white" },
+              { "label": "Black", "value": "btn--black" }
+            ]
+          },
+          {
+            "type": "select",
+            "id": "button_style",
+            "label": "Button style",
+            "default": "btn--solid",
+            "options": [
+              { "label": "Solid", "value": "btn--solid" },
+              { "label": "Outline", "value": "btn--outline" },
+              { "label": "Solid with border", "value": "btn--solid-border" },
+              { "label": "Soft", "value": "btn--soft" },
+              { "label": "Text", "value": "btn--text" }
+            ]
+          },
+          {
+            "type": "select",
+            "id": "button_size",
+            "label": "Size",
+            "default": "btn--small",
+            "options": [
+              { "label": "Small", "value": "btn--small" },
+              { "label": "Medium", "value": "btn--medium" },
+              { "label": "Large", "value": "btn--large" }
+            ]
+          },
+          {
+            "type": "text",
+            "id": "video_link",
+            "label": "Video button link",
+            "info": "Video links from YouTube, Vimeo or MP4 video link from [files](/admin/content/files?selectedView=all&media_type=VIDEO)"
+          },
+          {
+            "type": "select",
+            "id": "text_position",
+            "label": "Text position",
+            "default": "left",
+            "options": [
+              { "value": "left", "label": "Left" },
+              { "value": "center", "label": "Center" },
+              { "value": "right", "label": "Right" }
+            ]
+          },
+          {
+            "type": "header",
+            "content": "Block spacing"
+          },
+          {
+            "type": "range",
+            "id": "spacing_bottom",
+            "min": 0,
+            "max": 50,
+            "step": 2,
+            "unit": "px",
+            "label": "Padding bottom",
+            "default": 12
+          }
+        ]
+      },
+      {
+        "name": "Accordion",
+        "type": "accordion",
+        "settings": [
+          {
+            "type": "image_picker",
+            "id": "icon_image",
+            "label": "Image"
+          },
+          {
+            "type": "range",
+            "id": "icon_width",
+            "label": "Image width",
+            "min": 20,
+            "max": 100,
+            "step": 1,
+            "unit": "px",
+            "default": 25
+          },
+          {
+            "type": "select",
+            "id": "icon_position",
+            "label": "Image position",
+            "default": "inline-left",
+            "options": [
+              { "value": "inline-left", "label": "Inline left" },
+              { "value": "above-left", "label": "Above left" }
+            ]
+          },
+          {
+            "type": "text",
+            "id": "heading",
+            "label": "Heading",
+            "default": "Frequently asked question"
+          },
+          {
+            "type": "select",
+            "label": "FAQ heading style",
+            "id": "type_style",
+            "default": "font-heading",
+            "options": [
+              { "label": "Heading", "value": "font-heading" },
+              { "label": "Body", "value": "font-body" },
+              { "label": "Accent", "value": "subheading-text" }
+            ]
+          },
+          {
+            "type": "range",
+            "id": "heading_size",
+            "label": "Size",
+            "min": 50,
+            "max": 300,
+            "default": 120,
+            "step": 5,
+            "unit": "%"
+          },
+          {
+            "type": "richtext",
+            "id": "text",
+            "label": "Text",
+            "default": "<p>Use this text block to discuss some commonly asked questions like shipping and returns, sizing, warranties, or product and company details.</p>"
+          },
+          {
+            "type": "range",
+            "id": "text_size",
+            "label": "Size",
+            "min": 50,
+            "max": 300,
+            "default": 75,
+            "step": 5,
+            "unit": "%"
+          },
+          {
+            "type": "color",
+            "id": "tabs_bg_color",
+            "label": "Background",
+            "alpha": true
+          },
+          {
+            "type": "select",
+            "id": "line_thickness",
+            "label": "Border thickness",
+            "default": "normal",
+            "options": [
+              {
+                "label": "Normal",
+                "value": "normal"
+              },
+              {
+                "label": "Bold",
+                "value": "bold"
+              }
+            ]
+          },
+          {
+            "type": "header",
+            "content": "Block spacing"
+          },
+          {
+            "type": "range",
+            "id": "spacing_bottom",
+            "min": 0,
+            "max": 50,
+            "step": 2,
+            "unit": "px",
+            "label": "Padding bottom",
+            "default": 0
+          }
+        ]
+      }
+    ],
+    "presets": [
+      {
+        "name": "Image with text",
+        "category": "Storytelling",
+        "blocks": [
+          {
+            "type": "subheading"
+          },
+          {
+            "type": "heading"
+          },
+          {
+            "type": "text"
+          },
+          {
+            "type": "accordion"
+          },
+          {
+            "type": "button"
+          }
+        ]
+      }
+    ],
+    "disabled_on": {
+      "groups": ["header","aside","footer"]
+    }
+}
+{% endschema %}

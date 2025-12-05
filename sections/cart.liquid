@@ -1,0 +1,619 @@
+<!-- /templates/cart.liquid -->
+{%- liquid
+  assign subtotal = cart.total_price | plus: 0
+  assign color_scheme = 'color-' | append: section.settings.color_scheme
+  assign animations_enabled = settings.animations_enabled
+  assign animation_delay = 0
+  assign cart_items_size = cart.item_count | plus: 0
+  assign out_of_stock_product_title = ''
+  assign continue_shopping_translated = 'cart.general.continue_shopping' | t
+  assign continue_shopping_text = settings.empty_cart_button_text | default: continue_shopping_translated
+  assign continue_shopping_link = settings.empty_cart_button_link | default: routes.all_products_collection_url
+  assign enable_cart_notes = settings.enable_cart_notes
+  assign enable_gift_notes = settings.enable_gift_notes
+  assign enable_discounts = settings.enable_discounts
+  assign enable_accept_terms = settings.enable_accept_terms
+  assign cart_custom_message_text = settings.cart_custom_message_text
+  assign cart_button_style = settings.cart_button_style
+  assign cart_button_size = settings.cart_button_size
+  assign cart_button_color = settings.cart_button_color
+  assign has_progress_holder = true
+  assign section_id = 'cart--' | append: section.id
+  assign section_selector = section_id | prepend: '#'
+  assign aos_anchor = section_selector
+
+  assign has_dynamic_checkout_buttons = false
+  if settings.enable_additional_buttons and additional_checkout_buttons
+    assign has_dynamic_checkout_buttons = true
+  endif
+
+  capture cart_items
+    render 'cart-line-items', part: 'line-items', aos_anchor: '#cartItemsHolder'
+  endcapture
+
+  capture upsell_items
+    render 'cart-line-items', part: 'upsell-items', aos_anchor: '#cartUpsellHolder'
+  endcapture
+-%}
+
+{{ 'template-cart.css' | asset_url | stylesheet_tag }}
+
+{%- style -%}
+  .cart {
+    --PT: {{ section.settings.padding_top }}px;
+    --PB: {{ section.settings.padding_bottom }}px;
+  }
+{%- endstyle -%}
+
+{%- if cart_items contains '<p class="hidden" data-out-of-stock-title>' -%}
+  {%- assign out_of_stock_product_title = cart_items
+    | split: '<p class="hide hidden" data-out-of-stock-title>'
+    | last
+    | split: '</p>'
+    | first
+  -%}
+
+  <script>
+    window.theme.outOfStockProductTitle = {{ out_of_stock_product_title | json }};
+  </script>
+{%- endif -%}
+
+<section
+  id="{{ section_id }}"
+  class="cart section-padding {{ color_scheme }}{% if settings.quantity_style == 'dropdown' %} cart--no-overflow{% endif %}"
+  data-section-type="cart-template"
+  data-section-id="{{ section.id }}"
+  data-cart-page
+  {% if animations_enabled %}
+    data-aos-intersection="0"
+    data-aos-watch-anchors
+  {% endif %}
+>
+  <cart-element data-cart-page>
+    <div class="wrapper">
+      <form action="{{ routes.cart_url }}" method="post" novalidate data-cart-form>
+        <div class="cart__empty{% if cart_items_size > 0 %} hidden{% endif %}" data-empty-message>{%- liquid
+  assign animation_order = animation_order | default: 1
+  assign empty_cart_heading = settings.empty_cart_heading
+  assign empty_cart_heading_size = settings.empty_cart_heading_size | times: 0.01
+-%}
+
+{%- capture cart_empty_drawer_markup -%}
+  <p
+    {% if animations_enabled %}
+      data-aos="hero"
+      data-aos-anchor="{{ aos_anchor }}"
+      data-aos-order="{{ animation_order }}"
+      {%- assign animation_order = animation_order | plus: 1 -%}
+    {% endif %}>
+    {{ 'cart.general.empty' | t }}
+  </p>
+
+  {% if empty_cart_heading != blank %}
+    <h3
+      {% if animations_enabled %}
+        data-aos="hero"
+        data-aos-anchor="{{ aos_anchor }}"
+        data-aos-order="{{ animation_order }}"
+        {%- assign animation_order = animation_order | plus: 1 -%}
+      {% endif %}
+      style="--adjust-heading: calc(var(--FONT-ADJUST-HEADING) * {{ empty_cart_heading_size }});">
+      {{ empty_cart_heading }}
+    </h3>
+  {% endif %}
+
+  {%- render 'cart-empty-collections', animations_enabled: animations_enabled, aos_anchor: aos_anchor, animation_order: animation_order -%}
+{%- endcapture -%}
+
+{%- capture cart_empty_page_markup -%}
+  <div class="section__header">
+    <h1 class="section__heading h2"
+      {% if animations_enabled %}
+        data-aos="hero"
+        data-aos-anchor="{{ aos_anchor }}"
+        data-aos-order="{{ animation_order }}"
+        {%- assign animation_order = animation_order | plus: 1 -%}
+      {% endif %}>
+      {{- 'cart.general.title' | t -}}
+    </h1>
+
+    {%- if settings.show_spacer_lines -%}
+      <hr class="section__heading-line"
+        {% if animations_enabled %}
+          data-aos="hero"
+          data-aos-anchor="{{ aos_anchor }}"
+          data-aos-order="{{ animation_order }}"
+          {%- assign animation_order = animation_order | plus: 1 -%}
+        {% endif %}>
+    {%- endif -%}
+
+    <p
+      {% if animations_enabled %}
+        data-aos="hero"
+        data-aos-anchor="{{ aos_anchor }}"
+        data-aos-order="{{ animation_order }}"
+        {%- assign animation_order = animation_order | plus: 1 -%}
+      {% endif %}>
+      {{- 'cart.general.empty' | t -}}
+    </p>
+
+    {% if empty_cart_heading != blank %}
+      <h3
+        {% if animations_enabled %}
+          data-aos="hero"
+          data-aos-anchor="{{ aos_anchor }}"
+          data-aos-order="{{ animation_order }}"
+          {%- assign animation_order = animation_order | plus: 1 -%}
+        {% endif %}
+        style="--adjust-heading: calc(var(--FONT-ADJUST-HEADING) * {{ empty_cart_heading_size }});">
+        {{- empty_cart_heading -}}
+      </h3>
+    {% endif %}
+  </div>
+
+  {%- render 'cart-empty-collections', animations_enabled: animations_enabled, aos_anchor: aos_anchor, animation_order: animation_order -%}
+
+  {%- render 'cart-empty-buttons', animations_enabled: animations_enabled, section_bg_color: bg_color, aos_anchor: aos_anchor, animation_order: animation_order -%}
+
+  {%- render 'cart-empty-message', animations_enabled: animations_enabled, aos_anchor: aos_anchor, animation_order: animation_order -%}
+{%- endcapture -%}
+
+{%- if template.name == 'cart' -%}
+  {{ cart_empty_page_markup }}
+{%- else -%}
+  {{ cart_empty_drawer_markup }}
+{%- endif -%}
+
+
+</div>
+
+        {{ form.errors | default_errors }}
+
+        <div class="cart__inner">
+          <div
+            class="cart__content"
+            {% if animations_enabled %}
+              data-aos="fade"
+              data-aos-anchor="{{ aos_anchor }}"
+              {%- assign animation_delay = 50 -%}
+              data-aos-delay="{{ animation_delay }}"
+              {%- assign animation_delay = animation_delay | plus: 100 -%}
+            {% endif %}
+          >
+            <h1 class="cart__title">
+              {{ 'cart.general.title' | t -}}
+              <span class="cart__item-qty" data-cart-items-qty>
+                {{- 'cart.label.items_with_count' | t: count: cart_items_size -}}
+              </span>
+            </h1>
+            <a
+              href="{{ continue_shopping_link }}"
+              class="btn btn--secondary btn--solid btn--advanced btn--advanced-width-height"
+            >
+              <hover-button></hover-button>
+              {{- continue_shopping_text -}}
+            </a>
+
+            <div class="cart__errors" role="alert" data-cart-errors>
+              <div class="cart__errors__inner">
+                <p class="cart__errors__heading">{{- 'cart.general.limit_error' | t -}}</p>
+
+                <p class="cart__errors__content" data-error-message></p>
+
+                <button
+                  type="button"
+                  class="cart__errors__close"
+                  data-cart-error-close
+                  aria-label="{{ 'general.accessibility.dismiss' | t }} {{ 'cart.general.title' | t }}"
+                >
+                  {%- render 'icon-close' -%}
+                </button>
+              </div>
+            </div>
+
+            <div class="cart__items__wrapper" data-items-wrapper>
+              <div class="loader loader--line"><div class="loader-indeterminate"></div></div>
+
+              <div id="cartItemsHolder" class="cart__items" data-items-holder>
+                {{ cart_items }}
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              name="update"
+              class="cart__update btn btn--secondary btn--advanced btn--advanced-width-height"
+            >
+              <hover-button></hover-button>
+              {{- 'cart.general.update' | t -}}
+            </button>
+          </div>
+
+          <div
+            class="cart__aside{% if cart_items_size <= 0 %} hidden{% endif %}"
+            data-foot-holder
+            {% if animations_enabled %}
+              data-aos="fade-up"
+              data-aos-anchor="{{ aos_anchor }}"
+              {%- assign animation_delay = animation_delay | plus: 100 -%}
+              data-aos-delay="{{ animation_delay }}"
+              {%- assign animation_delay = 0 -%}
+            {% endif %}
+          >
+            {%- liquid
+  assign free_shipping_text = block.settings.message | default: settings.message
+  assign is_enable = false
+
+  if block.settings.message != blank
+    assign is_enable = true
+  endif
+
+  if settings.show_free_shipping_message and settings.free_shipping_limit != blank and free_shipping_text != blank
+    assign is_enable = true
+  endif
+-%}
+
+{%- if is_enable -%}
+  {%- liquid
+    assign limit = settings.free_shipping_limit | plus: 0
+    assign limit_currency = limit | times: 100
+    assign cart_total_price = cart.total_price
+    assign subtotal_without_currency = cart_total_price | plus: 0 | divided_by: 100
+  -%}
+
+  {%- capture left_to_spend -%}
+    <span data-left-to-spend>
+      {%- if settings.currency_code_enable -%}
+        {{- limit_currency | minus: cart_total_price | money_without_trailing_zeros | append: ' ' | append: cart.currency.iso_code -}}
+      {%- else -%}
+        {{- limit_currency | minus: cart_total_price | money_without_trailing_zeros -}}
+      {%- endif -%}
+    </span>
+  {%- endcapture -%}
+
+  {%- liquid
+    assign free_shipping_message = free_shipping_text | replace: '||amount||', left_to_spend
+    assign qualified_shipping_message = 'cart.general.qualified_shipping_message' | t
+    assign class_message = ''
+
+    if subtotal_without_currency >= limit
+      if qualified_shipping_message != blank
+        assign class_message = ' is-success'
+        assign is_default_message_hidden = ' is-hidden'
+      else
+        assign class_message = ' is-hidden'
+      endif
+    elsif subtotal_without_currency == 0
+      assign class_message = ' is-hidden'
+    endif
+
+    assign percent = limit | minus: subtotal_without_currency | times: 100 | divided_by: limit
+    assign percent = 100 | minus: percent
+  -%}
+
+  <p class="{% unless template.name == 'cart' or section.id == 'announcement-bar' %}cart-message--drawer {% endunless %}cart-message{{ class_message }}"
+    data-cart-message="{% if qualified_shipping_message != blank %}true{% else %}false{% endif %}"
+    data-limit="{{ limit }}"
+    {% if animations_enabled %}
+      data-aos="fade"
+      {% if aos_anchor %}
+        data-aos-anchor="{{ aos_anchor }}"
+      {% endif %}
+      data-aos-delay="{{ animation_delay }}"
+      {%- assign animation_delay = animation_delay | plus: 100 -%}
+    {% endif %}
+  >
+    <span class="cart-message__default{{ is_default_message_hidden }}" data-message-default>{{ free_shipping_message }}</span>
+
+    {%- if qualified_shipping_message != blank -%}
+      <span class="cart-message__success">{{ qualified_shipping_message }}</span>
+    {%- endif -%}
+
+    {%- if has_progress_holder -%}
+      <span class="cart-message__progress-holder">
+        <progress class="cart-message__progress" data-cart-message-progress value="{{ percent }}" max="100" style="--progress-width: {{ percent }}%;"></progress>
+        {%- comment -%}Second progress bar shows only on Firefox{%- endcomment -%}
+        <progress class="cart-message__progress" data-cart-message-progress max="100" style="--progress-width: {{ percent }}%;"></progress>
+      </span>
+    {%- endif -%}
+  </p>
+{%- endif -%}
+
+            <div data-cart-price-holder>{%- liquid
+  assign subtotal = cart.total_price | plus: 0
+  assign original_subtotal = cart.original_total_price | plus: 0
+  assign currency_code_enable = settings.currency_code_enable
+
+  # Build a complete list of discount codes from cart and line items applications
+  assign discount_codes = cart.cart_level_discount_applications | where: 'type', 'discount_code' | map: 'title'
+  for item in cart.items
+    for allocation in item.line_level_discount_allocations
+      if allocation.discount_application.type == 'discount_code'
+        assign discount_codes = item.line_level_discount_allocations | slice: forloop.index0 | map: 'discount_application' | map: 'title' | concat: discount_codes
+      endif
+    endfor
+  endfor
+  assign discount_codes = discount_codes | uniq
+
+  assign cart_discount_size = discount_codes.size
+
+  if currency_code_enable
+    assign original_subtotal_formatted = original_subtotal | money_with_currency
+  else
+    assign original_subtotal_formatted = original_subtotal | money
+  endif
+
+  if original_subtotal < subtotal or cart_discount_size == 0
+    assign cart_total_hidden = true
+  endif
+
+  if cart_discount_size == 0
+    assign cart_total_discount_hidden = true
+  endif
+-%}
+
+<div class="cart__total{% if cart_total_hidden %} hidden{% endif %}">
+  <span>{{- 'cart.general.subtotal_items' | t -}}</span>
+
+  <span data-cart-total="{{ subtotal }}">
+    {%- liquid
+      if original_subtotal == 0
+        echo 'products.product.free' | t
+      else
+        echo original_subtotal_formatted
+      endif
+    -%}
+  </span>
+</div>
+
+{%- unless cart_total_discount_hidden -%}
+  <div class="cart__discounts">
+    {%- if discount_codes.size > 0 -%}
+      {%- for discount_code in discount_codes -%}
+        {%- liquid
+          assign total_allocated_discount_cents = 0
+
+          # Sum cart-level allocations matching this code
+          for cart_discount in cart.cart_level_discount_applications
+            if cart_discount.title == discount_code
+              assign total_allocated_discount_cents = total_allocated_discount_cents | plus: cart_discount.total_allocated_amount
+            endif
+          endfor
+
+          # Sum line-level allocations matching this code
+          for item in cart.items
+            for allocation in item.line_level_discount_allocations
+              if allocation.discount_application.type == 'discount_code' and allocation.discount_application.title == discount_code
+                assign total_allocated_discount_cents = total_allocated_discount_cents | plus: allocation.amount
+              endif
+            endfor
+          endfor
+
+          if currency_code_enable
+            assign total_allocated_discount = total_allocated_discount_cents | money_with_currency
+          else
+            assign total_allocated_discount = total_allocated_discount_cents | money
+          endif
+        -%}
+
+        <div class="cart__discount" data-discount-body data-discount-code="{{ discount_code }}">
+          {%- render 'icon-tags' -%}
+
+          <span>
+            {{- discount_code -}}
+          </span>
+
+          <span>
+            -
+            {{- total_allocated_discount -}}
+          </span>
+
+          <span class="remove-discount" aria-label="{{ 'cart.general.remove_discount' | t }}" data-discount-remove>
+            {%- render 'icon-close' -%}
+          </span>
+        </div>
+      {%- endfor -%}
+    {%- endif -%}
+  </div>
+{%- endunless -%}
+</div>
+
+            <div class="cart__total">
+              <span>{{ 'cart.general.subtotal' | t }}</span>
+
+              <span class="cart__total__money" data-cart-total-price>
+                {%- liquid
+                  if subtotal == 0
+                    echo 'products.product.free' | t
+                  else
+                    echo subtotal | money_with_currency
+                  endif
+                -%}
+              </span>
+            </div>
+
+            {%- for block in section.blocks -%}
+              {%- render block -%}
+            {%- endfor -%}
+
+            <div id="cartUpsellHolder" class="cart__pair" data-cart-widget data-pair-products-holder>
+              {{ upsell_items }}
+            </div>
+
+            {%- if enable_cart_notes or enable_gift_notes or enable_discounts -%}
+              <collapsible-elements class="cart__widget__wrapper" data-collapsible-single>
+                {%- if enable_discounts -%}
+                  {%- render 'discount' -%}
+                {%- endif -%}
+
+                {%- if enable_cart_notes -%}
+                  <div class="cart__widget" data-cart-widget>
+                    <button
+                      class="cart__widget__title"
+                      type="button"
+                      data-collapsible-trigger
+                      aria-expanded="false"
+                      aria-controls="notes"
+                    >
+                      {{- 'cart.general.cart_notes_label' | t -}}
+                      {%- render 'icon-toggle-plus' -%}
+                      {%- render 'icon-toggle-minus' -%}
+                    </button>
+
+                    <div id="notes" data-collapsible-container>
+                      <div class="cart__widget__content" data-collapsible-content>
+                        <label for="note">{{ 'cart.general.customer_note' | t }}</label>
+
+                        <textarea
+                          id="note"
+                          name="note"
+                          class="cart__field cart__field--textarea"
+                          aria-label="{{ 'cart.general.customer_note' | t }}"
+                        >{{- cart.note -}}</textarea>
+                      </div>
+                    </div>
+                  </div>
+                {%- endif -%}
+
+                {%- if enable_gift_notes -%}
+                  <div class="cart__widget" data-cart-widget>
+                    <button
+                      class="cart__widget__title"
+                      type="button"
+                      data-collapsible-trigger
+                      aria-expanded="false"
+                      aria-controls="gift-notes"
+                    >
+                      {{- 'cart.general.gift_notes_label' | t -}}
+                      {%- render 'icon-toggle-plus' -%}
+                      {%- render 'icon-toggle-minus' -%}
+                    </button>
+
+                    <div id="gift-notes" data-collapsible-container>
+                      <div class="cart__widget__content" data-collapsible-content>
+                        {%- assign gift_note_attribute_default = 'Gift note' -%}
+                        {%- assign gift_note_attribute_string = 'cart.general.gift_note_attribute' | t -%}
+                        {%- assign gift_note_attribute = gift_note_attribute_string
+                          | default: gift_note_attribute_default
+                        -%}
+
+                        <label for="gift-note">{{ 'cart.general.note' | t }}</label>
+
+                        <textarea
+                          id="gift-note"
+                          name="attributes[{{ gift_note_attribute }}]"
+                          class="cart__field cart__field--textarea"
+                          aria-label="{{ 'cart.general.note' | t }}"
+                        >{{ cart.attributes[gift_note_attribute] }}</textarea>
+                      </div>
+                    </div>
+                  </div>
+                {%- endif -%}
+              </collapsible-elements>
+            {%- endif -%}
+
+            {%- if cart_custom_message_text != blank -%}
+              <div class="cart-message cart-message--custom" data-cart-bar>
+                {{ cart_custom_message_text }}
+              </div>
+            {%- endif -%}
+
+            <div class="cart__foot-inner">
+              <div class="cart__buttons-wrapper">
+                {%- if enable_accept_terms -%}
+                  <input type="hidden" name="attributes[{{ 'cart.general.accepted_terms' | t }}]" value="Yes">
+                  <input
+                    type="checkbox"
+                    class="cart__acceptance__input"
+                    name="acceptance"
+                    id="acceptance"
+                    data-cart-acceptance-checkbox
+                  >
+                  <label for="acceptance" class="cart__acceptance__label" data-cart-acceptance-label>
+                    {{- settings.accept_terms_text -}}
+                  </label>
+                {%- endif -%}
+
+                <p class="cart__terms cart__errors__content" data-terms-error-message></p>
+
+                <div
+                  class="cart__buttons{% if enable_accept_terms %} cart__buttons--disabled{% endif %}"
+                  data-cart-checkout-buttons
+                >
+                  <fieldset class="cart__buttons__fieldset" data-cart-checkout-button>
+                    <button
+                      type="submit"
+                      name="checkout"
+                      class="btn {{ cart_button_style }} {{ cart_button_color }} {{ cart_button_size }} btn--advanced btn--advanced-width-height btn--advanced-adaptive-width cart__checkout{% if has_dynamic_checkout_buttons %} cart__checkout--dynamic{% endif %}"
+                    >
+                      <hover-button></hover-button>
+                      {{- 'cart.general.checkout' | t -}}
+                    </button>
+
+                    {%- if has_dynamic_checkout_buttons -%}
+                      <div
+                        class="additional-checkout-buttons additional-checkout-buttons--vertical"
+                        data-additional-checkout-button
+                      >
+                        {{- content_for_additional_checkout_buttons -}}
+                      </div>
+                    {%- endif -%}
+                  </fieldset>
+                </div>
+              </div>
+
+              <p class="cart__text">{{- 'cart.general.shipping_at_checkout' | t -}}</p>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </cart-element>
+</section>
+
+{% schema %}
+{
+  "name": "Cart",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "Section spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "label": "Padding top",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "label": "Padding bottom",
+      "default": 60
+    }
+  ],
+  "blocks": [
+    {
+      "type": "@app"
+    }
+  ]
+}
+{% endschema %}

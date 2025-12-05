@@ -1,0 +1,176 @@
+/*================ "Tab collections" ================*/
+.tab-collections {
+  position: relative;
+  text-align: center;
+  overflow: hidden;
+  background: var(--bg);
+}
+.tab-collections .btn--view-all {
+  margin-top: var(--gutter);
+}
+.tab-collections > .flickity-prev-next-button.next {
+  right: calc(var(--gutter) / 2);
+}
+.tab-collections > .flickity-prev-next-button.previous {
+  left: calc(var(--gutter) / 2);
+}
+
+.tab-collections-wrapper {
+  --visual-bottom-offset: 8px;
+  --spacer-lines-offset: 10px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: "text" "nav" "products" "button";
+  column-gap: var(--inner);
+}
+@media only screen and (min-width: 768px) {
+  .tab-collections-wrapper.text-left {
+    grid-template-areas: "text text" "nav button" "products products";
+  }
+  .tab-collections-wrapper.text-left .tabs-scrollbar {
+    overflow: hidden;
+  }
+  .tab-collections-wrapper.text-center:has(.tab-collections__button--top) {
+    grid-template-areas: "text" "nav" "button" "products";
+  }
+}
+.tab-collections-wrapper:has(.tab-collections__nav:first-child) .tab-collections__nav {
+  margin-top: 0;
+}
+@media only screen and (min-width: 768px) {
+  .tab-collections-wrapper:has(.tab-collections__nav:first-child).text-left .tab-collections__button {
+    margin-top: 0;
+  }
+}
+
+.tab-collections__featured-item {
+  --inner: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  flex: 0 0 100%;
+  max-width: 100%;
+  height: 100%;
+  text-align: left;
+  padding: var(--inner);
+  position: relative;
+  overflow: hidden;
+}
+@media only screen and (max-width: 479px) {
+  .tab-collections__featured-item {
+    --inner: 20px;
+  }
+}
+
+.tab-collections__featured-item .overlay {
+  pointer-events: none;
+}
+
+.product-grid-item--featured {
+  align-self: stretch;
+}
+@media only screen and (min-width: 768px) {
+  .product-grid-item--featured {
+    height: 100%;
+  }
+  .carousel--inactive .product-grid-item--featured {
+    height: auto;
+  }
+}
+
+.tab-collections__featured-item__content {
+  position: relative;
+  z-index: 5;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  color: var(--text);
+}
+
+.tab-collections__heading {
+  flex: 1 0 auto;
+  display: flex;
+  align-items: flex-end;
+  margin: 0;
+}
+.tab-collections__heading p {
+  line-height: 1;
+  margin: 0.5em 0;
+}
+
+.tab-collections__btn-wrapper {
+  display: flex;
+  margin-top: auto;
+}
+
+.tab-collections__heading p,
+.tab-collections__btn-wrapper {
+  width: 100%;
+  overflow-wrap: break-word;
+}
+
+.tab-collections__container .flickity-slider {
+  position: relative !important;
+  display: flex;
+  left: 0 !important;
+  width: auto;
+}
+
+.tab-collections__body {
+  grid-area: products;
+}
+
+.tab-collections__nav {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  grid-area: nav;
+  margin-top: calc(var(--spacer-lines-offset) * -1);
+}
+
+.tab-collections__header {
+  grid-area: text;
+}
+
+.tab-collections__text {
+  margin-top: calc(var(--gutter) / -2.5);
+  margin-bottom: calc(var(--gutter) / 2);
+  font-size: calc(1.1rem * var(--adjust-body));
+}
+.tab-collections__text:first-child {
+  margin-top: 0;
+}
+
+.tab-collections__button {
+  grid-area: button;
+  margin: calc(var(--gutter) / 2) 0 0;
+  line-height: 0;
+}
+.tab-collections__button .btn {
+  display: none;
+}
+.tab-collections__button .btn.current {
+  display: inline-block;
+}
+@media only screen and (max-width: 767px) {
+  .tab-collections__button .btn--text {
+    width: auto;
+  }
+}
+@media only screen and (min-width: 768px) {
+  .text-left .tab-collections__button {
+    margin: calc(var(--spacer-lines-offset) * -1) 0 var(--visual-bottom-offset);
+    align-self: end;
+  }
+  .text-center .tab-collections__button.tab-collections__button--top {
+    margin: calc(var(--grid-gutter) / 1.5) auto var(--visual-bottom-offset);
+  }
+}
+
+.body--rounded-corners .tab-collections__featured-item {
+  border-radius: var(--radius);
+}
+.body--rounded-corners .tab-collections__featured-item {
+  transform: translateZ(0);
+}

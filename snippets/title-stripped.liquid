@@ -1,0 +1,44 @@
+{% comment %}
+  Strips HTML tags from a title string.
+  Mainly used to prevent nested heading tags, such as "<h1>" inside an "<h2>" tag, and to avoid invalid HTML coming from richtext fields into a predetermined HTML structure in some sections
+
+  Accepts:
+  - title: {Object} Liquid object from settings that contains the string which would be modified and rendered
+  - paragraph_wrap: {String} Determines whether the final output should be wrapped in paragraph tags (Optional)
+  - preserve_breaks: {String} Keep paragraph breaks on new lines, necessary for text reveal cropping animations (Optional)
+{% endcomment %}
+
+{%- liquid
+  if title != blank
+    for i in (1..6)
+      assign opening_tag = '<h' | append: i | append: '>'
+      assign closing_tag = '</h' | append: i | append: '>'
+      if title contains opening_tag
+        assign title = title | replace: opening_tag, '' | replace: closing_tag, ''
+        break
+      endif
+    endfor
+
+    assign tags = 'ul,ol,li'
+    assign preserve_breaks = preserve_breaks | default: false
+    unless preserve_breaks
+      assign tags = tags | prepend: 'p,'
+    endunless
+    assign tags = tags | split: ','
+
+    for tag in tags
+      assign opening_tag = '<' | append: tag | append: '>'
+      assign closing_tag = '</' | append: tag | append: '>'
+      if title contains opening_tag
+        assign title = title | replace: opening_tag, '' | replace: closing_tag, ''
+      endif
+    endfor
+
+    assign paragraph_wrap = paragraph_wrap | default: false
+    if paragraph_wrap
+      echo title | prepend: '<p>' | append: '</p>'
+    else
+      echo title
+    endif
+  endif
+-%}

@@ -1,0 +1,151 @@
+{% comment %}
+  Renders gift card recipient form.
+  Accepts:
+  - product: {Object} product object.
+  - form: {Object} the product form object.
+  - section: {Object} section to which this snippet belongs.
+  - animation_delay: {Number} Sets AOS delays
+  - animation_anchor: {String} Link the animation to an ID
+
+  Usage:
+  {% render 'gift-card-recipient-form', product: product, form: form, section: section %}
+{% endcomment %}
+
+{%- liquid
+  assign gift_card_recipient_control_flag = 'properties[__shopify_send_gift_card_to_recipient]'
+  assign max_chars_message = 200
+  assign max_chars_message_rendered = 'recipient.form.max_characters' | t: max_chars: max_chars_message
+  assign message_label_rendered = 'recipient.form.message_label' | t
+-%}
+
+<div
+  class="recipient-form-wrapper"
+  {% if animations_enabled %}
+    data-aos="hero"
+    data-aos-anchor="{{ animation_anchor }}"
+    data-aos-order="{{ animation_order }}"
+    {%- assign animation_order = animation_order | plus: 1 -%}
+  {% endif %}
+>
+  <recipient-form class="recipient-form checkbox">
+    <input
+      type="checkbox"
+      id="Recipient-Checkbox-{{ section.id }}"
+      name="{{ gift_card_recipient_control_flag }}"
+      data-recipient-checkbox
+    >
+
+    <label for="Recipient-Checkbox-{{ section.id }}">
+      <span>{{ 'recipient.form.checkbox' | t }}</span>
+    </label>
+
+    <div class="recipient-fields">
+      <div class="recipient-fields__field form__item">
+        <label class="hidden-label" for="Recipient-email-{{ section.id }}">
+          <span class="recipient-email-label required">{{ 'recipient.form.email_label' | t }}</span>
+        </label>
+
+        <input
+          type="email"
+          name="properties[Recipient email]"
+          value="{{ form.email }}"
+          id="Recipient-email-{{ section.id }}"
+          class="input--full"
+          placeholder="{{ 'recipient.form.email' | t }}"
+          {% if form.errors contains 'email' %}
+            aria-invalid="true"
+            aria-describedby="RecipientForm-email-error-{{ section.id }}"
+          {% endif %}
+          data-recipient-email
+        >
+      </div>
+
+      <div class="recipient-fields__field form__item">
+        <label class="hidden-label" for="Recipient-name-{{ section.id }}">
+          {{- 'recipient.form.name_label' | t -}}
+        </label>
+
+        <input
+          type="text"
+          name="properties[Recipient name]"
+          value="{{ form.name }}"
+          id="Recipient-name-{{ section.id }}"
+          class="input--full"
+          autocomplete="name"
+          placeholder="{{ 'recipient.form.name' | t }}"
+          {% if form.errors contains 'name' %}
+            aria-invalid="true"
+            aria-describedby="RecipientForm-name-error-{{ section.id }}"
+          {% endif %}
+          data-recipient-name
+        >
+      </div>
+
+      <div class="recipient-fields__field form__item">
+        <label class="hidden-label" for="Recipient-message-{{ section.id }}">
+          {{ message_label_rendered }}
+        </label>
+
+        <textarea
+          rows="7"
+          name="properties[Message]"
+          id="Recipient-message-{{ section.id }}"
+          class="input--full"
+          maxlength="{{ max_chars_message }}"
+          placeholder="{{ 'recipient.form.message' | t }}"
+          aria-label="{{ message_label_rendered }} {{ max_chars_message_rendered }}"
+          {% if form.errors contains 'message' %}
+            aria-invalid="true"
+            aria-describedby="RecipientForm-message-error-{{ section.id }}"
+          {% endif %}
+          data-recipient-message
+        ></textarea>
+
+        <label class="form__label label-typography recipient-fields__message">
+          <span>{{ max_chars_message_rendered }}</span>
+        </label>
+      </div>
+
+      <div class="recipient-fields__field form__item">
+        <label for="Recipient-send_on-{{ section.id }}" class="form__label label-typography">
+          {{ 'recipient.form.send_on_label' | t }}
+        </label>
+
+        <input
+          type="date"
+          name="properties[Send on]"
+          value="{{ form.send_on }}"
+          id="Recipient-send_on-{{ section.id }}"
+          class="input--full"
+          placeholder="{{ 'recipient.form.send_on' | t }}"
+          pattern="\d{4}-\d{2}-\d{2}"
+          autocomplete="send_on"
+          {% if form.errors contains 'send_on' %}
+            aria-invalid="true"
+            aria-describedby="RecipientForm-send_on-error-{{ section.id }}"
+          {% endif %}
+          data-recipient-send-on
+        >
+      </div>
+    </div>
+
+    <input
+      type="hidden"
+      name="{{ gift_card_recipient_control_flag }}"
+      value="if_present"
+      id="Recipient-Control-{{ section.id }}"
+      data-recipient-control
+    >
+
+    <input
+      type="hidden"
+      name="properties[__shopify_offset]"
+      value=""
+      id="Recipient-Offset-{{ section.id }}"
+      disabled
+      data-recipient-offset
+    >
+  </recipient-form>
+</div>
+
+<script src="{{ 'recipient-form.js' | asset_url }}" defer="defer"></script>

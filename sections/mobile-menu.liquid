@@ -1,0 +1,1228 @@
+{%- liquid
+  assign mobile_menu_behaviour = settings.mobile_menu_behaviour
+  assign image = section.settings.logo_not_home
+  assign image_width = section.settings.logo_max_width
+-%}
+
+{%- capture logo -%}
+  {%- if image != blank -%}
+    {%- liquid
+      assign image_alt = image.alt | escape
+      assign image_height = image_width | divided_by: image.aspect_ratio
+    -%}
+    {%- capture sizes -%}(max-width: {{ image_width | times: 2 }}px) 50vw, {{ image_width }}px{%- endcapture -%}
+    {%- capture widths -%}{{ image_width }}, {{ image_width | times: 1.5 | round }}, {{ image_width | times: 2 }}{%- endcapture -%}
+
+    <a href="{{ routes.root_url }}" class="drawer__logo" style="--logo-width: {{ image_width }}px">
+      {{ image | image_url: width: 500 | image_tag:
+        widths: widths,
+        height: image_height,
+        width: image_width,
+        alt: image_alt,
+        sizes: sizes,
+        class: 'drawer__logo-image'
+      }}
+    </a>
+  {%- endif -%}
+{%- endcapture -%}
+
+<drawer-element
+  id="nav-drawer-section"
+  class="drawer drawer--left drawer--nav cv-h"
+  role="navigation"
+  data-drawer-section
+  data-section-type="mobile-menu"
+  data-section-id="{{ section.id }}"
+>
+  {%- for block in section.blocks -%}
+    {%- liquid
+      assign pin_to_bottom = block.settings.pin_to_bottom
+
+      if block.type == 'product' or block.type == 'image'
+        assign container_width = 335
+        assign image_width_percent = block.settings.image_width
+        assign image_width = image_width_percent | times: 0.01 | times: container_width
+        assign retina_size = image_width | times: 2
+        assign sizes = image_width | append: 'px'
+        assign image_widths = image_width | append: ', ' | append: ', ' | append: retina_size
+      endif
+
+      capture style
+        echo '--PBB: ' | append: block.settings.padding_bottom | append: 'px;'
+      endcapture
+
+      if block.type == 'image'
+        assign image_alignment = block.settings.image_alignment
+        capture image_block_alignment
+          case image_alignment
+            when 'left'
+              echo ' align--middle-left'
+            when 'center'
+              echo ' align--middle-center'
+            when 'right'
+              echo ' align--middle-right'
+          endcase
+        endcapture
+      endif
+    -%}
+
+    {%- capture block_content -%}
+      <div
+        class="drawer__block drawer__block--{{ block.type }}"
+        data-drawer-block
+        {% if block.type == 'menu' %}
+          data-drawer-block-menu
+          data-scroll-lock-scrollable
+        {% endif %}
+        {{ block.shopify_attributes }}
+        style="{{ style }}"
+      >
+        <div class="drawer__block-inner">
+          {%- case block.type -%}
+            {%- when 'menu' -%}
+              {%- liquid
+                assign menu = block.settings.mobile_menu_linklist | default: 'main-menu'
+                assign highlight_item = block.settings.highlight_item | downcase | strip_html | escape
+                assign highlight_item_color = block.settings.highlight_item_color
+                assign highlight_item_text_color = block.settings.highlight_item_text_color
+                assign show_links_images = block.settings.show_images
+                assign links_images_aspect_ratio = block.settings.image_aspect_ratio
+                assign enable_custom_badge = block.settings.enable_custom_badge
+                assign custom_badge_text = block.settings.custom_badge_text
+                assign padding = block.settings.padding
+                assign text_size = block.settings.text_size | times: 0.01
+                assign index = forloop.index0
+
+                capture nav_style
+                  echo '--adjust-nav-top-level: calc(var(--FONT-ADJUST-NAV-TOP-LEVEL) * ' | append: text_size | append: ');'
+                  echo ' --adjust-nav: calc(var(--FONT-ADJUST-NAV) * ' | append: text_size | append: ');'
+                  if padding
+                    echo ' --link-item-level-1-padding: 15px;'
+                    echo ' --link-item-level-2-padding: 12px;'
+                    echo ' --link-item-level-3-padding: 7px;'
+                    echo '--mobile-dropdown-margin-top: -15px;'
+                  endif
+                endcapture
+              -%}
+              <collapsible-elements>
+                <ul
+                  class="mobile-nav mobile-nav--weight-{{ settings.nav_font_weight }}{% unless settings.nav_caps_letter_spacing %} letter-spacing-nav{% endunless %}"
+                  {{ block.shopify_attributes }}
+                  style="{{ nav_style }}"
+                >
+                  {%- liquid
+                    for link in linklists[menu].links
+                      render 'nav-item-mobile', link: link, mobile_menu_behaviour: mobile_menu_behaviour, show_links_images: show_links_images, links_images_aspect_ratio: links_images_aspect_ratio, index: index, highlight_item: highlight_item, highlight_item_color: highlight_item_color, highlight_item_text_color: highlight_item_text_color, enable_custom_badge: enable_custom_badge, custom_badge_text: custom_badge_text
+                    endfor
+                  -%}
+                </ul>
+              </collapsible-elements>
+
+            {%- when 'image' -%}
+              {%- liquid
+                assign image = block.settings.image
+                assign image_url = block.settings.image_url
+              -%}
+              <div class="drawer-image{{ image_block_alignment }}">
+                <a
+                  class="drawer-image__link"
+                  href="{{ image_url | default: '#!' }}"
+                  style="--image-width: {{ image_width_percent }}%"
+                >
+                  {%- render 'image',
+                    image: image,
+                    width: retina_size,
+                    widths: image_widths,
+                    sizes: sizes,
+                    cover: false,
+                    placeholder_svg: 'image'
+                  -%}
+                </a>
+              </div>
+
+            {%- when 'icon' -%}
+              {%- liquid
+                assign icon_width = block.settings.icon_width
+                assign icon_image = block.settings.icon_image
+                assign icon_name = block.settings.icon_name
+                assign icon_color = block.settings.icon_color
+                assign text = block.settings.icon_text
+                assign text_size = block.settings.text_size | times: 0.01
+
+                if icon_image != blank
+                  assign retina_size = icon_width | times: 2
+                  assign image_widths = icon_width | append: ', ' | append: retina_size
+                  assign sizes = icon_width | append: 'px'
+                endif
+              -%}
+
+              {%- capture icon_style -%}
+                --icon-size: {{ icon_width }}px;
+
+                {%- if icon_image -%}
+                  --aspect-ratio: {{ 1 | divided_by: icon_image.aspect_ratio | times: 100 | round: 1 }}%;
+                {%- endif -%}
+
+                {%- if icon_color != '' and icon_color.alpha != 0.0 and icon_image == blank -%}
+                  color: {{ icon_color }};
+                {%- endif -%}
+              {%- endcapture -%}
+
+              {%- capture text_style -%}
+                --adjust-body: calc(var(--FONT-ADJUST-BODY) * {{ text_size }});
+              {%- endcapture -%}
+
+              <div class="drawer-icon" style="{{ text_style }}">
+                {%- unless icon_image == blank and icon_name == 'none' -%}
+                  <div class="drawer-icon__inner icon-stroke" style="{{ icon_style }}">
+                    {%- if icon_image != blank -%}
+                      <div class="drawer-icon__holder">
+                        {%- render 'image',
+                          image: icon_image,
+                          width: retina_size,
+                          widths: image_widths,
+                          sizes: sizes,
+                          classes: 'drawer-icon__img'
+                        -%}
+                      </div>
+                    {%- else -%}
+                      {%- render 'icons', icon: icon_name -%}
+                    {%- endif -%}
+                  </div>
+                {%- endunless -%}
+
+                {%- if text != blank -%}
+                  <div class="drawer-icon__text">{{ text }}</div>
+                {%- endif -%}
+              </div>
+
+            {%- when 'text' -%}
+              {%- liquid
+                assign text = block.settings.text
+                assign text_size = block.settings.text_size | times: 0.01
+              -%}
+
+              {%- capture text_style -%}
+                --adjust-body: calc(var(--FONT-ADJUST-BODY) * {{ text_size }});
+              {%- endcapture -%}
+
+              {%- if text != '' -%}
+                <div class="drawer-text {{ block.settings.align_text }}" style="{{ text_style }}">
+                  <p>{{ text }}</p>
+                </div>
+              {%- endif -%}
+
+            {%- when 'button' -%}
+              {%- liquid
+                assign button_link = block.settings.button_link
+                assign button_text = block.settings.button_text
+                assign button_style = block.settings.button_style
+                assign button_color = block.settings.button_color
+                assign button_size = block.settings.button_size
+
+                assign button_advanced_class = 'btn--advanced'
+                if button_style != 'btn--text'
+                  assign button_advanced_class = button_advanced_class | append: ' btn--advanced-width-height'
+                endif
+              -%}
+
+              {%- if button_text != blank -%}
+                <div class="main-buttons">
+                  <div class="main-buttons__item">
+                    <a
+                      class="btn {{ button_style }} {{ button_size }} {{ button_color }} {{ button_advanced_class }}"
+                      href="{{ button_link }}"
+                    >
+                      <hover-button></hover-button>
+                      {{- button_text | escape -}}
+                    </a>
+                  </div>
+                </div>
+              {%- endif -%}
+
+            {%- when 'localization' -%}
+              {%- liquid
+                assign show_locale_selector = block.settings.show_locale_selector
+                assign show_locale_code = block.settings.show_locale_code
+                assign show_country_selector = block.settings.show_country_selector
+                assign show_country_name = block.settings.show_country_name
+                assign show_country_flag = block.settings.show_country_flag
+              -%}
+
+              {%- if show_country_selector or show_locale_selector -%}
+                {%- render 'cross-border',
+                  show_locale_selector: show_locale_selector,
+                  show_locale_code: show_locale_code,
+                  show_country_selector: show_country_selector,
+                  show_country_name: show_country_name,
+                  show_country_flag: show_country_flag
+                -%}
+              {%- endif -%}
+
+            {%- when 'product' -%}
+              {%- liquid
+                assign bg_color = block.settings.bg_color
+                assign text_color = block.settings.color
+                assign has_background_color = false
+                assign padding = block.settings.padding
+                assign title_onboarding = 'homepage.onboarding.product_title' | t
+                assign product_title = block.settings.product.title | default: title_onboarding
+                assign product_image = block.settings.image | default: block.settings.product.featured_image
+                assign text_size = block.settings.text_size | times: 0.01
+
+                capture product_style
+                  unless bg_color.alpha == 0.0 or bg_color == blank
+                    echo '--bg: ' | append: bg_color | append: ';'
+                    assign has_background_color = true
+                  else
+                    echo '--bg: transparent;'
+                  endunless
+                endcapture
+              -%}
+
+              {%- capture text_style -%}
+                --adjust-body: calc(var(--FONT-ADJUST-BODY) * {{ text_size }});
+              {%- endcapture -%}
+
+              <div
+                class="drawer-product"
+                style="{{ product_style }}"
+              >
+                <a href="{{ block.settings.product.url | default: '#!' }}" class="drawer-product__link{% if padding and has_background_color %} drawer-product__link--padding{% endif %} {{ block.settings.alignment }}">
+                  <div class="drawer-product__image" style="--image-width: {{ image_width_percent }}%">
+                    {%- render 'image',
+                      image: product_image,
+                      width: retina_size,
+                      widths: image_widths,
+                      sizes: sizes,
+                      cover: false,
+                      placeholder_svg: 'product-1'
+                    -%}
+                  </div>
+
+                  <div class="drawer-product__title" style="{{ text_style }}">
+                    {{- product_title | strip_html | escape -}}
+                  </div>
+                </a>
+              </div>
+
+            {%- when 'search' -%}
+              {%- liquid
+                assign text_size = block.settings.text_size | times: 0.01
+
+                capture nav_style
+                  echo ' --adjust-nav: calc(var(--FONT-ADJUST-NAV) * ' | append: text_size | append: ');'
+                endcapture
+              -%}
+
+              <ul class="mobile-nav mobile-nav--weight-{{ settings.nav_font_weight }}" style="{{ nav_style }}">
+                <li class="mobile-menu__item{% if request.path contains routes.search_url %} mobile-menu__item--active{% endif %}">
+                  <a href="{{ routes.search_url }}" class="mobile-navlink mobile-navlink--small" data-nav-search-open>
+                    {{- 'layout.navigation.search' | t -}}
+                  </a>
+                </li>
+              </ul>
+
+            {%- when 'login' -%}
+              {%- liquid
+                assign text_size = block.settings.text_size | times: 0.01
+
+                capture nav_style
+                  echo ' --adjust-nav: calc(var(--FONT-ADJUST-NAV) * ' | append: text_size | append: ');'
+                endcapture
+              -%}
+
+              {%- if shop.customer_accounts_enabled -%}
+                <ul class="mobile-nav mobile-nav--weight-{{ settings.nav_font_weight }}" style="{{ nav_style }}">
+                  {%- if customer -%}
+                    <li class="mobile-menu__item{% if request.path contains routes.account_url %} mobile-menu__item--active{% endif %}">
+                      <a href="{{ routes.account_url }}" class="mobile-navlink mobile-navlink--small">
+                        {{- 'customer.account.title' | t -}}
+                      </a>
+                    </li>
+                    <li class="mobile-menu__item{% if request.path contains routes.account_logout_url %} mobile-menu__item--active{% endif %}">
+                      <a href="{{ routes.account_logout_url }}" class="mobile-navlink mobile-navlink--small">
+                        {{- 'layout.customer.log_out' | t -}}
+                      </a>
+                    </li>
+                  {%- else -%}
+                    <li class="mobile-menu__item{% if request.path contains routes.account_login_url %} mobile-menu__item--active{% endif %}">
+                      <a
+                        href="{{ routes.account_login_url }}"
+                        class="mobile-navlink mobile-navlink--small"
+                        id="customer_login_link"
+                      >
+                        {{- 'layout.customer.log_in' | t -}}
+                      </a>
+                    </li>
+                    <li class="mobile-menu__item{% if request.path contains routes.account_register_url %} mobile-menu__item--active{% endif %}">
+                      <a
+                        href="{{ routes.account_register_url }}"
+                        class="mobile-navlink mobile-navlink--small"
+                        id="customer_register_link"
+                      >
+                        {{- 'layout.customer.create_account' | t -}}
+                      </a>
+                    </li>
+                  {%- endif -%}
+                </ul>
+              {%- endif -%}
+
+            {%- when 'divider' -%}
+              {%- if block.settings.show_line -%}
+                <hr class="hr--full">
+              {%- endif -%}
+          {%- endcase -%}
+        </div>
+      </div>
+    {%- endcapture -%}
+
+    {%- liquid
+      if pin_to_bottom
+        capture pinned_blocks
+          echo pinned_blocks
+          echo block_content
+        endcapture
+      else
+        capture dynamic_blocks
+          echo dynamic_blocks
+          echo block_content
+        endcapture
+      endif
+    -%}
+  {%- endfor -%}
+
+  <div class="drawer__inner">
+    <div class="drawer__header">
+      {%- if logo != blank -%}
+        <div class="drawer__title">{{ logo }}</div>
+      {%- endif -%}
+
+      <button type="button" class="drawer__close-button" aria-controls="nav-drawer-section">
+        <drawer-toggle></drawer-toggle>
+        <span class="visually-hidden">{{ 'general.accessibility.close_drawer' | t }}</span>
+        {%- render 'icon-close' -%}
+      </button>
+    </div>
+
+    <div class="drawer__body">
+      <div class="drawer__content">
+        <div class="drawer__content-scroll" data-scrollable-menu-blocks data-scroll-lock-scrollable>
+          {{ dynamic_blocks }}
+        </div>
+      </div>
+    </div>
+
+    {%- if pinned_blocks != blank -%}
+      <div class="drawer__foot">
+        <div class="drawer__foot-scroll" data-scroll-lock-scrollable>
+          {{ pinned_blocks }}
+        </div>
+      </div>
+    {%- endif -%}
+  </div>
+</drawer-element>
+
+{%- if request.design_mode -%}
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.mobileMenuEventHandlersAttached) return;
+      window.mobileMenuEventHandlersAttached = true;
+
+      function handleMobileMenuEvent(event, shouldOpen) {
+        const mode = shouldOpen ? 'open' : 'close';
+        const target = event.target;
+        const isMobileMenuSection = target.classList.contains('shopify-section-mobile-menu');
+        const isDrawerBlock = target.hasAttribute('data-drawer-block');
+        if (!(isMobileMenuSection || isDrawerBlock)) return;
+        const mobileMenu = target.querySelector('drawer-element') || target.closest('drawer-element');
+        if (!mobileMenu || theme.settings.mobileMenuType === 'old') return;
+
+        const isOpen = Boolean(
+          document.body.classList.contains('js-drawer-open') && mobileMenu.classList.contains('is-open')
+        );
+
+        if (mode === 'open' && !isOpen) {
+          const trigger = document.querySelector('[data-mobile-menu-trigger]');
+          trigger?.dispatchEvent(new Event('click', {bubbles: true}));
+        }
+
+        if (mode === 'close' && isOpen) {
+          if (typeof mobileMenu.close === 'function') mobileMenu.close();
+        }
+      }
+
+      // Open mobile-menu drawer on Block select
+      document.addEventListener('shopify:block:select', (event) => handleMobileMenuEvent(event, true));
+      // Open mobile-menu drawer on Section select
+      document.addEventListener('shopify:section:select', (event) => handleMobileMenuEvent(event, true));
+      // Close mobile-menu drawer on Section deselect
+      document.addEventListener('shopify:section:deselect', (event) => handleMobileMenuEvent(event, false));
+    });
+  </script>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Mobile menu",
+  "class": "shopify-section-mobile-menu",
+  "limit": 1,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Logo"
+    },
+    {
+      "type": "image_picker",
+      "id": "logo_not_home",
+      "label": "Image"
+    },
+    {
+      "type": "range",
+      "id": "logo_max_width",
+      "label": "Width",
+      "min": 30,
+      "max": 250,
+      "default": 100,
+      "step": 10,
+      "unit": "px"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "menu",
+      "name": "Menu",
+      "limit": 2,
+      "settings": [
+        {
+          "type": "link_list",
+          "label": "Menu",
+          "id": "mobile_menu_linklist"
+        },
+        {
+          "type": "range",
+          "id": "text_size",
+          "label": "Text size",
+          "default": 100,
+          "info": "Automatically generated by the base size.",
+          "min": 75,
+          "max": 200,
+          "step": 5,
+          "unit": "%"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_images",
+          "label": "Show images",
+          "info": "Collection and Product links. Images appear on second-level links",
+          "default": true
+        },
+        {
+          "type": "range",
+          "id": "image_aspect_ratio",
+          "min": 0.5,
+          "max": 1.5,
+          "step": 0.1,
+          "unit": ":1",
+          "label": "Image scaling ratio",
+          "info": "Wide to tall",
+          "default": 0.5
+        },
+        {
+          "type": "header",
+          "content": "Highlight link"
+        },
+        {
+          "type": "text",
+          "id": "highlight_item",
+          "label": "Menu item",
+          "default": "Sale"
+        },
+        {
+          "type": "checkbox",
+          "id": "enable_custom_badge",
+          "label": "Enable custom badge",
+          "default": false
+        },
+        {
+          "type": "text",
+          "id": "custom_badge_text",
+          "label": "Custom badge text",
+          "default": "10% OFF"
+        },
+        {
+          "type": "color",
+          "id": "highlight_item_color",
+          "label": "Color",
+          "default": "#D02E2E",
+          "alpha": true
+        },
+        {
+          "type": "color",
+          "id": "highlight_item_text_color",
+          "label": "Badge text color",
+          "default": "#ffffff",
+          "info": "Applies when custom badge is enabled",
+          "alpha": true
+        },
+        {
+          "type": "header",
+          "content": "Layout"
+        },
+        {
+          "type": "checkbox",
+          "id": "padding",
+          "label": "Add padding",
+          "default": true
+        },
+        {
+          "type": "header",
+          "content": "Block spacing"
+        },
+        {
+          "type": "range",
+          "id": "padding_bottom",
+          "min": 0,
+          "max": 50,
+          "step": 2,
+          "unit": "px",
+          "label": "Padding bottom",
+          "default": 10
+        }
+      ]
+    },
+    {
+      "type": "image",
+      "name": "Image",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image",
+          "info": "700 x 700px .jpg recommended."
+        },
+        {
+          "type": "url",
+          "id": "image_url",
+          "label": "Link"
+        },
+        {
+          "type": "select",
+          "id": "image_alignment",
+          "label": "Image alignment",
+          "default": "left",
+          "options": [
+            {"label": "Left", "value": "left"},
+            {"label": "Center", "value": "center"},
+            {"label": "Right", "value": "right"}
+          ]
+        },
+        {
+          "type": "range",
+          "id": "image_width",
+          "label": "Image width",
+          "min": 5,
+          "max": 100,
+          "step": 5,
+          "unit": "%",
+          "default": 20
+        },
+        {
+          "type": "header",
+          "content": "Layout"
+        },
+        {
+          "type": "checkbox",
+          "id": "pin_to_bottom",
+          "label": "Pin to bottom",
+          "default": false
+        },
+        {
+          "type": "header",
+          "content": "Block spacing"
+        },
+        {
+          "type": "range",
+          "id": "padding_bottom",
+          "min": 0,
+          "max": 50,
+          "step": 2,
+          "unit": "px",
+          "label": "Padding bottom",
+          "default": 10
+        }
+      ]
+    },
+    {
+      "type": "icon",
+      "name": "Icon",
+      "settings": [
+        {
+          "type": "select",
+          "id": "icon_name",
+          "label": "Select an icon",
+          "default": "check",
+          "options": [
+            {"value": "none", "label": "None"},
+            {"value": "archive", "label": "Archive", "group": "Generic"},
+            {"value": "award", "label": "Award", "group": "Generic"},
+            {"value": "bee", "label": "Bee", "group": "Generic"},
+            {"value": "bell", "label": "Bell", "group": "Generic"},
+            {"value": "calendar", "label": "Calendar", "group": "Generic"},
+            {"value": "camera", "label": "Camera", "group": "Generic"},
+            {"value": "check", "label": "Check", "group": "Generic"},
+            {"value": "clipboard", "label": "Clipboard", "group": "Generic"},
+            {"value": "clock", "label": "Clock", "group": "Generic"},
+            {"value": "compass", "label": "Compass", "group": "Generic"},
+            {"value": "dollar-sign", "label": "Dollar sign", "group": "Generic"},
+            {"value": "download", "label": "Download", "group": "Generic"},
+            {"value": "flower", "label": "Flower", "group": "Generic"},
+            {"value": "gem", "label": "Gem", "group": "Generic"},
+            {"value": "heart", "label": "Heart", "group": "Generic"},
+            {"value": "key", "label": "Key", "group": "Generic"},
+            {"value": "leaf", "label": "Leaf", "group": "Generic"},
+            {"value": "lock", "label": "Lock", "group": "Generic"},
+            {"value": "mail", "label": "Mail", "group": "Generic"},
+            {"value": "map-pin", "label": "Map", "group": "Generic"},
+            {"value": "message", "label": "Message", "group": "Generic"},
+            {"value": "music", "label": "Music", "group": "Generic"},
+            {"value": "pencils", "label": "Pencils", "group": "Generic"},
+            {"value": "phone", "label": "Phone", "group": "Generic"},
+            {"value": "scientific", "label": "Scientific", "group": "Generic"},
+            {"value": "shield", "label": "Shield", "group": "Generic"},
+            {"value": "smile", "label": "Smile", "group": "Generic"},
+            {"value": "star", "label": "Star", "group": "Generic"},
+            {"value": "tree", "label": "Tree", "group": "Generic"},
+            {"value": "truck", "label": "Truck", "group": "Generic"},
+            {"value": "credit-card", "label": "Credit card", "group": "Commerce"},
+            {"value": "fair-trade", "label": "Fair trade", "group": "Commerce"},
+            {"value": "package", "label": "Package", "group": "Commerce"},
+            {"value": "storefront", "label": "Storefront", "group": "Commerce"},
+            {"value": "support", "label": "Support", "group": "Commerce"},
+            {"value": "eco-friendly", "label": "Eco friendly", "group": "Environment"},
+            {"value": "recycle", "label": "Recycle", "group": "Environment"},
+            {"value": "recycle-circle", "label": "Recycle circle", "group": "Environment"},
+            {"value": "reuseable", "label": "Reuseable", "group": "Environment"},
+            {"value": "cotton", "label": "Cotton", "group": "Fashion"},
+            {"value": "ethically-made", "label": "Ethically made", "group": "Fashion"},
+            {"value": "plant-based", "label": "Plant based", "group": "Fashion"},
+            {"value": "dishwasher-safe", "label": "Dishwasher safe", "group": "Food and Drink"},
+            {"value": "frozen", "label": "Frozen", "group": "Food and Drink"},
+            {"value": "non-gmo", "label": "Non GMO", "group": "Food and Drink"},
+            {"value": "organic", "label": "Organic", "group": "Food and Drink"},
+            {"value": "oven-safe", "label": "Oven safe", "group": "Food and Drink"},
+            {"value": "vegan", "label": "Vegan", "group": "Food and Drink"},
+            {"value": "vegetarian", "label": "Vegetarian", "group": "Food and Drink"},
+            {"value": "cruelty-free", "label": "Cruelty free", "group": "Health/Beauty"},
+            {"value": "fragrance-free", "label": "Fragrance free", "group": "Health/Beauty"},
+            {"value": "paw-heart", "label": "Paw heart", "group": "Health/Beauty"},
+            {"value": "phthalate-free", "label": "Phthalate free", "group": "Health/Beauty"},
+            {"value": "sulfate-free", "label": "Sulfate free", "group": "Health/Beauty"},
+            {"value": "use-by", "label": "Use by", "group": "Health/Beauty"}
+          ]
+        },
+        {
+          "type": "color",
+          "id": "icon_color",
+          "label": "Color",
+          "alpha": true
+        },
+        {
+          "type": "image_picker",
+          "id": "icon_image",
+          "label": "Image",
+          "info": "If set overrides the icon above"
+        },
+        {
+          "type": "range",
+          "id": "icon_width",
+          "label": "Width",
+          "min": 20,
+          "max": 50,
+          "step": 1,
+          "unit": "px",
+          "default": 20
+        },
+        {
+          "type": "header",
+          "content": "Text"
+        },
+        {
+          "type": "text",
+          "id": "icon_text",
+          "label": "Heading",
+          "default": "30 day hassle-free trial"
+        },
+        {
+          "type": "range",
+          "id": "text_size",
+          "label": "Size",
+          "default": 90,
+          "min": 50,
+          "max": 125,
+          "step": 5,
+          "unit": "%"
+        },
+        {
+          "type": "header",
+          "content": "Layout"
+        },
+        {
+          "type": "checkbox",
+          "id": "pin_to_bottom",
+          "label": "Pin to bottom",
+          "default": false
+        },
+        {
+          "type": "header",
+          "content": "Block spacing"
+        },
+        {
+          "type": "range",
+          "id": "padding_bottom",
+          "min": 0,
+          "max": 50,
+          "step": 2,
+          "unit": "px",
+          "label": "Padding bottom",
+          "default": 10
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "Text",
+      "settings": [
+        {
+          "type": "textarea",
+          "id": "text",
+          "label": "Text",
+          "default": "Free shipping on orders over $100"
+        },
+        {
+          "type": "select",
+          "id": "align_text",
+          "label": "Text alignment",
+          "default": "text-left",
+          "options": [
+            {"value": "text-left", "label": "Left"},
+            {"value": "text-center", "label": "Centered"}
+          ]
+        },
+        {
+          "type": "range",
+          "id": "text_size",
+          "label": "Size",
+          "default": 90,
+          "min": 50,
+          "max": 125,
+          "step": 5,
+          "unit": "%"
+        },
+        {
+          "type": "header",
+          "content": "Layout"
+        },
+        {
+          "type": "checkbox",
+          "id": "pin_to_bottom",
+          "label": "Pin to bottom",
+          "default": false
+        },
+        {
+          "type": "header",
+          "content": "Block spacing"
+        },
+        {
+          "type": "range",
+          "id": "padding_bottom",
+          "min": 0,
+          "max": 50,
+          "step": 2,
+          "unit": "px",
+          "label": "Padding bottom",
+          "default": 10
+        }
+      ]
+    },
+    {
+      "type": "button",
+      "name": "Button",
+      "settings": [
+        {
+          "type": "text",
+          "id": "button_text",
+          "label": "Text",
+          "default": "Shop All"
+        },
+        {
+          "type": "url",
+          "id": "button_link",
+          "label": "Link",
+          "default": "/collections/all"
+        },
+        {
+          "type": "select",
+          "id": "button_color",
+          "label": "Button color",
+          "default": "btn--white",
+          "options": [
+            {"label": "Primary", "value": "btn--primary"},
+            {"label": "Secondary", "value": "btn--secondary"},
+            {"label": "White", "value": "btn--white"},
+            {"label": "Black", "value": "btn--black"}
+          ]
+        },
+        {
+          "type": "select",
+          "id": "button_style",
+          "label": "Button style",
+          "default": "btn--solid-border",
+          "options": [
+            {"label": "Solid", "value": "btn--solid"},
+            {"label": "Outline", "value": "btn--outline"},
+            {"label": "Solid with border", "value": "btn--solid-border"},
+            {"label": "Soft", "value": "btn--soft"},
+            {"label": "Text", "value": "btn--text"}
+          ]
+        },
+        {
+          "type": "select",
+          "id": "button_size",
+          "label": "Size",
+          "default": "btn--medium",
+          "options": [
+            {"label": "Small", "value": "btn--small"},
+            {"label": "Medium", "value": "btn--medium"},
+            {"label": "Large", "value": "btn--large"}
+          ]
+        },
+        {
+          "type": "header",
+          "content": "Layout"
+        },
+        {
+          "type": "checkbox",
+          "id": "pin_to_bottom",
+          "label": "Pin to bottom",
+          "default": false
+        },
+        {
+          "type": "header",
+          "content": "Block spacing"
+        },
+        {
+          "type": "range",
+          "id": "padding_bottom",
+          "min": 0,
+          "max": 50,
+          "step": 2,
+          "unit": "px",
+          "label": "Padding bottom",
+          "default": 10
+        }
+      ]
+    },
+    {
+      "type": "localization",
+      "name": "Language and currency",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "header",
+          "content": "Language selector",
+          "info": "To add a language, go to your [language settings.](/admin/settings/languages)"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_locale_selector",
+          "label": "Show language selector",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "show_locale_code",
+          "label": "Show language code only",
+          "default": true
+        },
+        {
+          "type": "header",
+          "content": "Country/Region selector",
+          "info": "To add a country/region, go to your [markets settings](/admin/settings/markets)."
+        },
+        {
+          "type": "checkbox",
+          "id": "show_country_selector",
+          "label": "Show country selector",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "show_country_name",
+          "label": "Show country name",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "show_country_flag",
+          "label": "Show country flag",
+          "default": false
+        },
+        {
+          "type": "header",
+          "content": "Layout"
+        },
+        {
+          "type": "checkbox",
+          "id": "pin_to_bottom",
+          "label": "Pin to bottom",
+          "default": false
+        },
+        {
+          "type": "header",
+          "content": "Block spacing"
+        },
+        {
+          "type": "range",
+          "id": "padding_bottom",
+          "min": 0,
+          "max": 50,
+          "step": 2,
+          "unit": "px",
+          "label": "Padding bottom",
+          "default": 10
+        }
+      ]
+    },
+    {
+      "type": "product",
+      "name": "Product",
+      "settings": [
+        {
+          "label": "Product",
+          "id": "product",
+          "type": "product"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image",
+          "info": "Replace the product image with a custom image. 100 x 100px .jpg recommended."
+        },
+        {
+          "type": "range",
+          "id": "image_width",
+          "label": "Image width",
+          "min": 5,
+          "max": 50,
+          "step": 5,
+          "unit": "%",
+          "default": 20
+        },
+        {
+          "type": "header",
+          "content": "Text"
+        },
+        {
+          "type": "range",
+          "id": "text_size",
+          "label": "Size",
+          "default": 90,
+          "min": 50,
+          "max": 125,
+          "step": 5,
+          "unit": "%"
+        },
+        {
+          "type": "header",
+          "content": "Color"
+        },
+        {
+          "type": "color",
+          "id": "bg_color",
+          "label": "Background",
+          "alpha": true
+        },
+        {
+          "type": "header",
+          "content": "Layout"
+        },
+        {
+          "type": "select",
+          "id": "alignment",
+          "label": "Alignment",
+          "default": "drawer-product__link--left",
+          "options": [
+            {"label": "Left", "value": "drawer-product__link--left"},
+            {"label": "Center", "value": "drawer-product__link--center"},
+            {"label": "Right", "value": "drawer-product__link--right"}
+          ]
+        },
+        {
+          "type": "checkbox",
+          "id": "padding",
+          "label": "Add inner padding",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "pin_to_bottom",
+          "label": "Pin to bottom",
+          "default": false
+        },
+        {
+          "type": "header",
+          "content": "Block spacing"
+        },
+        {
+          "type": "range",
+          "id": "padding_bottom",
+          "min": 0,
+          "max": 50,
+          "step": 2,
+          "unit": "px",
+          "label": "Padding bottom",
+          "default": 10
+        }
+      ]
+    },
+    {
+      "type": "search",
+      "name": "Search link",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "range",
+          "id": "text_size",
+          "label": "Text size",
+          "default": 100,
+          "info": "Automatically generated by the base size.",
+          "min": 75,
+          "max": 200,
+          "step": 5,
+          "unit": "%"
+        },
+        {
+          "type": "header",
+          "content": "Layout"
+        },
+        {
+          "type": "checkbox",
+          "id": "pin_to_bottom",
+          "label": "Pin to bottom",
+          "default": true
+        },
+        {
+          "type": "header",
+          "content": "Block spacing"
+        },
+        {
+          "type": "range",
+          "id": "padding_bottom",
+          "min": 0,
+          "max": 50,
+          "step": 2,
+          "unit": "px",
+          "label": "Padding bottom",
+          "default": 10
+        }
+      ]
+    },
+    {
+      "type": "login",
+      "name": "Login links",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "This block depends on the store's \"Show login links\" setting"
+        },
+        {
+          "type": "range",
+          "id": "text_size",
+          "label": "Text size",
+          "default": 100,
+          "info": "Automatically generated by the base size.",
+          "min": 75,
+          "max": 200,
+          "step": 5,
+          "unit": "%"
+        },
+        {
+          "type": "header",
+          "content": "Layout"
+        },
+        {
+          "type": "checkbox",
+          "id": "pin_to_bottom",
+          "label": "Pin to bottom",
+          "default": true
+        },
+        {
+          "type": "header",
+          "content": "Block spacing"
+        },
+        {
+          "type": "range",
+          "id": "padding_bottom",
+          "min": 0,
+          "max": 50,
+          "step": 2,
+          "unit": "px",
+          "label": "Padding bottom",
+          "default": 10
+        }
+      ]
+    },
+    {
+      "type": "divider",
+      "name": "Divider",
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_line",
+          "label": "Show line",
+          "default": true
+        },
+        {
+          "type": "header",
+          "content": "Layout"
+        },
+        {
+          "type": "checkbox",
+          "id": "pin_to_bottom",
+          "label": "Pin to bottom",
+          "default": false
+        },
+        {
+          "type": "header",
+          "content": "Block spacing"
+        },
+        {
+          "type": "range",
+          "id": "padding_bottom",
+          "min": 0,
+          "max": 50,
+          "step": 2,
+          "unit": "px",
+          "label": "Padding bottom",
+          "default": 10
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Mobile menu",
+      "blocks": [
+        {
+          "type": "menu"
+        }
+      ]
+    }
+  ],
+  "enabled_on": {
+    "groups": ["header"]
+  }
+}
+{% endschema %}

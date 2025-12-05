@@ -1,0 +1,836 @@
+<!-- /sections/section-sticky-images-and-text.liquid -->
+{%- liquid
+  assign scroll_direction = section.settings.scroll_direction
+  assign text_alignment = section.settings.text_alignment
+  assign image_position = section.settings.image_position
+  assign increase_border_radius = settings.increase_border_radius
+  assign space_around_images = section.settings.space_around_images
+  assign image_width = section.settings.image_width
+  assign aspect_ratio_desktop = section.settings.aspect_ratio_desktop
+  assign image_ratio_desktop = aspect_ratio_desktop | times: 100
+  assign aspect_ratio_mobile = section.settings.aspect_ratio_mobile
+  assign show_single_text = section.settings.show_single_text
+  assign image_ratio_mobile = aspect_ratio_mobile | times: 100
+  assign color_scheme = 'color-' | append: section.settings.color_scheme
+  assign width = section.settings.width
+  assign padding_top = section.settings.padding_top
+  assign padding_bottom = section.settings.padding_bottom
+  assign has_entire_image_link = false
+
+  assign blocks_size = section.blocks.size
+  assign unique = section.id
+
+  assign section_id = 'stickyImagesAndText--' | append: unique
+  assign selector_id = '#' | append: section_id
+  assign animation_anchor = selector_id
+  assign animations_enabled = settings.animations_enabled
+
+  case text_alignment
+    when 'left'
+      assign text_alignment_class = 'text-left'
+    when 'center'
+      assign text_alignment_class = 'text-center'
+    when 'right'
+      assign text_alignment_class = 'text-right'
+  endcase
+
+  case image_width
+    when 'standard'
+      assign image_width_class = 'sticky-images-and-text--image-fifty'
+      assign block_width_percent = 0.5
+    when 'wide'
+      assign image_width_class = 'sticky-images-and-text--image-sixty'
+      assign block_width_percent = 0.6
+  endcase
+
+  assign desktop_space = 0
+  assign tablet_space = 0
+  assign mobile_space = 40
+  if space_around_images
+    assign desktop_space = 120
+    assign tablet_space = 40
+  endif
+
+  assign img_width_lg = 'calc((100vw - ' | append: desktop_space | append: 'px) * ' | append: block_width_percent | append: ')'
+  assign img_width_md = 'calc((100vw - ' | append: tablet_space | append: 'px) * ' | append: block_width_percent | append: ')'
+  assign img_width_sm = 'calc(100vw - ' | append: mobile_space | append: 'px)'
+  assign sizes = '(min-width: 1024px) ' | append: img_width_lg | append: ', (min-width: 768px) ' | append: img_width_md | append: ', ' | append: img_width_sm
+
+  assign text_content_from_blocks = ''
+  assign images_from_blocks = ''
+  assign dots_markup = ''
+  assign no_js_markup = ''
+-%}
+
+{%- for block in section.blocks -%}
+  {%- liquid
+    assign image = block.settings.image
+    assign image_mobile = block.settings.image_mobile
+    assign truncate_text = block.settings.truncate_text
+    assign subheading = block.settings.subheading
+    assign title = block.settings.title
+    assign title_length = block.settings.title_length
+    assign heading_size = block.settings.heading_size | times: 0.01
+    assign content = block.settings.content
+    assign content_length = block.settings.content_length
+    assign text_size = block.settings.text_size | times: 0.01
+    assign button_text = block.settings.button_text
+    assign button_link = block.settings.button_link
+    assign button_color = block.settings.button_color
+    assign button_style = block.settings.button_style
+    assign button_size = block.settings.button_size
+    assign video_link = block.settings.video_link
+    assign video_url = block.settings.video_url
+    assign video_text = block.settings.video_text
+    assign animation_order = 1
+
+    assign entire_image_link = false
+    if button_text == blank and button_link != blank
+      assign entire_image_link = true
+      assign has_entire_image_link = true
+    endif
+
+    assign button_advanced_class = 'btn--advanced'
+    if button_style != 'btn--text'
+      assign button_advanced_class = button_advanced_class | append: ' btn--advanced-width-height btn--advanced-adaptive-width'
+    endif
+
+    capture block_images
+      capture image_classes
+        echo 'image-wrapper'
+        if entire_image_link
+          echo ' hover-scale'
+        endif
+      endcapture
+
+      capture placeholder_svg
+        echo 'lifestyle-'
+        cycle 1, 2
+      endcapture
+
+      if entire_image_link
+        echo '<a href="' | append: button_link | append: '">'
+      endif
+
+      render 'image-fill', image_desktop: image, image_mobile: image_mobile, sizes: sizes, classes: image_classes, placeholder_svg: placeholder_svg
+
+      if entire_image_link
+        echo '</a>'
+      endif
+    endcapture
+
+    assign default_label = 'general.meta.page' | t: page: forloop.index | append: ': '
+    assign dot_label = default_label | append: title | strip_html | default: image.alt
+
+    assign heading_size_mobile = heading_size
+    if heading_size > 1.5
+      assign heading_size_mobile = heading_size | times: 0.85
+    endif
+  -%}
+
+  {%- capture text_content_markup -%}
+    {%- if subheading != blank or title != blank or content != blank or button_text != blank or video_link != blank -%}
+      <div class="sticky-text{% if forloop.index0 == 0 %} is-active{% endif %}"
+        data-sticky-text
+        data-index="{{ forloop.index0 }}"
+        {% if title != blank %}
+          style="--adjust-heading-desktop: calc(var(--FONT-ADJUST-HEADING) * {{ heading_size }}); --adjust-heading-mobile: calc(var(--FONT-ADJUST-HEADING) * {{ heading_size_mobile }});"
+        {% endif %}
+      >
+        <div class="sticky-text__inner" data-sticky-text-inner>
+          {%- if subheading != blank -%}
+            <div class="sticky-text__subheading subheading-text main-subheading"
+              {% if animations_enabled %}
+                data-aos="when-active-animate-up"
+                data-aos-anchor="{{ animation_anchor }}"
+                data-aos-order="{{ animation_order }}"
+                {%- assign animation_order = animation_order | plus: 1 -%}
+              {% endif %}
+            >
+              {{- subheading -}}
+            </div>
+          {%- endif -%}
+
+          {%- if title != blank -%}{% comment %}
+  Modify text in title whenever there is a percentage off string, such as "20% off", so that output will include HTML tags with which to style promo texts better
+
+  Dependencies:
+    - title: {Object} Liquid object from settings that contains the heading that would be modified and rendered - `assign title = section.settings.title`
+
+  Returns variables:
+    - has_percent_off: {Boolean}
+    - has_number_percent: {Boolean}
+{%- endcomment -%}
+
+{%- liquid
+  assign numbers_string = '0%,1%,2%,3%,4%,5%,6%,7%,8%,9%' | split: ','
+  assign has_percent_off = false
+  assign has_number_percent = false
+  for num in numbers_string
+    if title contains num
+      assign has_number_percent = true
+    endif
+  endfor
+
+  if has_number_percent
+    assign title = title | replace: '%', '<sup>%</sup>'
+
+    if title contains '<sup>%</sup> off' or title contains '<sup>%</sup> OFF' or title contains '<sup>%</sup> Off'
+      assign has_percent_off = true
+      assign title = title | replace: '<sup>%</sup> off', '<sup>%</sup> <small>off</small>'
+      assign title = title | replace: '<sup>%</sup> OFF', '<sup>%</sup> <small>OFF</small>'
+      assign title = title | replace: '<sup>%</sup> Off', '<sup>%</sup> <small>Off</small>'
+    endif
+  endif
+-%}<h3 class="sticky-text__heading h2{% if has_percent_off %} haspercentoff{% elsif has_number_percent %} hasnumberpercent{% endif %}"
+              {% if animations_enabled %}
+                data-aos="when-active-animate-up"
+                data-aos-anchor="{{ animation_anchor }}"
+                data-aos-order="{{ animation_order }}"
+                {%- assign animation_order = animation_order | plus: 1 -%}
+              {% endif %}
+            >
+              {%- liquid
+                if truncate_text
+                  echo title | strip_html | truncatewords: title_length
+                else
+                  echo title
+                endif
+              -%}
+            </h3>
+
+            {%- if settings.show_spacer_lines -%}
+              <hr
+                {% if animations_enabled %}
+                  data-aos="when-active-animate-up"
+                  data-aos-order="{{ animation_order }}"
+                  data-aos-anchor="{{ animation_anchor }}"
+                  {%- assign animation_order = animation_order | plus: 1 -%}
+                {% endif %}
+              >
+            {%- endif -%}
+          {%- endif -%}
+
+          {%- if content != blank -%}
+            <div class="sticky-text__text"
+              style="--adjust-body: calc(var(--FONT-ADJUST-BODY) * {{ text_size }});"
+              {% if animations_enabled %}
+                data-aos="when-active-animate-up"
+                data-aos-anchor="{{ animation_anchor }}"
+                data-aos-order="{{ animation_order }}"
+                {%- assign animation_order = animation_order | plus: 1 -%}
+              {% endif %}
+            >
+              {%- liquid
+                if truncate_text
+                  echo '<p>'
+                  echo content | strip_html | truncatewords: content_length
+                  echo '</p>'
+                else
+                  echo content
+                endif
+              -%}
+            </div>
+          {%- endif -%}
+
+          {%- if button_text != blank or video_link != blank -%}
+            <div class="sticky-text__buttons main-buttons">
+              {%- if button_text != blank -%}
+                <div class="sticky-text__button{% if button_style == 'btn--text' %} sticky-text__button--text{% endif %} main-buttons__item"
+                  {% if animations_enabled %}
+                    data-aos="when-active-animate-up"
+                    data-aos-anchor="{{ animation_anchor }}"
+                    data-aos-order="{{ animation_order }}"
+                    {%- assign animation_order = animation_order | plus: 1 -%}
+                  {% endif %}
+                >
+                  <a href="{{ button_link | default: '#!' }}"
+                    class="btn {{ button_style }} {{ button_size }} {{ button_color }} {{ button_advanced_class }}"
+                    aria-label="{{ button_text }}"
+                  >
+                    <hover-button></hover-button>
+                    {{- button_text -}}
+                  </a>
+                </div>
+              {%- endif -%}
+
+              {%- if video_link != blank -%}
+                {%- render 'video-popup' video_link: video_link, unique: unique  -%}
+
+                <video-popup class="sticky-text__button sticky-text__button--video main-buttons__item"
+                  {% if animations_enabled %}
+                    data-aos="when-active-animate-up"
+                    data-aos-anchor="{{ animation_anchor }}"
+                    data-aos-order="{{ animation_order }}"
+                    {%- assign animation_order = animation_order | plus: 1 -%}
+                  {% endif %}
+                >
+                  <a class="video-text-link"
+                    href="{{ video_link | default: '#!' }}"
+                    data-video-play="{%- render 'photoswipe-video-html' item_link: video_link , item_link_type: video_type, item_link_id: video_id, item_id: video_parent_id -%}"
+                  >
+                    {%- render 'icon-play' -%}
+
+                    {%- if video_text != blank -%}
+                      <span>{{ video_text }}</span>
+                    {%- endif -%}
+                  </a>
+                </video-popup>
+              {%- endif -%}
+            </div>
+          {%- endif -%}
+        </div>
+      </div>
+    {%- endif -%}
+  {%- endcapture -%}
+
+  {%- if show_single_text and forloop.index0 > 0 -%}
+    {%- assign text_content_markup = '' -%}
+  {%- endif -%}
+
+  {%- assign text_content_from_blocks = text_content_from_blocks | append: text_content_markup -%}
+
+  {%- capture image_markup -%}
+    <div class="sticky-images-and-text__image{% if forloop.index0 == 0 %} is-active{% endif %}"
+      data-sticky-image data-index="{{ forloop.index0 }}"
+      {{ block.shopify_attributes }}
+    >
+      {%- if video_url != blank -%}
+        <div class="sticky-images-and-text__video-wrapper">
+          <video
+            playsinline
+            autoplay
+            loop
+            muted
+          >
+          <source src="{{ video_url }}" type="video/mp4">
+          </video>
+        </div>
+      {%- else -%}
+        {{ block_images }}
+      {%- endif -%}
+    </div>
+  {%- endcapture -%}
+  {%- assign images_from_blocks = images_from_blocks | append: image_markup -%}
+
+  {%- capture dots_markup -%}
+    {{ dots_markup }}
+
+    <button type="button"
+      class="sticky-images-and-text__dot{% if forloop.index0 == 0 %} is-active{% endif %}"
+      data-sticky-dot
+      data-index="{{ forloop.index0 }}"
+    >
+      <span class="visually-hidden">{{ dot_label }}</span>
+    </button>
+  {%- endcapture -%}
+
+  {%- capture no_js_markup -%}
+    {{ no_js_markup }}
+    <div class="sticky-images-and-text__wrapper">
+      {{ text_content_markup }}
+      {{ image_markup }}
+    </div>
+  {%- endcapture -%}
+{%- endfor -%}
+
+{%- if request.design_mode -%}
+  {{ 'section-sticky-images-and-text.css' | asset_url | stylesheet_tag }}
+{%- else -%}
+  <link
+    href="{{ 'section-sticky-images-and-text.css' | asset_url }}"
+    rel="preload"
+    as="style"
+    onload="this.onload=null;this.rel='stylesheet'"
+  >
+{%- endif -%}
+
+<script src="{{ 'sticky-images-and-text.js' | asset_url }}" defer="defer"></script>
+
+{%- if request.design_mode -%}
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.stickyImagesAndTextBlockSelectHandlerAttached) return;
+      window.stickyImagesAndTextBlockSelectHandlerAttached = true;
+
+      document.addEventListener('shopify:block:select', (event) => {
+        const target = event.target;
+        const stickyImagesAndText = target.closest('sticky-images-and-text');
+
+        if (!stickyImagesAndText) return;
+
+        if (typeof stickyImagesAndText.scrollTo === 'function') {
+          stickyImagesAndText.scrollTo(target, 500);
+        }
+      });
+    });
+  </script>
+{%- endif -%}
+
+{%- style -%}
+  {{ selector_id }} {
+    --PT: {{ padding_top }}px;
+    --PB: {{ padding_bottom }}px;
+
+    {% if increase_border_radius -%}
+      --radius: 34px;
+    {%- endif %}
+  }
+
+  {% if request.visual_preview_mode -%}
+    .sticky-images-and-text { --header-sticky-height: 0px; --images-count: 2 !important; }
+    .aos-initialized .sticky-images-and-text [data-aos][data-aos] {
+      opacity: 1;
+      transform: none;
+    }
+
+    @media screen and (min-width: 768px) {
+      .sticky-images-and-text .sticky-images-and-text__aside { min-height: initial; }
+      .sticky-images-and-text .sticky-images-and-text__body { min-height: initial; }
+      .sticky-images-and-text--horizontal .sticky-images-and-text__content {
+        position: relative;
+        top: auto;
+        height: 100vh;
+      }
+      .sticky-images-and-text--horizontal .sticky-images-and-text__image { --single-image-height: calc(100vh - (var(--padding) * 2)); }
+      .sticky-images-and-text--vertical .sticky-images-and-text__content { margin: auto; }
+      .sticky-images-and-text--vertical .sticky-images-and-text__dots-inner {
+        --top: 0px !important;
+        height: 100% !important;
+      }
+      .sticky-images-and-text--vertical { --image-ratio-desktop: 100% !important; }
+      .sticky-images-and-text--vertical .sticky-images-and-text__image:nth-child(n + 3) { display: none; }
+    }
+
+    @media screen and (max-width: 767px) {
+      .sticky-images-and-text {
+        --image-ratio-mobile: 100% !important;
+        --max-image-height-mobile: 300px !important;
+        --img-height: 300px !important;
+        --images-height: 300px !important;
+        --images-count: 1 !important;
+      }
+      .sticky-images-and-text .sticky-images-and-text__body { min-height: 100vh; }
+      .sticky-images-and-text .sticky-text:nth-child(n + 2),
+      .sticky-images-and-text .sticky-images-and-text__image:nth-child(n + 2) { display: none; }
+      .sticky-images-and-text .sticky-images-and-text__image .image-wrapper { --min: var(--img-height); }
+      .sticky-images-and-text .sticky-images-and-text__content {
+        top: var(--padding);
+        min-height: 100vh;
+      }
+    }
+  {%- endif %}
+{%- endstyle -%}
+
+<sticky-images-and-text
+  id="{{ section_id }}"
+  class="sticky-images-and-text sticky-images-and-text--{{ scroll_direction }} section-padding {{ image_position }}{% if space_around_images %} sticky-images-and-text--with-gaps{% endif %} {{ image_width_class }} {{ text_alignment_class }}{% if text_content_from_blocks == blank %} sticky-images-and-text--images-only{% endif %} {{ color_scheme }}"
+  data-scroll-direction="{{ scroll_direction }}{% if image_position == 'is-reversed' %}-reversed{% endif %}"
+  {% if space_around_images %}
+    data-sticky-with-gaps
+  {% endif %}
+  {% if show_single_text %}
+    data-sticky-single-text
+  {% endif %}
+  {% if animations_enabled and blocks_size > 10 %}
+    data-aos-intersection="0.01"
+  {% endif %}
+  data-section-id="{{ unique }}"
+  data-section-type="sticky-images-and-text"
+  style="
+    {% if blocks_size > 1 %}
+      --images-count: {{ blocks_size }};
+    {% endif %}
+    --image-ratio-desktop: {{ image_ratio_desktop }}%;
+    --image-ratio-mobile: {{ image_ratio_mobile }}%;
+  "
+  {% if scroll_direction == 'vertical' %}
+    data-aos-intersection="0.01"
+  {% endif %}
+>
+  {%- if blocks_size > 0 -%}
+    <div class="sticky-images-and-text__body {{ width }}" data-sticky-wrapper>
+      <div class="sticky-images-and-text__dots js-only">
+        <div class="sticky-images-and-text__dots-inner">
+          {{ dots_markup }}
+        </div>
+      </div>
+
+      <div class="sticky-images-and-text__content js-only" data-sticky-content>
+        {%- if text_content_from_blocks != blank -%}
+          {{ text_content_from_blocks }}
+        {%- endif -%}
+      </div>
+
+      <div
+        class="sticky-images-and-text__aside{% if has_entire_image_link %} sticky-images-and-text__aside--link{% endif %} js-only"
+        data-sticky-aside
+      >
+        <div class="sticky-images-and-text__inner" data-sticky-inner>
+          <div class="sticky-images-and-text__images" data-sticky-images>
+            {{ images_from_blocks }}
+          </div>
+        </div>
+      </div>
+    </div>
+  {%- else -%}
+    {%- render 'no-blocks' -%}
+  {%- endif -%}
+</sticky-images-and-text>
+
+{% schema %}
+{
+  "name": "Sticky images and text",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "scroll_direction",
+      "label": "Scroll direction",
+      "default": "horizontal",
+      "options": [
+        {"value": "vertical", "label": "Vertical"},
+        {"value": "horizontal", "label": "Horizontal"}
+      ]
+    },
+    {
+      "type": "text_alignment",
+      "id": "text_alignment",
+      "label": "Text alignment",
+      "default": "left"
+    },
+    {
+      "type": "select",
+      "id": "image_position",
+      "label": "Image position",
+      "default": "",
+      "options": [
+        {"value": "is-reversed", "label": "Left"},
+        {"value": "", "label": "Right"}
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "space_around_images",
+      "label": "Add space between images",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "image_width",
+      "label": "Image width",
+      "default": "standard",
+      "options": [
+        {"value": "standard", "label": "Standard"},
+        {"value": "wide", "label": "Wide"}
+      ]
+    },
+    {
+      "type": "range",
+      "id": "aspect_ratio_desktop",
+      "min": 0.8,
+      "max": 2,
+      "step": 0.1,
+      "unit": ":1",
+      "label": "Image scaling ratio",
+      "info": "Wide to tall",
+      "default": 1.5
+    },
+    {
+      "type": "range",
+      "id": "aspect_ratio_mobile",
+      "min": 0.8,
+      "max": 2,
+      "step": 0.1,
+      "unit": ":1",
+      "label": "Image scaling ratio (mobile)",
+      "info": "Wide to tall",
+      "default": 1.5
+    },
+    {
+      "type": "checkbox",
+      "id": "show_single_text",
+      "label": "Show single text",
+      "info": "Display only the text added to the first block",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "Section spacing"
+    },
+    {
+      "type": "select",
+      "id": "width",
+      "label": "Width",
+      "default": "wrapper--full",
+      "options": [
+        {"value": "wrapper--full", "label": "Full width"},
+        {"value": "wrapper", "label": "Page width"}
+      ]
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "label": "Padding top",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "label": "Padding bottom",
+      "default": 0
+    }
+  ],
+  "blocks": [
+    {
+      "type": "slide",
+      "name": "Image and text",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "image_picker",
+          "id": "image_mobile",
+          "label": "Image (mobile)"
+        },
+        {
+          "type": "text",
+          "id": "video_url",
+          "label": "Video",
+          "info": "MP4 video link from [files](/admin/content/files?selectedView=all&media_type=VIDEO)"
+        },
+        {
+          "type": "checkbox",
+          "id": "truncate_text",
+          "label": "Enable text truncation",
+          "info": "Truncation strips all of the HTML, such as links, italicized or bolded text",
+          "default": true
+        },
+        {
+          "type": "range",
+          "id": "title_length",
+          "label": "Heading length (truncated)",
+          "min": 1,
+          "max": 20,
+          "step": 1,
+          "default": 10
+        },
+        {
+          "type": "range",
+          "id": "content_length",
+          "label": "Text length (truncated)",
+          "min": 1,
+          "max": 30,
+          "step": 1,
+          "default": 15
+        },
+        {
+          "type": "text",
+          "id": "subheading",
+          "label": "Subheading"
+        },
+        {
+          "type": "richtext",
+          "id": "title",
+          "label": "Heading",
+          "default": "<p>Everything's on sale</p>"
+        },
+        {
+          "type": "range",
+          "id": "heading_size",
+          "label": "Heading size",
+          "min": 100,
+          "max": 200,
+          "step": 10,
+          "default": 130,
+          "unit": "%"
+        },
+        {
+          "type": "richtext",
+          "id": "content",
+          "label": "Text",
+          "default": "<p>Share details about a promotion, welcome customers, describe a product, or talk about your brand.</p>"
+        },
+        {
+          "type": "range",
+          "id": "text_size",
+          "label": "Text size",
+          "default": 130,
+          "min": 75,
+          "max": 175,
+          "step": 5,
+          "unit": "%"
+        },
+        {
+          "type": "header",
+          "content": "Button"
+        },
+        {
+          "type": "text",
+          "id": "button_text",
+          "label": "Text",
+          "default": "Button text",
+          "info": "Leave blank to link entire image"
+        },
+        {
+          "type": "url",
+          "id": "button_link",
+          "label": "Link"
+        },
+        {
+          "type": "select",
+          "id": "button_color",
+          "label": "Button color",
+          "default": "btn--black",
+          "options": [
+            {"label": "Primary", "value": "btn--primary"},
+            {"label": "Secondary", "value": "btn--secondary"},
+            {"label": "White", "value": "btn--white"},
+            {"label": "Black", "value": "btn--black"}
+          ]
+        },
+        {
+          "type": "select",
+          "id": "button_style",
+          "label": "Button style",
+          "default": "btn--solid",
+          "options": [
+            {"label": "Solid", "value": "btn--solid"},
+            {"label": "Outline", "value": "btn--outline"},
+            {"label": "Solid with border", "value": "btn--solid-border"},
+            {"label": "Soft", "value": "btn--soft"},
+            {"label": "Text", "value": "btn--text"}
+          ]
+        },
+        {
+          "type": "select",
+          "id": "button_size",
+          "label": "Size",
+          "default": "btn--medium",
+          "options": [
+            {"label": "Small", "value": "btn--small"},
+            {"label": "Medium", "value": "btn--medium"},
+            {"label": "Large", "value": "btn--large"}
+          ]
+        },
+        {
+          "type": "text",
+          "id": "video_link",
+          "label": "Video button link",
+          "info": "Video links from YouTube, Vimeo or MP4 video link from [files](/admin/content/files?selectedView=all&media_type=VIDEO)"
+        },
+        {
+          "type": "text",
+          "id": "video_text",
+          "label": "Play button text"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Sticky images and text: Horizontal",
+      "category": "Storytelling",
+      "blocks": [
+        {
+          "type": "slide",
+          "settings": {
+            "subheading": "New this month",
+            "title": "<p>Our latest obsessions.</p>",
+            "content": "<p>We believe that fashion should be stylish, affordable and accessible to everyone. <\/p>",
+            "text_size": 125,
+            "button_text": "Shop now",
+            "video_link": "https:\/\/www.youtube.com\/watch?v=_9VUPq3SxOc",
+            "video_text": "Play video"
+          }
+        },
+        {
+          "type": "slide",
+          "settings": {
+            "title": "<p>Sustainable trends you'll love!</p>",
+            "content": "<p>Our mission is to empower people through sustainable fashion.<\/p>",
+            "button_text": "Learn more",
+            "text_size": 125
+          }
+        },
+        {
+          "type": "slide",
+          "settings": {
+            "subheading": "Lookbooks",
+            "title": "<p>Summer 2025</p>",
+            "content": "<p>Our latest lookbook has dropped and is now ready to shop. Tailored to elevate your style<\/p>",
+            "button_text": "View lookbook",
+            "text_size": 125
+          }
+        }
+      ]
+    },
+    {
+      "name": "Sticky images and text: Vertical",
+      "category": "Storytelling",
+      "settings": {
+        "scroll_direction": "vertical",
+        "text_alignment": "right",
+        "image_position": "is-reversed"
+      },
+      "blocks": [
+        {
+          "type": "slide",
+          "settings": {
+            "subheading": "New this month",
+            "title": "<p>Our latest obsessions.</p>",
+            "content": "<p>We believe that fashion should be stylish, affordable and accessible to everyone. <\/p>",
+            "button_text": "Shop now",
+            "video_link": "https:\/\/www.youtube.com\/watch?v=_9VUPq3SxOc",
+            "video_text": "Play video"
+          }
+        },
+        {
+          "type": "slide",
+          "settings": {
+            "title": "<p>Sustainable trends you'll love!</p>",
+            "content": "<p>Our mission is to empower people through sustainable fashion.<\/p>",
+            "button_text": "Learn more"
+          }
+        },
+        {
+          "type": "slide",
+          "settings": {
+            "subheading": "Lookbooks",
+            "title": "<p>Summer 2025</p>",
+            "content": "<p>Our latest lookbook has dropped and is now ready to shop. Tailored to elevate your style<\/p>",
+            "button_text": "View lookbook"
+          }
+        }
+      ]
+    }
+  ],
+  "disabled_on": {
+    "groups": ["header", "aside", "footer"]
+  }
+}
+{% endschema %}

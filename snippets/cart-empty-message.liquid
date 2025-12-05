@@ -1,0 +1,35 @@
+{%- liquid
+  assign empty_cart_message = settings.empty_cart_message
+  assign animation_order = animation_order | default: 1
+-%}
+
+{%- if empty_cart_message != blank -%}
+  {%- liquid
+    assign limit = settings.free_shipping_limit | plus: 0
+    assign limit_currency = limit | times: 100
+  -%}
+
+  {%- capture left_to_spend -%}
+    <span data-left-to-spend>
+      {%- if settings.currency_code_enable -%}
+        {{- limit_currency | money_without_trailing_zeros | append: ' ' | append: cart.currency.iso_code -}}
+      {%- else -%}
+        {{- limit_currency | money_without_trailing_zeros -}}
+      {%- endif -%}
+    </span>
+  {%- endcapture -%}
+
+  {%- assign empty_cart_message = empty_cart_message | replace: '||amount||', left_to_spend -%}
+
+  <div class="cart-drawer__empty-message-bottom subheading-text"
+    data-cart-message
+    data-limit="{{ limit }}"
+    {% if animations_enabled %}
+      data-aos="hero"
+      data-aos-anchor="{{ aos_anchor }}"
+      data-aos-order="{{ animation_order }}"
+      {%- assign animation_order = animation_order | plus: 1 -%}
+    {% endif %}>
+    <p>{{ empty_cart_message }}</p>
+  </div>
+{%- endif -%}

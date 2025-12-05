@@ -1,0 +1,895 @@
+{%- liquid
+  assign header_transparent = section.settings.header_transparent
+  assign header_border = section.settings.header_border
+  assign border_color = section.settings.header_border_color
+  assign nav_alignment = section.settings.menu_alignment
+  assign sticky_header = section.settings.sticky_header
+  assign cart_animation = settings.enable_cart_animation
+  assign animations_enabled = settings.animations_enabled
+  assign header_id = 'SiteHeader'
+  assign animation_anchor = '#' | append: header_id
+
+  assign logo_width = section.settings.logo_max_width
+  assign logo_height = 0
+  assign logo = section.settings.logo
+  assign logo_not_home = section.settings.logo_not_home
+
+  if logo != blank
+    assign logo_aspect_ratio = logo.aspect_ratio
+    assign logo_height = logo_width | divided_by: logo_aspect_ratio
+    assign logo_height_scrolled = logo_height
+  endif
+
+  if logo_not_home != blank
+    assign logo_height_scrolled = logo_width | divided_by: logo_not_home.aspect_ratio
+    assign logo_aspect_ratio = logo_not_home.aspect_ratio
+
+    if logo == blank
+      assign logo_height = logo_width | divided_by: logo_aspect_ratio
+    endif
+  endif
+
+  if logo_height_scrolled > 40
+    assign logo_height_scrolled = 40
+  endif
+
+  assign header_height = 60
+  if logo_height > 30
+    assign header_height = logo_height | plus: 30
+  endif
+
+  assign header_position = 'relative'
+  assign header_height_sticky = 0
+  if sticky_header
+    assign header_position = 'fixed'
+    assign header_height_sticky = 60
+  endif
+
+  render 'nav-drawer', image: logo_not_home, image_width: logo_width
+
+  if header_transparent and section.settings.header_gradient
+    assign header_gradient = true
+  endif
+-%}
+
+{% if template.name != 'cart' %}
+  <link
+    href="{{ 'cart-drawer.css' | asset_url }}"
+    rel="preload"
+    as="style"
+    onload="this.onload=null;this.rel='stylesheet'"
+  >
+  {% render 'cart-drawer', cart: cart %}
+{% endif %}
+
+{%- comment -%} Prevent CLS on Collection & List Collections pages {%- endcomment -%}
+{%- style -%}
+  :root {
+    --header-height: {{ header_height | round }}px;
+    --header-sticky-height: {{ header_height_sticky }}px;
+    --header-background-height: {{ header_height | round }}px;
+  }
+
+  {% if sticky_header %}
+    :root {
+      --full-height: calc(100vh - var(--header-sticky-height));
+      {% if template.name == 'collection' or template.name == 'search' %}
+        --full-height: 100vh;
+      {% endif %}
+    }
+  {% endif %}
+
+  {% if header_transparent %}
+    .main-content > .shopify-section.supports-transparent-header:first-child [data-prevent-transparent-header] {
+      --full-height: var(--content-full);
+    }
+  {% endif %}
+
+  {% if header_border %}
+    .site-header--has-border {
+      {% unless border_color.alpha == 0.0 or border_color == blank %}
+        --border-color: {{ border_color }};
+      {% else %}
+        --border-color: currentcolor;
+      {% endunless %}
+
+      --border-opacity: {{ section.settings.border_opacity | times: 0.01 }};
+    }
+  {% endif %}
+{%- endstyle -%}
+
+<header-component
+  id="{{ header_id }}"
+  class="site-header site-header--{{ header_position }} site-header--nav-{{ nav_alignment }} site-header--nav-{{ settings.nav_font_weight }}{% if header_transparent %} site-header--transparent{% endif %}{% if header_gradient %} site-header--has-gradient{% endif %}{% if logo != blank or logo_not_home != blank %} site-header--has-logo{% endif %}{% if header_border %} site-header--has-border{% endif %}"
+  role="banner"
+  data-site-header
+  data-section-id="{{ section.id }}"
+  {% if logo != blank or logo_not_home != blank %}
+    data-height="{{ header_height | round }}"
+  {% endif %}
+  data-section-type="header"
+  data-transparent="{{ header_transparent }}"
+  data-position="{{ header_position }}"
+  data-nav-alignment="{{ nav_alignment }}"
+  {% if sticky_header %}
+    data-header-sticky
+  {% endif %}
+  {% if request.design_mode %}
+    data-header-in-editor
+  {% endif %}
+  data-header-height
+  {% if animations_enabled %}
+    data-aos-intersection="0"
+  {% endif %}
+>
+  <div class="site-header__background" data-header-background></div>
+
+  <div
+    class="wrapper"
+    {% if animations_enabled %}
+      data-aos="fade"
+      data-aos-anchor="{{ animation_anchor }}"
+      data-aos-delay="0"
+      data-aos-duration="500"
+    {% endif %}
+    data-wrapper
+  >
+    <button
+      type="button"
+      class="mobile-menu__button mobile-menu__button--burger js-drawer-open"
+      data-mobile-menu-trigger
+    >
+      <drawer-toggle></drawer-toggle>
+      <span class="visually-hidden">{{ 'general.accessibility.mobile_menu_toggle' | t }}</span>
+      {%- render 'icon-hamburger' -%}
+    </button>{%- if logo != blank or logo_not_home != blank -%}
+  {%- capture sizes -%}(max-width: {{ logo_width | times: 2 }}px) 50vw, {{ logo_width }}px{%- endcapture -%}
+  {%- capture widths -%}{{ logo_width }}, {{ logo_width | times: 1.5 | round }}, {{ logo_width | times: 2 }}{%- endcapture -%}
+
+  {%- style -%}
+    .logo__image-link {
+      width: {{ logo_width | append: 'px' }};
+      height: {{ logo_height | round | append: 'px' }};
+    }
+
+    .has-scrolled .logo__image-link {
+      width: {{ logo_height_scrolled | times: logo_aspect_ratio | round | append: 'px' }};
+      height: {{ logo_height_scrolled | round | append: 'px' }};
+    }
+  {%- endstyle -%}
+{%- endif -%}
+
+{%- capture logo_not_home_markup -%}
+  {%- if logo_not_home != blank -%}
+    {%- liquid
+      assign logo_padding_top = 1 | divided_by: logo_not_home.aspect_ratio | times: 100 | round: 1
+      assign image_alt = logo_not_home.alt | escape
+    -%}
+
+    <a href="{{ routes.root_url }}" aria-label="{{ shop.name }}" class="logo__image-link logo__image-link--other{% unless logo %} logo__image-link--single{% endunless %}">
+      {%- assign logo_height = logo_width | divided_by: logo_not_home.aspect_ratio -%}
+
+      {{ logo_not_home | image_url: width: 500 | image_tag:
+        widths: widths,
+        height: logo_height,
+        width: logo_width,
+        alt: image_alt,
+        sizes: sizes,
+        class: 'logo__image',
+        loading: 'eager',
+        fetchpriority: 'high',
+        preload: true
+      }}
+
+      <span class="logo__image-push" style="padding-top: {{ logo_padding_top }}%"></span>
+    </a>
+  {%- endif -%}
+{%- endcapture -%}
+
+{%- capture logo_markup -%}
+  {%- if logo != blank -%}
+    {%- liquid
+      assign logo_padding_top = 1 | divided_by: logo.aspect_ratio | times: 100 | round: 1
+      assign image_alt = logo.alt | escape
+    -%}
+
+    <a href="{{ routes.root_url }}" aria-label="{{ shop.name }}" class="logo__image-link logo__image-link--home{% unless logo_not_home %} logo__image-link--single{% endunless %}">
+      {%- assign logo_height = logo_width | divided_by: logo.aspect_ratio -%}
+      {{ logo | image_url: width: 500 | image_tag:
+        widths: widths,
+        height: logo_height,
+        width: logo_width,
+        alt: image_alt,
+        sizes: sizes,
+        class: 'logo__image',
+        loading: 'eager',
+        fetchpriority: 'high',
+        preload: true
+      }}
+
+      <span class="logo__image-push" style="padding-top: {{ logo_padding_top }}%"></span>
+    </a>
+  {%- endif -%}
+{%- endcapture -%}
+
+<h1 class="logo" data-logo data-takes-space>
+  {%- if logo_not_home_markup != blank or logo_markup != blank -%}
+    {{- logo_not_home_markup -}}
+    {{- logo_markup -}}
+  {%- else -%}
+    <a href="{{ routes.root_url }}" class="logo__text-link" data-logo-text-link>{{ shop.name }}</a>
+  {%- endif -%}
+</h1><!-- /partials/site-nav.liquid -->
+{%- liquid
+  assign header_icons_as_text = section.settings.header_icons_as_text
+  assign highlight_item_color = section.settings.highlight_item_color
+  assign highlight_item_text_color = section.settings.highlight_item_text_color
+  assign enable_custom_badge = section.settings.enable_custom_badge
+  assign secondary_menu = section.settings.main_menu_secondary
+  assign summary_classes = 'navlink navlink--icon'
+  assign link_hover_effect = section.settings.link_hover_effect
+  assign highlight_color = section.settings.highlight_color
+  assign highlight_text_color = section.settings.highlight_text_color
+  assign link_hover_effect_class = 'navlink--' | append: link_hover_effect
+
+  if link_hover_effect == 'highlight'
+    assign link_hover_effect_class = link_hover_effect_class | append: '-text'
+  endif
+
+  if header_icons_as_text
+    assign summary_classes = summary_classes | append: ' ' | append: link_hover_effect_class
+  endif
+
+  capture style
+    if highlight_item_color.alpha != 0.0 and highlight_item_color != ''
+      echo '--highlight: ' | append: highlight_item_color | append: ';'
+
+      if enable_custom_badge
+        assign custom_badge_bg_brightness = highlight_item_color | color_brightness | round
+        echo '--custom-badge-bg-color: ' | append: highlight_item_color | append: ';'
+      endif
+    endif
+
+    if enable_custom_badge and highlight_item_text_color.alpha != 0.0 and highlight_item_text_color != ''
+      echo '--custom-badge-text-color: ' | append: highlight_item_text_color | append: ';'
+    endif
+
+    if highlight_color != 'rgba(0,0,0,0)' and highlight_color != ''
+      echo '--highlight-color: ' | append: highlight_color | append: ';'
+    endif
+
+    if highlight_text_color != 'rgba(0,0,0,0)' and highlight_text_color != ''
+      echo '--highlight-text-color: ' | append: highlight_text_color | append: ';'
+    endif
+  endcapture
+
+  capture cart_icon
+    case settings.cart_icon
+      when 'bag'
+        render 'icon-shopping-bag'
+      when 'shopping_cart'
+        render 'icon-shopping-cart'
+    endcase
+  endcapture
+
+  assign show_locale_selector = section.settings.show_locale_selector
+  assign show_locale_code = section.settings.show_locale_code
+  assign show_country_selector = section.settings.show_country_selector
+  assign show_country_name = section.settings.show_country_name
+  assign show_country_flag = section.settings.show_country_flag
+-%}
+
+<nav
+  id="NavStandard"
+  class="nav nav--default{% if settings.nav_caps_letter_spacing %} caps-letter-spacing-nav{% else %} letter-spacing-nav{% endif %}{%  if link_hover_effect == 'highlight' %} text-highlight-wrapper--highlight{% endif %}"
+  data-nav
+  {% if style != '' %}
+    style="{{ style }}"
+  {% endif %}
+>
+  <div class="menu__item menu__item--compress" data-nav-items-compress>
+    {%- if show_country_selector or show_locale_selector -%}
+      {%- render 'cross-border',
+        show_locale_selector: show_locale_selector,
+        show_locale_code: show_locale_code,
+        show_country_selector: show_country_selector,
+        show_country_name: show_country_name,
+        show_country_flag: show_country_flag
+      -%}
+    {%- endif -%}
+
+    {%- if settings.show_header_search -%}
+      {%- render 'search-popdown',
+        unique: 'desktop-compress',
+        in_header: true,
+        classes: 'menu__item menu__item--icon',
+        summary_classes: summary_classes
+      -%}
+    {%- endif -%}
+
+    <div class="menu__item menu__item--icon">
+      <a
+        href="{{ routes.cart_url }}"
+        class="navlink navlink--icon cart__toggle {{ link_hover_effect_class }}{% if cart.item_count > 0 %} cart__toggle--has-items{% endif %}{% if cart_animation %} cart__toggle--animation{% endif %}{% if settings.nav_caps_toplevel %} caps{% endif %}"
+        aria-controls="cart-drawer"
+        aria-expanded="false"
+        {% unless template.name == 'cart' or settings.cart_type == 'page' %}
+          data-cart-drawer-toggle
+        {% endunless %}
+      >
+        <span class="visually-hidden">{{ 'general.accessibility.open_cart' | t }}</span>
+        {{ cart_icon }}
+      </a>
+    </div>
+  </div>
+
+  <div class="menu__items" data-takes-space>
+    {%- for link in linklists[section.settings['main-menu']].links -%}
+      {%- render 'nav-item',
+        link: link,
+        index: forloop.index,
+        link_hover_effect: link_hover_effect,
+        link_hover_effect_class: link_hover_effect_class
+      -%}
+    {%- endfor -%}
+  </div>
+
+  <div
+    class="menu__item menu__item--icons{% if header_icons_as_text %} menu__item--texts{% endif %}{% if secondary_menu != blank %} menu__item--secondary{% endif %}"
+    data-nav-icons
+    data-takes-space
+  >
+    {%- if secondary_menu != blank -%}
+      <div class="menu__items menu__items--secondary">
+        {%- for link in linklists[secondary_menu].links limit: 4 -%}
+          {%- render 'nav-item',
+            link: link,
+            section: section,
+            index: forloop.index,
+            link_hover_effect: link_hover_effect,
+            link_hover_effect_class: link_hover_effect_class,
+            nav_secondary: true
+          -%}
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+
+    {%- if show_country_selector or show_locale_selector -%}
+      {%- render 'cross-border',
+        show_locale_selector: show_locale_selector,
+        show_locale_code: show_locale_code,
+        show_country_selector: show_country_selector,
+        show_country_name: show_country_name,
+        show_country_flag: show_country_flag
+      -%}
+    {%- endif -%}
+
+    {%- if settings.show_header_search -%}
+      {%- render 'search-popdown',
+        unique: 'desktop',
+        in_header: true,
+        classes: 'menu__item menu__item--icon',
+        summary_classes: summary_classes,
+        header_icons_as_text: header_icons_as_text,
+        link_hover_effect: link_hover_effect
+      -%}
+    {%- endif -%}
+
+    {%- if shop.customer_accounts_enabled -%}
+      <div class="menu__item menu__item--icon">
+        {%- liquid
+          assign link_title = 'layout.customer.account' | t
+          assign title_string = 'general.accessibility.my_account' | t
+          assign link_classes = 'navlink navlink--icon ' | append: link_hover_effect_class
+
+          if settings.nav_caps_toplevel
+            assign link_classes = link_classes | append: ' caps'
+          endif
+
+          capture link_attributes
+            echo ' class="' | append: link_classes | append: '"'
+          endcapture
+
+          capture icon_markup
+            unless header_icons_as_text
+              render 'icon-user'
+            endunless
+
+            echo '<span class="visually-hidden">' | append: title_string | append: '</span>'
+          endcapture
+        -%}
+
+        {%- render 'link-with-highlights',
+          link_url: routes.account_url,
+          link_title: link_title,
+          link_hover_effect: link_hover_effect,
+          link_attributes: link_attributes,
+          is_text: header_icons_as_text,
+          icon_markup: icon_markup
+        -%}
+      </div>
+    {%- endif -%}
+
+    <div class="menu__item menu__item--icon">
+      {%- liquid
+        assign link_title = 'layout.cart.title' | t
+        assign title_string = 'general.accessibility.open_cart' | t
+        assign link_classes = 'navlink navlink--icon cart__toggle ' | append: link_hover_effect_class
+
+        if cart.item_count > 0
+          assign link_classes = link_classes | append: ' cart__toggle--has-items'
+        endif
+
+        if cart_animation
+          assign link_classes = link_classes | append: ' cart__toggle--animation'
+        endif
+
+        if settings.nav_caps_toplevel
+          assign link_classes = link_classes | append: ' caps'
+        endif
+
+        capture link_attributes
+          echo ' class="' | append: link_classes | append: '" aria-controls="cart-drawer" aria-expanded="false"'
+
+          unless template.name == 'cart' or settings.cart_type == 'page'
+            echo ' data-cart-drawer-toggle'
+          endunless
+        endcapture
+
+        capture icon_markup
+          unless header_icons_as_text
+            echo cart_icon
+          endunless
+
+          echo '<span class="visually-hidden">' | append: title_string | append: '</span>'
+        endcapture
+      -%}
+
+      {%- render 'link-with-highlights',
+        link_url: routes.cart_url,
+        link_title: link_title,
+        link_hover_effect: link_hover_effect,
+        link_attributes: link_attributes,
+        icon_markup: icon_markup,
+        is_text: header_icons_as_text
+      -%}
+    </div>
+  </div>
+</nav>
+
+<div class="mobile-menu" data-mobile-menu>
+  {%- if settings.show_header_search -%}
+    {%- render 'search-popdown', unique: 'mobile', in_header: true, classes: 'mobile-menu__button caps' -%}
+  {%- endif -%}
+
+  <a
+    href="{{ routes.cart_url }}"
+    class="mobile-menu__button cart__toggle{% if cart.item_count > 0 %} cart__toggle--has-items{% endif %}{% if cart_animation %} cart__toggle--animation{% endif %}"
+    aria-controls="cart-drawer"
+    aria-expanded="false"
+    {% unless template.name == 'cart' or settings.cart_type == 'page' %}
+      data-cart-drawer-toggle
+    {% endunless %}
+  >
+    <span class="visually-hidden">{{ 'general.accessibility.open_cart' | t }}</span>
+    {{ cart_icon }}
+  </a>
+</div>
+</div>
+
+  <div class="drawer__overlay"></div>
+</header-component>
+
+<script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "Organization",
+    "name": {{ shop.name | json }},
+    {%- if section.settings.logo or section.settings.logo_not_home -%}
+      {%- if section.settings.logo -%}
+        {%- assign logo = section.settings.logo -%}
+      {%- elsif section.settings.logo_not_home -%}
+        {%- assign logo = section.settings.logo_not_home -%}
+      {%- endif -%}
+      {%- assign image_size = logo.width | append: 'x' -%}
+
+      "logo": {{ logo | img_url: image_size | prepend: 'https:' | json }},
+    {%- endif -%}
+    "sameAs": [
+      {{ settings.instagram_link | json }},
+      {{ settings.facebook_link | json }},
+      {{ settings.twitter_link | json }},
+      {{ settings.youtube_link | json }},
+      {{ settings.vimeo_link | json }},
+      {{ settings.pinterest_link | json }},
+      {{ settings.tumblr_link | json }}
+    ],
+    "url": {{ shop.url | append: page.url | json }}
+  }
+</script>
+
+{%- if template.name == 'index' -%}
+  {%- assign potential_action_target = shop.url | append: routes.search_url | append: '?q={search_term_string}' -%}
+  <script type="application/ld+json">
+    {
+      "@context": "http://schema.org",
+      "@type": "WebSite",
+      "name": {{ shop.name | json }},
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {{ potential_action_target | json }},
+        "query-input": "required name=search_term_string"
+      },
+      "url": {{ shop.url | append: page.url | json }}
+    }
+  </script>
+{%- endif -%}
+
+{%- if request.design_mode -%}
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.headerEventHandlersAttached) return;
+      window.headerEventHandlersAttached = true;
+
+      function handleHoverDisclosureEvent(event) {
+        const target = event.target;
+        const hoverDisclosure = target.closest('hover-disclosure');
+        if (!hoverDisclosure) return;
+        const key = hoverDisclosure.getAttribute('aria-controls');
+        const disclosure = document.getElementById(key);
+        if (!disclosure.contains(target)) return;
+        const isTouch = matchMedia('(pointer:coarse)').matches;
+        const viewportMobile = window.innerWidth < theme.sizes.small;
+        const headerComponent = hoverDisclosure.closest('header-component');
+        const isCompressed = headerComponent.classList.contains('site-header--compress');
+        // Only show disclosure for desktop and non-mobile nav
+        const shouldShowDisclosure = !isTouch && !viewportMobile && !isCompressed;
+        const mode = Boolean(event.type === 'shopify:block:deselect') ? 'close' : 'open';
+
+        if (mode === 'open' && shouldShowDisclosure) {
+          if (typeof hoverDisclosure.showDisclosure === 'function') hoverDisclosure.showDisclosure();
+        } else if (mode === 'close') {
+          if (typeof hoverDisclosure.hideDisclosure === 'function') hoverDisclosure.hideDisclosure();
+        }
+      }
+
+      document.addEventListener('shopify:block:select', (event) => handleHoverDisclosureEvent(event));
+      document.addEventListener('shopify:block:deselect', (event) => handleHoverDisclosureEvent(event));
+    });
+  </script>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Header",
+  "class": "shopify-section-header",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "sticky_header",
+      "label": "Enable sticky header",
+      "default": false
+    },
+    {
+      "type": "select",
+      "label": "Link hover effect",
+      "id": "link_hover_effect",
+      "default": "dot",
+      "options": [
+        {"label": "Line", "value": "line"},
+        {"label": "Dot", "value": "dot"},
+        {"label": "Highlight", "value": "highlight"}
+      ]
+    },
+    {
+      "type": "color",
+      "id": "highlight_color",
+      "label": "Highlight color",
+      "default": "#FFF7F2",
+      "alpha": true
+    },
+    {
+      "type": "color",
+      "id": "highlight_text_color",
+      "label": "Highlight text color",
+      "alpha": true
+    },
+    {
+      "type": "checkbox",
+      "id": "header_border",
+      "label": "Show bottom border",
+      "default": false
+    },
+    {
+      "type": "color",
+      "id": "header_border_color",
+      "label": "Border color",
+      "alpha": true,
+      "info": "Not applied to Transparent headers"
+    },
+    {
+      "type": "range",
+      "id": "border_opacity",
+      "label": "Border opacity",
+      "unit": "%",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "default": 50
+    },
+    {
+      "type": "header",
+      "content": "Logo"
+    },
+    {
+      "type": "image_picker",
+      "id": "logo_not_home",
+      "label": "Image",
+      "info": "Used on the other pages and on scroll when the header is sticky"
+    },
+    {
+      "type": "range",
+      "id": "logo_max_width",
+      "label": "Width",
+      "min": 30,
+      "max": 250,
+      "default": 100,
+      "step": 10,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "Navigation"
+    },
+    {
+      "type": "link_list",
+      "id": "main-menu",
+      "label": "Main menu",
+      "default": "main-menu"
+    },
+    {
+      "type": "link_list",
+      "id": "main_menu_secondary",
+      "label": "Secondary menu",
+      "info": "Limited to 4 menu items"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_images",
+      "label": "Show mega menu images",
+      "info": "Collection and Product links",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "image_aspect_ratio",
+      "min": 0.5,
+      "max": 1.5,
+      "step": 0.1,
+      "unit": ":1",
+      "label": "Image scaling ratio",
+      "info": "Wide to tall",
+      "default": 0.5
+    },
+    {
+      "type": "select",
+      "id": "menu_alignment",
+      "label": "Alignment",
+      "default": "center",
+      "options": [
+        {"label": "Links | Logo | Icons", "value": "left"},
+        {"label": "Logo | Links (center) | Icons", "value": "center"},
+        {"label": "Logo | Links (right) | Icons", "value": "right"}
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "header_icons_as_text",
+      "label": "Show icons as text",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Language selector",
+      "info": "To add a language, go to your [language settings.](/admin/settings/languages)"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_locale_selector",
+      "label": "Show language selector",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_locale_code",
+      "label": "Show language code only",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Country/Region selector",
+      "info": "To add a country/region, go to your [markets settings](/admin/settings/markets)."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_country_selector",
+      "label": "Show country selector",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_country_name",
+      "label": "Show country name",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_country_flag",
+      "label": "Show country flag",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Highlight link"
+    },
+    {
+      "type": "text",
+      "id": "highlight_item",
+      "label": "Menu item",
+      "default": "Sale"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_custom_badge",
+      "label": "Enable custom badge",
+      "default": false
+    },
+    {
+      "type": "text",
+      "id": "custom_badge_text",
+      "label": "Custom badge text",
+      "default": "10% OFF"
+    },
+    {
+      "type": "color",
+      "id": "highlight_item_color",
+      "label": "Color",
+      "default": "#D02E2E",
+      "alpha": true
+    },
+    {
+      "type": "color",
+      "id": "highlight_item_text_color",
+      "label": "Badge text color",
+      "default": "#ffffff",
+      "info": "Applies when custom badge is enabled",
+      "alpha": true
+    },
+    {
+      "type": "header",
+      "content": "Transparent header"
+    },
+    {
+      "type": "checkbox",
+      "id": "header_transparent",
+      "label": "Enable transparent header",
+      "default": true
+    },
+    {
+      "type": "image_picker",
+      "id": "logo",
+      "label": "Logo",
+      "info": "Used on Home and Collection pages when the header is transparent"
+    },
+    {
+      "type": "checkbox",
+      "id": "header_gradient",
+      "label": "Increase text transparency",
+      "default": true,
+      "info": "Add gradient when header is transparent"
+    }
+  ],
+  "blocks": [
+    {
+      "name": "Image",
+      "type": "image",
+      "settings": [
+        {
+          "type": "select",
+          "id": "position",
+          "label": "Link position in menu",
+          "default": "1",
+          "options": [
+            {"value": "1", "label": "Item 1"},
+            {"value": "2", "label": "Item 2"},
+            {"value": "3", "label": "Item 3"},
+            {"value": "4", "label": "Item 4"},
+            {"value": "5", "label": "Item 5"},
+            {"value": "6", "label": "Item 6"},
+            {"value": "7", "label": "Item 7"},
+            {"value": "8", "label": "Item 8"},
+            {"value": "9", "label": "Item 9"},
+            {"value": "10", "label": "Item 10"}
+          ]
+        },
+        {
+          "type": "checkbox",
+          "id": "image_second_menu",
+          "label": "Image in secondary menu",
+          "default": false
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "range",
+          "id": "aspect_ratio",
+          "min": 0.5,
+          "max": 1.5,
+          "step": 0.1,
+          "unit": ":1",
+          "label": "Image scaling ratio",
+          "info": "Wide to tall",
+          "default": 1
+        },
+        {
+          "type": "checkbox",
+          "id": "wide_image",
+          "label": "Wide image",
+          "default": false
+        },
+        {
+          "type": "select",
+          "id": "overlay_type",
+          "label": "Overlay type",
+          "default": "disabled",
+          "options": [
+            {"value": "disabled", "label": "Disabled"},
+            {"value": "text", "label": "Text underlay"}
+          ]
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Heading"
+        },
+        {
+          "type": "range",
+          "id": "heading_size",
+          "label": "Heading size",
+          "default": 100,
+          "min": 50,
+          "max": 200,
+          "step": 5,
+          "unit": "%"
+        },
+        {
+          "type": "text",
+          "id": "link_text",
+          "label": "Text"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link"
+        },
+        {
+          "type": "header",
+          "content": "Colors"
+        },
+        {
+          "type": "color",
+          "id": "text_color",
+          "label": "Color",
+          "alpha": true
+        }
+      ]
+    }
+  ],
+  "enabled_on": {
+    "groups": ["header"]
+  }
+}
+{% endschema %}

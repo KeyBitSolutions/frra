@@ -1,0 +1,60 @@
+{%- comment -%}
+  Renders a style tag with declarations necessary when there is an overlap between Upsells background color and:
+  - global body background color
+  - section specific background color
+
+  Accepts:
+  - section {Object} - Section object
+
+  Usage:
+  {% render 'upsells-fallback-styles', section: section %}
+{%- endcomment -%}
+
+{%- liquid
+  assign selected_color_scheme = section.settings.color_scheme | strip
+  assign scheme_upsells_bg_color = settings.color_schemes[selected_color_scheme].settings.upsells_bg_color
+  assign scheme_upsells_text_color = settings.color_schemes[selected_color_scheme].settings.upsells_text_color
+  assign scheme_bg_gradient = settings.color_schemes[selected_color_scheme].settings.section_bg_gradient
+  assign scheme_bg_color = settings.color_schemes[selected_color_scheme].settings.section_bg
+  assign add_border = false
+
+  capture upsells_border
+    comment
+      Cart page
+    endcomment
+    if scheme_upsells_bg_color.alpha != 0.0 and scheme_upsells_bg_color != ''
+      if scheme_bg_gradient == ''
+        if scheme_bg_color.alpha != 0.0 and scheme_bg_color != ''
+          if scheme_bg_color == scheme_upsells_bg_color
+            assign add_border = true
+          endif
+        endif
+      endif
+    else
+      assign add_border = true
+    endif
+
+    comment
+      Cart drawer
+    endcomment
+    if scheme_bg_color == null and scheme_bg_gradient == null
+      if scheme_upsells_bg_color.alpha != 0.0 and scheme_upsells_bg_color != ''
+        if scheme_upsells_bg_color == scheme_bg_color
+          assign add_border = true
+        endif
+      endif
+    endif
+
+    echo '--upsells-border: var(--COLOR-TEXT); '
+  endcapture
+
+  capture upsells_styles
+    if add_border
+      echo 'style="'
+      echo upsells_border
+      echo '"'
+    endif
+  endcapture
+
+  echo upsells_styles
+-%}

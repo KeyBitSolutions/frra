@@ -1,0 +1,548 @@
+<!-- /sections/shoppable-blog.liquid -->
+
+{% comment %} Settings {% endcomment %}
+
+{%- liquid
+  assign section_width = section.settings.width
+  assign columns_mobile = section.settings.columns_mobile | plus: 0
+  assign show_tags = section.settings.show_tags
+  assign overlay_type = section.settings.overlay_type
+  assign color_scheme = 'color-' | append: section.settings.color_scheme
+  assign selected_color_scheme = section.settings.color_scheme | strip
+  assign scheme_bg_color = settings.color_schemes[selected_color_scheme].settings.section_bg
+  assign scheme_bg_gradient = settings.color_schemes[selected_color_scheme].settings.section_bg_gradient
+  assign title = section.settings.title
+  assign currency_code_enable = settings.currency_code_enable
+  assign id = 'ShoppableBlog--' | append: section.id
+  assign selector_id = '#' | append: id
+  assign animations_enabled = settings.animations_enabled
+  assign animation_anchor = selector_id
+  assign animation_delay = 150
+
+  capture cart_icon
+    case settings.cart_icon
+      when 'bag'
+        render 'icon-shopping-bag'
+      when 'shopping_cart'
+        render 'icon-shopping-cart'
+    endcase
+  endcapture
+
+  case columns_mobile
+    when 1
+      assign size_mobile = 'mobile--one-whole'
+    when 2
+      assign size_mobile = 'mobile--one-half'
+  endcase
+-%}
+
+{%- if request.design_mode -%}
+  <style>
+    {{ 'section-shoppable-blog-posts.css' | inline_asset_content }}
+  </style>
+{%- else -%}
+  <link
+    href="{{ 'section-shoppable-blog-posts.css' | asset_url }}"
+    rel="preload"
+    as="style"
+    onload="this.onload=null;this.rel='stylesheet'"
+  >
+{%- endif -%}
+
+<script src="{{ 'shoppable-blog-component.js' | asset_url }}" defer></script>
+
+{%- if request.design_mode -%}
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.shoppableBlogBlockSelectHandlerAttached) return;
+      window.shoppableBlogBlockSelectHandlerAttached = true;
+
+      document.addEventListener('shopify:block:select', (event) => {
+        const target = event.target;
+        const shoppableBlogComponent = target.closest('shoppable-blog-component');
+        const slider = shoppableBlogComponent?.querySelector('[data-slider]');
+
+        if (!slider) return;
+
+        const flkty = (window.theme.Flickity && window.theme.Flickity.data(slider)) || null;
+
+        if (flkty !== null && flkty.isActive) {
+          const index = parseInt([...target.parentNode.children].indexOf(target));
+          const slidesPerPage = parseInt(flkty.slides[0].cells.length);
+          const groupIndex = Math.floor(index / slidesPerPage);
+
+          if (!event.detail.load) {
+            flkty.select(groupIndex);
+            return;
+          }
+
+          // Transitionend event if new block is added
+          const onTransitionEnd = () => {
+            requestAnimationFrame(() => {
+              flkty.select(groupIndex);
+            });
+
+            flkty.viewport.removeEventListener('transitionend', onTransitionEnd);
+          };
+
+          flkty.viewport.addEventListener('transitionend', onTransitionEnd);
+        } else {
+          const sliderStyle = slider.currentStyle || window.getComputedStyle(slider);
+          const sliderPadding = parseInt(sliderStyle.paddingLeft);
+          const blockPositionLeft = target.offsetLeft - sliderPadding;
+
+          // Native scroll to item
+          slider.scrollTo({
+            top: 0,
+            left: blockPositionLeft,
+            behavior: 'smooth',
+          });
+        }
+      });
+    });
+  </script>
+{%- endif -%}
+
+{%- style -%}
+  [data-section-id="{{ section.id }}"] {
+    --PT: {{ section.settings.padding_top }}px;
+    --PB: {{ section.settings.padding_bottom }}px;
+
+    {% if scheme_bg_gradient != '' -%}
+      --bg: {{ scheme_bg_color }};
+    {%- endif %}
+  }
+
+  [data-section-id="{{ section.id }}"] {
+    --overlay-opacity: {{ overlay_opacity }};
+  }
+
+  @media screen and (max-width: 480px) {
+    {% if columns_mobile > 1 -%}
+      [data-section-id="{{ section.id }}"] .carousel--mobile { --item-width-mobile: calc(90% / {{ columns_mobile }} - var(--grid-gutter)); }
+      [data-section-id="{{ section.id }}"] .blog-item__article__time { right: var(--item-outer); }
+    {%- endif %}
+  }
+{%- endstyle -%}
+
+<section
+  id="{{ id }}"
+  class="section-padding shoppable-blog {{ color_scheme }}"
+  data-section-type="shoppable-blog"
+  data-section-id="{{ section.id }}"
+>
+  <shoppable-blog-component>
+    {%- if title != blank -%}
+      <div class="shoppable-blog__heading__container">
+        <div class="section__header {{ section_width }}">
+          <h2
+            class="section__heading shoppable-blog__heading"
+            {% if animations_enabled %}
+              data-aos="fade-up"
+              data-aos-anchor="{{ animation_anchor }}"
+              data-aos-delay="{{ animation_delay }}"
+              {%- assign animation_delay = animation_delay | plus: 150 -%}
+            {% endif %}
+          >
+            {{ title }}
+          </h2>
+
+          {%- if settings.show_spacer_lines -%}
+            <hr
+              class="section__heading-line"
+              {% if animations_enabled %}
+                data-aos="fade-up"
+                data-aos-delay="{{ animation_delay }}"
+                data-aos-anchor="{{ animation_anchor }}"
+              {% endif %}
+            >
+            {%- assign animation_delay = animation_delay | plus: 150 -%}
+          {%- endif -%}
+        </div>
+      </div>
+    {%- endif -%}
+
+    <div class="{{ section_width }}">
+      <div class="shoppable-blog__slider__container">
+        <div class="shoppable-blog__slider carousel--mobile" data-slider role="group">
+          {%- for block in section.blocks -%}
+            {%- capture block_index -%}
+            {%- cycle 3, 5, 7, 10, 4, 13, 18, 2, 6, 8 -%}
+          {%- endcapture -%}
+
+            {%- capture onboarding_article_tags -%}
+            time_{{ block_index }} min read,
+
+            {%- for i in (1..3) -%}
+              {{- 'homepage.onboarding.blog.tag' | t -}}
+              {%- unless forloop.index == 3 -%},{%- endunless -%}
+            {%- endfor -%}
+          {%- endcapture -%}
+
+            {%- liquid
+              assign article = articles[block.settings.article]
+              assign layout = 'vertical'
+              assign item_products = ''
+              assign has_products = false
+
+              unless article == empty
+                assign article_url = article.url
+                assign article_image_aspect_ratio = article.image.aspect_ratio | default: 1
+                assign article_title = article.title
+                assign article_tags = article.tags
+
+                if article_image_aspect_ratio > 1
+                  assign layout = 'horizontal'
+                endif
+
+              else
+                assign article_url = '#!'
+                assign article_title = 'homepage.onboarding.blog.title' | t
+                assign article_tags = onboarding_article_tags | split: ','
+              endunless
+
+              comment
+                Images sizes
+              endcomment
+
+              # Desktop widths
+              if section_width == 'wrapper--full-padded'
+                assign wrapper_width_lg = '(100vw - 120px)'
+              endif
+              if section_width == 'wrapper'
+                assign wrapper_width_lg = '(1440px - 120px)'
+              endif
+              assign article_img_width_lg = 'calc((' | append: wrapper_width_lg | append: ' - 40px) / 3)'
+              assign product_img_width_lg = 'calc(((' | append: wrapper_width_lg | append: ' - 40px) / 3) - 2 * 40px)'
+              if layout == 'horizontal'
+                assign article_img_width_lg = 'calc(((' | append: wrapper_width_lg | append: ' - 40px) / 3) * 2)'
+              endif
+              # Tablet widths
+              assign wrapper_width_md = '(100vw - 2 * 20px)'
+              assign article_img_width_md = 'calc((' | append: wrapper_width_md | append: ' * 0.9 - 20px) / 2)'
+              assign product_img_width_md = 'calc(((' | append: wrapper_width_md | append: ' * 0.9 - 20px) / 2) - 2 * 25px)'
+              # Mobile widths
+              assign article_img_width_sm = 'calc(' | append: wrapper_width_md | append: ' * 0.9 - 20px)'
+              assign product_img_width_sm = 'calc((' | append: wrapper_width_md | append: ' * 0.9 - 20px) - 2 * 25px)'
+
+              assign article_image_sizes = '(min-width: 1024px) ' | append: article_img_width_lg | append: ', (min-width: 480px) ' | append: article_img_width_md | append: ', ' | append: article_img_width_sm
+              assign product_image_sizes = '(min-width: 1024px) ' | append: product_img_width_lg | append: ', (min-width: 480px) ' | append: product_img_width_md | append: ', ' | append: product_img_width_sm
+
+              capture article_image_markup
+                if article != empty
+                  if article.image != blank
+                    render 'image-fill', is_background: true, img_object: article.image, sizes: article_image_sizes, classes: 'blog-item__article__image'
+                  endif
+                else
+                  render 'image-fill', is_background: true, img_object: '', classes: 'blog-item__article__image', placeholder_svg: 'image'
+                endif
+              endcapture
+            -%}
+
+            {%- capture item_products -%}
+            {%- for product in block.settings.product_list -%}
+              {%- unless product == empty -%}
+                {%- liquid
+                  assign has_products = true
+
+                  if product.price == 0
+                    assign product_price = 'products.product.free' | t
+                  elsif currency_code_enable
+                    assign product_price = product.price | money_with_currency
+                  else
+                    assign product_price = product.price | money
+                  endif
+                -%}
+
+                <a href="{{ product.url }}"
+                  class="blog-item__product blog-item__product--{{ forloop.index }}"
+                  data-item-product
+                  data-slide-position="{{ forloop.index }}"
+                  {% if forloop.index > 1 %} tabindex="-1"{% endif %}>
+                  {%- render 'image-fill', aspect_ratio: 1, img_object: product.featured_media.preview_image, sizes: product_image_sizes, classes: 'blog-item__product__image hover-scale' -%}
+
+                  <div class="blog-item__product__details">
+                    <h4 class="blog-item__product__title">{{ product.title | strip_html | escape }}</h4>
+                    <p class="blog-item__product__price">{{ product_price }}</p>
+                  </div>
+                </a>
+              {%- endunless -%}
+            {%- endfor -%}
+
+            {%- unless has_products -%}
+              {%- liquid
+                if currency_code_enable
+                  assign onboarding_price = 10000 | money_with_currency
+                else
+                  assign onboarding_price = 10000 | money
+                endif
+              -%}
+              {%- for i in (1..3) -%}
+                <a href="#!" class="blog-item__product blog-item__product--{{ forloop.index }}" data-item-product>
+                  {%- capture current -%}{%- cycle 1, 2, 3, 4 -%}{%- endcapture -%}
+                  {%- capture placeholder_svg -%}{{ 'product-' | append: current }}{%- endcapture -%}
+                  {%- render 'image-fill', aspect_ratio: 1, img_object: '', classes: 'blog-item__product__image hover-scale', placeholder_svg: placeholder_svg -%}
+
+                  <div class="blog-item__product__details">
+                    <h4 class="blog-item__product__title">{{ 'homepage.onboarding.product_title' | t }}</h4>
+                    <p class="blog-item__product__price">{{ onboarding_price }}</p>
+                  </div>
+                </a>
+              {%- endfor -%}
+            {%- endunless -%}
+          {%- endcapture -%}
+
+            <div
+              class="blog-item blog-item--{{ layout }}{% if article != empty and article.image == blank %} blog-item--no-image{% endif %} {{ size_mobile }}"
+              data-item
+              {{ block.shopify_attributes }}
+            >
+              <div
+                class="blog-item__article hover-scale"
+                {% if animations_enabled %}
+                  data-aos="fade-up"
+                  data-aos-anchor="{{ animation_anchor }}"
+                  data-aos-delay="{{ animation_delay }}"
+                  {%- assign animation_delay = animation_delay | plus: 150 -%}
+                {% endif %}
+              >
+                <a
+                  href="{{ article_url }}"
+                  class="blog-item__article__link"
+                  aria-label="{{ article_title }}"
+                  title="{{ article_title }}"
+                >
+                  {{ article_image_markup }}
+
+                  {%- if overlay_type == 'opacity' -%}
+                    <div class="overlay"></div>
+                  {%- endif -%}
+                </a>
+
+                <div class="blog-item__article__content">
+                  <h3 class="blog-item__article__title h4">{{ article_title }}</h3>
+
+                  {%- if article_tags != blank and show_tags -%}
+                    {%- assign tag_time = '' -%}
+
+                    <ul class="blog-item__article__tags">
+                      {%- for tag in article_tags -%}
+                        {%- assign article_handle_parts = article.handle | split: '/' -%}
+
+                        {%- unless tag contains 'time_' -%}
+                          {%- capture tag_url -%}
+                          {%- unless article == empty -%}
+                            {%- if routes.root_url != '/' -%}
+                              {{ shop.url }}{{ routes.root_url }}/blogs/{{ article_handle_parts.first }}/tagged/{{ tag | handle }}
+                            {%- else -%}
+                              {{ shop.url }}/blogs/{{ article_handle_parts.first }}/tagged/{{ tag | handle }}
+                            {%- endif -%}
+                          {%- endunless -%}
+                        {%- endcapture -%}
+
+                          <li class="blog-item__article__tag">
+                            <a href="{{ tag_url | default: '#!' }}">{{ tag }}</a>
+                          </li>
+                        {%- else -%}
+                          {%- capture tag_time -%}
+                          {%- assign tag_parts = tag | split: '_' -%}
+                          <div class="blog-item__article__time">
+                            {{- tag_parts.last -}}
+                          </div>
+                        {%- endcapture -%}
+                        {%- endunless -%}
+                      {%- endfor -%}
+                    </ul>
+
+                    {%- if tag_time != blank -%}
+                      {{- tag_time -}}
+                    {%- endif -%}
+                  {%- endif -%}
+                </div>
+              </div>
+
+              {%- if has_products or article == empty -%}
+                <div
+                  class="blog-item__button-wrapper"
+                  {% if animations_enabled %}
+                    data-aos="fade-up"
+                    data-aos-anchor="{{ animation_anchor }}"
+                    data-aos-delay="{{ animation_delay }}"
+                  {% endif %}
+                >
+                  <button
+                    class="blog-item__button__show btn-quick-buy"
+                    aria-label="{{ 'general.accessibility.show_products' | t }}"
+                    data-button-show
+                  >
+                    <span class="btn__inner">
+                      {{ cart_icon }}
+                      <span class="btn__text">{{ 'products.product.quick_view' | t }}</span>
+                    </span>
+                  </button>
+                </div>
+
+                <div class="blog-item__products" data-item-products>
+                  <button
+                    class="blog-item__button__hide"
+                    aria-label="{{ 'general.accessibility.hide_products' | t }}"
+                    data-button-hide
+                  >
+                    {%- render 'icon-close' -%}
+                  </button>
+
+                  <div class="blog-item__products__slider" data-item-products-slider>
+                    {{- item_products -}}
+                  </div>
+                </div>
+              {%- endif -%}
+            </div>
+          {%- else -%}
+            {%- render 'no-blocks' -%}
+          {%- endfor -%}
+        </div>
+      </div>
+    </div>
+  </shoppable-blog-component>
+</section>
+
+{% comment %} Schema {% endcomment %}
+{% schema %}
+{
+  "name": "Shoppable blog posts",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "columns_mobile",
+      "label": "Articles per row on mobile",
+      "default": "1",
+      "options": [
+        {"label": "1", "value": "1"},
+        {"label": "2", "value": "2"}
+      ]
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Heading"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_tags",
+      "label": "Show tags",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "overlay_type",
+      "label": "Overlay type",
+      "default": "disabled",
+      "options": [
+        {"value": "disabled", "label": "Disabled"},
+        {"value": "opacity", "label": "Opacity overlay"}
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "Section spacing"
+    },
+    {
+      "type": "select",
+      "id": "width",
+      "label": "Width",
+      "default": "wrapper",
+      "options": [
+        {"value": "wrapper--full-padded", "label": "Full width padded"},
+        {"value": "wrapper", "label": "Page width"}
+      ]
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "label": "Padding top",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "label": "Padding bottom",
+      "default": 60
+    }
+  ],
+  "blocks": [
+    {
+      "type": "article",
+      "name": "Article",
+      "settings": [
+        {
+          "type": "article",
+          "id": "article",
+          "label": "Article"
+        },
+        {
+          "type": "header",
+          "content": "Featured products",
+          "info": "Desktop only"
+        },
+        {
+          "type": "product_list",
+          "id": "product_list",
+          "label": "Products",
+          "limit": 3
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Shoppable blog posts",
+      "category": "Storytelling",
+      "blocks": [
+        {
+          "type": "article"
+        },
+        {
+          "type": "article"
+        },
+        {
+          "type": "article"
+        },
+        {
+          "type": "article"
+        },
+        {
+          "type": "article"
+        },
+        {
+          "type": "article"
+        }
+      ]
+    }
+  ],
+  "disabled_on": {
+    "groups": ["header", "aside", "footer"]
+  }
+}
+{% endschema %}

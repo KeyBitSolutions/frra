@@ -1,0 +1,28 @@
+{% comment %} Toggle ellipsis {% endcomment %}
+{%- liquid
+  assign content = content | default: '' | strip
+  assign show_read_more = show_read_more | default: false
+
+  if enable_full_width
+    assign height = 110
+  else
+    assign height = 175
+  endif
+-%}
+
+{%- if content != blank and show_read_more -%}
+  <toggle-ellipsis data-height="{{ height }}">
+    <div class="toggle-ellipsis__content" data-content>
+      {{ content }}
+    </div>
+
+    <div class="toggle-ellipsis__actions" data-actions>
+      <button type="button" class="toggle-ellipsis__button btn btn--text btn--small" data-button>
+        <span class="toggle-ellipsis__more">{{ 'products.general.read_more' | t }}</span>
+        <span class="toggle-ellipsis__less">{{ 'products.general.read_less' | t }}</span>
+      </button>
+    </div>
+  </toggle-ellipsis>
+{%- elsif content != blank -%}
+  {{ content }}
+{%- endif -%}

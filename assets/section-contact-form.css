@@ -1,0 +1,69 @@
+/*================ "Contact form" ================*/
+.section-contact-form {
+  background: var(--bg);
+}
+
+.contact-form__message {
+  position: fixed;
+  width: 100%;
+  bottom: 0;
+  left: 0;
+  z-index: 8995;
+  background: var(--bg);
+  box-shadow: 0 -5px 5px 0 rgba(0, 0, 0, 0.05);
+  opacity: 1;
+  transition: transform 0.45s ease, visibility 0s;
+  max-height: 50vh;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+.contact-form__message.hide-down {
+  transform: translateY(100%);
+  visibility: hidden;
+  transition-delay: 0s, 0.45s;
+}
+.contact-form__message .errors,
+.contact-form__message .note {
+  margin: 0;
+  border: 0;
+  padding: var(--inner);
+  font-size: calc(1rem * var(--adjust-body));
+  background: none;
+}
+@media only screen and (min-width: 768px) and (max-width: 1023px) {
+  .contact-form__message .errors,
+  .contact-form__message .note {
+    padding-top: var(--inner-tablet);
+    padding-bottom: var(--inner-tablet);
+  }
+}
+@media only screen and (max-width: 767px) {
+  .contact-form__message .errors,
+  .contact-form__message .note {
+    padding-top: var(--inner-mobile);
+    padding-bottom: var(--inner-mobile);
+  }
+}
+
+.contact-form__message__close {
+  position: absolute;
+  top: 8px;
+  right: 0;
+  width: 54px;
+  height: 54px;
+  padding: 18px;
+  color: inherit;
+  text-decoration: none;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.contact-form__message__close svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.3s ease;
+  pointer-events: none;
+}
+.contact-form__message__close:hover svg {
+  transform: rotate(90deg);
+}

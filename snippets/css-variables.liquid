@@ -1,0 +1,1055 @@
+{%- liquid
+  comment
+    Fonts
+  endcomment
+
+  assign heading_font = settings.type_heading_font
+  assign base_font = settings.type_base_font
+  assign nav_font = settings.type_nav_font
+  assign button_font = settings.type_button_font
+  assign subheading_font = settings.type_subheadings_font
+  assign label_font = settings.type_labels_font
+  assign label_font_weight = settings.label_font_weight
+  assign button_font_weight = settings.button_font_weight
+  assign highlight_font = settings.type_highlight_font
+
+  assign base_font_light = base_font | font_modify: 'weight', 'lighter'
+  assign base_font_medium = base_font | font_modify: 'weight', 'bolder'
+  assign base_font_bold = base_font | font_modify: 'weight', 'bold'
+  assign base_font_italic = base_font | font_modify: 'style', 'italic'
+  assign base_font_bold_italic = base_font_bold | font_modify: 'style', 'italic'
+
+  assign base_font_100 = base_font | font_modify: 'weight', '+100'
+  assign base_font_200 = base_font | font_modify: 'weight', '+200'
+  assign base_font_300 = base_font | font_modify: 'weight', '+300'
+  assign base_font_400 = base_font | font_modify: 'weight', '+400'
+  if base_font_100 and base_font_100.weight > base_font.weight
+    assign base_font_bold = base_font_100
+  elsif base_font_200 and base_font_200.weight > base_font.weight
+    assign base_font_bold = base_font_200
+  elsif base_font_300 and base_font_300.weight > base_font.weight
+    assign base_font_bold = base_font_300
+  elsif base_font_400 and base_font_400.weight > base_font.weight
+    assign base_font_bold = base_font_400
+  endif
+
+  assign heading_font_light = heading_font | font_modify: 'weight', 'lighter'
+  assign heading_font_medium = heading_font | font_modify: 'weight', 'bolder'
+  assign heading_font_bold = heading_font | font_modify: 'weight', 'bold'
+  assign heading_font_italic = heading_font | font_modify: 'style', 'italic'
+
+  assign heading_font_100 = heading_font | font_modify: 'weight', '+100'
+  assign heading_font_200 = heading_font | font_modify: 'weight', '+200'
+  assign heading_font_300 = heading_font | font_modify: 'weight', '+300'
+  assign heading_font_400 = heading_font | font_modify: 'weight', '+400'
+  if heading_font_100 and heading_font_100.weight > heading_font.weight
+    assign heading_font_bold = heading_font_100
+  elsif heading_font_200 and heading_font_200.weight > heading_font.weight
+    assign heading_font_bold = heading_font_200
+  elsif heading_font_300 and heading_font_300.weight > heading_font.weight
+    assign heading_font_bold = heading_font_300
+  elsif heading_font_400 and heading_font_400.weight > heading_font.weight
+    assign heading_font_bold = heading_font_400
+  endif
+
+  assign subheading_font_light = subheading_font | font_modify: 'weight', 'lighter'
+  assign subheading_font_bold = subheading_font | font_modify: 'weight', 'bold'
+  assign subheading_font_medium = subheading_font | font_modify: 'weight', 'bolder'
+  assign subheading_font_italic = subheading_font | font_modify: 'style', 'italic'
+
+  assign subheading_font_100 = subheading_font | font_modify: 'weight', '+100'
+  assign subheading_font_200 = subheading_font | font_modify: 'weight', '+200'
+  assign subheading_font_300 = subheading_font | font_modify: 'weight', '+300'
+  assign subheading_font_400 = subheading_font | font_modify: 'weight', '+400'
+  if subheading_font_100 and subheading_font_100.weight > subheading_font.weight
+    assign subheading_font_bold = subheading_font_100
+  elsif subheading_font_200 and subheading_font_200.weight > subheading_font.weight
+    assign subheading_font_bold = subheading_font_200
+  elsif subheading_font_300 and subheading_font_300.weight > subheading_font.weight
+    assign subheading_font_bold = subheading_font_300
+  elsif subheading_font_400 and subheading_font_400.weight > subheading_font.weight
+    assign subheading_font_bold = subheading_font_400
+  endif
+
+  if nav_font == 'heading'
+    assign nav_font = heading_font
+    assign nav_font_light = heading_font_light
+    assign nav_font_medium = heading_font_medium
+    assign nav_font_bold = heading_font_bold
+    assign nav_font_italic = heading_font_italic
+  else
+    assign nav_font = base_font
+    assign nav_font_light = base_font_light
+    assign nav_font_medium = base_font_medium
+    assign nav_font_bold = base_font_bold
+    assign nav_font_italic = base_font_italic
+  endif
+
+  if label_font == 'heading'
+    assign label_font = heading_font
+    assign label_font_light = heading_font_light
+    assign label_font_bold = heading_font_bold
+  elsif label_font == 'subheading'
+    assign label_font = subheading_font
+    assign label_font_light = subheading_font_light
+    assign label_font_bold = subheading_font_bold
+  else
+    assign label_font = base_font
+    assign label_font_light = base_font_light
+    assign label_font_bold = base_font_bold
+  endif
+
+  case label_font_weight
+    when 'normal'
+      assign label_font_weight = label_font.weight | default: 400
+    when 'light'
+      assign label_font_weight = label_font_light.weight | default: 300
+    when 'bold'
+      assign label_font_weight = label_font_bold.weight | default: 600
+  endcase
+
+  if button_font == 'heading'
+    assign button_font = heading_font
+    assign button_font_light = heading_font_light
+    assign button_font_medium = heading_font_medium
+    assign button_font_bold = heading_font_bold
+    assign button_font_italic = heading_font_italic
+  elsif button_font == 'body'
+    assign button_font = base_font
+    assign button_font_light = base_font_light
+    assign button_font_medium = base_font_medium
+    assign button_font_bold = base_font_bold
+    assign button_font_italic = base_font_italic
+  else
+    assign button_font = subheading_font
+    assign button_font_light = subheading_font_light
+    assign button_font_medium = subheading_font_medium
+    assign button_font_bold = subheading_font_bold
+    assign button_font_italic = subheading_font_italic
+  endif
+
+  case button_font_weight
+    when 'normal'
+      assign button_font_weight = button_font.weight | default: 400
+    when 'light'
+      assign button_font_weight = button_font_light.weight | default: 300
+    when 'bold'
+      assign button_font_weight = button_font_bold.weight | default: 700
+  endcase
+
+  assign input_font_size = settings.text_size | divided_by: 100.0 | append: 'rem'
+  if settings.text_size < 100
+    assign input_font_size = '1rem'
+  endif
+
+  assign btn_text_caps = 'none'
+  if settings.button_caps
+    assign btn_text_caps = 'uppercase'
+  endif
+
+  assign heading_text_caps = 'none'
+  if settings.heading_caps
+    assign heading_text_caps = 'uppercase'
+  endif
+
+  assign subheading_text_caps = 'none'
+  if settings.subheading_caps
+    assign subheading_text_caps = 'uppercase'
+  endif
+
+  assign label_text_caps = 'none'
+  if settings.label_caps
+    assign label_text_caps = 'uppercase'
+  endif
+
+  comment
+    Border radius
+  endcomment
+
+  assign button_style = settings.button_style
+  case button_style
+    when 'square'
+      assign button_border_radius = 0
+    when 'rounded'
+      assign button_border_radius = 8
+    when 'pill'
+      assign button_border_radius = 30
+  endcase
+
+  assign badge_style = settings.badge_style
+  case badge_style
+    when 'square'
+      assign badge_border_radius = 0
+    when 'rounded'
+      assign badge_border_radius = 4
+    when 'pill'
+      assign badge_border_radius = 15
+  endcase
+
+  comment
+    Line weight & icon width
+  endcomment
+
+  assign line_thickness = settings.line_thickness
+  case line_thickness
+    when 'normal'
+      assign border_width = 1
+      assign stroke_width = 12
+    when 'bold'
+      assign border_width = 2
+      assign stroke_width = 18
+  endcase
+
+  comment
+    Grid
+  endcomment
+
+  assign columns = settings.products_per_row_on_desktop | plus: 0
+  assign columns_tablet = 3
+
+  if columns == 2
+    assign columns_tablet = 2
+  endif
+
+  comment
+    Header colors
+  endcomment
+
+  assign menu_bg_color = settings.menu_bg_color
+  assign color_menu_bg_brightness = menu_bg_color | color_brightness | round
+
+  if color_menu_bg_brightness > 153
+    assign color_menu_bg_lighten_darken_foreground = menu_bg_color | color_darken: 3
+  else
+    assign color_menu_bg_lighten_darken_foreground = menu_bg_color | color_lighten: 10
+  endif
+
+  assign header_link = settings.header_link
+  assign header_link_brightness = header_link | color_brightness | round
+  if header_link_brightness > 153
+    assign header_link_opposite = header_link | color_darken: 100
+  else
+    assign header_link_opposite = header_link | color_lighten: 100
+  endif
+
+  assign header_link_opposite_alpha_15 = header_link_opposite | color_modify: 'alpha', 0.15
+-%}
+
+{%- style -%}
+    {%- comment -%} Typography {%- endcomment -%}
+    {{ heading_font | font_face: font_display: 'swap' }}
+    {{ base_font | font_face: font_display: 'swap' }}
+    {{ subheading_font | font_face: font_display: 'swap' }}
+    {{ highlight_font | font_face: font_display: 'swap' }}
+
+    {% if heading_font_bold %}
+      {{ heading_font_bold | font_face: font_display: 'swap' }}
+    {% endif %}
+
+    {% if heading_font_light %}
+      {{ heading_font_light | font_face: font_display: 'swap' }}
+    {% endif %}
+
+    {% if heading_font_medium %}
+      {{ heading_font_medium | font_face: font_display: 'swap' }}
+    {% endif %}
+
+    {% if base_font_light %}
+      {{ base_font_light | font_face: font_display: 'swap' }}
+    {% endif %}
+
+    {% if base_font_bold %}
+      {{ base_font_bold | font_face: font_display: 'swap' }}
+    {% endif %}
+
+    {% if base_font_italic %}
+      {{ base_font_italic | font_face: font_display: 'swap' }}
+    {% endif %}
+
+    {% if base_font_bold_italic %}
+      {{ base_font_bold_italic | font_face: font_display: 'swap' }}
+    {% endif %}
+
+    {% if subheading_font_bold %}
+      {{ subheading_font_bold | font_face: font_display: 'swap' }}
+    {% endif %}
+
+    {% comment %}
+      This is where CSS Variables are set with values from your theme settings.
+      These values are created in settings_schema.json and stored in settings_data.json.
+      CSS variables are used to remove liquid code from your CSS file, allowing CSS to load faster.
+
+
+      #Colors
+      --STATIC vars are uppercased
+      --dynamic vars are lowercased
+
+      A static var is set in theme settings and doesn't change in any context
+      A dynamic var is context dependent and can be overwritten by its wrapper
+
+      This file is primarily concerned with setting the values of dynamic color
+      variables depending on which container the text or background is inside.
+    {% endcomment %}
+
+    {% for scheme in settings.color_schemes -%}
+      {% assign scheme_classes = scheme_classes | append: ', .color-' | append: scheme.id %}
+      {% if scheme == settings.color_scheme -%}
+        :root,
+      {%- endif %}
+      .color-{{ scheme.id }} {
+        {%- liquid
+          assign color_white = '#ffffff'
+          assign color_black = '#000000'
+
+          assign color_white_darken_5 = color_white | color_darken: 5
+          assign color_white_alpha_10 = color_white | color_modify: 'alpha', 0.10
+          assign color_white_alpha_20 = color_white | color_modify: 'alpha', 0.20
+          assign color_white_alpha_25 = color_white | color_modify: 'alpha', 0.25
+          assign color_white_alpha_50 = color_white | color_modify: 'alpha', 0.50
+          assign color_white_alpha_60 = color_white | color_modify: 'alpha', 0.60
+
+          assign color_black_lighten_10 = color_black | color_lighten: 10
+          assign color_black_alpha_05 = color_black | color_modify: 'alpha', 0.05
+          assign color_black_alpha_10 = color_black | color_modify: 'alpha', 0.10
+          assign color_black_alpha_20 = color_black | color_modify: 'alpha', 0.20
+          assign color_black_alpha_25 = color_black | color_modify: 'alpha', 0.25
+          assign color_black_alpha_50 = color_black | color_modify: 'alpha', 0.50
+          assign color_black_alpha_60 = color_black | color_modify: 'alpha', 0.60
+
+          assign color_bg_gradient = scheme.settings.section_bg_gradient
+
+          assign color_body_bg = scheme.settings.section_bg
+          if color_body_bg == 'rgba(0,0,0,0)'
+            assign color_body_bg = 'rgba(255, 255, 255, 1)'
+          endif
+
+          assign color_body_bg_brightness = color_body_bg | color_brightness | round
+          if color_body_bg_brightness > 153
+            assign color_body_bg_opposite_alpha_25 = color_body_bg | color_darken: 100 | color_modify: 'alpha', 0.25
+          else
+            assign color_body_bg_opposite_alpha_25 = color_body_bg | color_lighten: 100 | color_modify: 'alpha', 0.25
+          endif
+
+          assign color_heading = scheme.settings.section_heading
+          assign color_heading_text_brightness = color_heading | color_brightness | round
+          if color_heading_text == 'rgba(0,0,0,0)'
+            assign color_heading_text = 'rgba(0,0,0,1)'
+          endif
+
+          assign color_body_text = scheme.settings.section_text
+          assign color_body_text_brightness = color_body_text | color_brightness | round
+          if color_body_text == 'rgba(0,0,0,0)'
+            assign color_body_text = 'rgba(0,0,0,1)'
+          endif
+
+          assign color_accent = scheme.settings.accent
+          assign color_accent_text = '#fff'
+          assign color_accent_brightness = color_accent | color_brightness | round
+          if color_accent_brightness > 204
+            assign color_accent_text = '#000'
+          endif
+
+          if color_accent_brightness > 153 and color_body_text.alpha != 0.0 and color_body_text != ''
+            assign color_accent_opposite = color_accent | color_darken: 100
+          else
+            assign color_accent_opposite = color_accent | color_lighten: 100
+          endif
+
+          assign color_border = scheme.settings.lines_and_border
+          assign color_border_bg_brightness = color_border | color_brightness | round
+          if color_border_bg_brightness > 153
+            assign color_border_lighten_darken = color_border | color_darken: 30
+          else
+            assign color_border_lighten_darken = color_border | color_lighten: 30
+          endif
+
+          assign color_body_bg_brightness = color_body_bg | color_brightness | round
+          if color_body_bg_brightness > 153
+            assign color_body_bg_lighten_darken = color_body_bg | color_darken: 10
+            assign color_body_bg_lighten_darken_shimmer_bg = color_body_bg | color_darken: 2
+            assign color_body_bg_lighten_darken_shimmer_effect = color_body_bg | color_darken: 4
+            assign color_body_bg_lighten_darken_shimmer_enhancement = color_body_bg | color_darken: 100
+            assign color_body_bg_lighten_darken_foreground = color_body_bg | color_darken: 3
+            assign color_body_bg_lighten_darken_search_loader_line = color_body_bg | color_darken: 10
+            assign color_body_bg_lighten_darken_search_loader = color_body_bg | color_darken: 20
+            assign color_body_bg_lighten_darken_contrast = color_body_bg | color_darken: 30
+            assign color_body_bg_lighten_darken_contrast_2 = color_body_bg | color_darken: 35
+            assign color_body_bg_lighten_darken_contrast_3 = color_body_bg | color_darken: 40
+            assign color_body_bg_lighten_darken_contrast_4 = color_body_bg | color_darken: 45
+            assign color_body_bg_lighten_darken_contrast_5 = color_body_bg | color_darken: 50
+            assign color_body_bg_lighten_darken_contrast_6 = color_body_bg | color_darken: 55
+            assign color_body_bg_lighten_darken_highlight = color_body_bg | color_darken: 15
+            if color_body_text_brightness > 153
+              assign color_body_bg_lighten_darken_highlight = color_body_bg_lighten_darken_highlight | color_modify: 'alpha', 0.15
+            endif
+            comment
+              Show black for light backgrounds and vice versa
+            endcomment
+            assign color_black_white = '#000'
+            comment
+              Show white for light backgrounds and vice versa
+            endcomment
+            assign color_white_black = '#fff'
+          else
+            assign color_body_bg_lighten_darken = color_body_bg | color_lighten: 10
+            assign color_body_bg_lighten_darken_shimmer_bg = color_body_bg | color_lighten: 5
+            assign color_body_bg_lighten_darken_shimmer_effect = color_body_bg | color_lighten: 7
+            assign color_body_bg_lighten_darken_shimmer_enhancement = color_body_bg | color_lighten: 100
+            assign color_body_bg_lighten_darken_foreground = color_body_bg | color_lighten: 10
+            assign color_body_bg_lighten_darken_search_loader_line = color_body_bg | color_lighten: 10
+            assign color_body_bg_lighten_darken_search_loader = color_body_bg | color_lighten: 20
+            assign color_body_bg_lighten_darken_contrast = color_body_bg | color_lighten: 30
+            assign color_body_bg_lighten_darken_contrast_2 = color_body_bg | color_lighten: 35
+            assign color_body_bg_lighten_darken_contrast_3 = color_body_bg | color_lighten: 40
+            assign color_body_bg_lighten_darken_contrast_4 = color_body_bg | color_lighten: 45
+            assign color_body_bg_lighten_darken_contrast_5 = color_body_bg | color_lighten: 50
+            assign color_body_bg_lighten_darken_contrast_6 = color_body_bg | color_lighten: 55
+            assign color_black_white = '#fff'
+            assign color_white_black = '#000'
+            assign color_body_bg_lighten_darken_highlight = color_body_bg | color_lighten: 15
+            if color_body_text_brightness <= 153
+              assign color_body_bg_lighten_darken_highlight = color_body_bg_lighten_darken_highlight | color_modify: 'alpha', 0.15
+            endif
+          endif
+
+          assign color_accent_mix = color_accent | color_mix: color_black_white, 50
+          assign color_accent_mix_brightness = color_accent_mix | color_brightness | round
+          if color_accent_mix_brightness >= 117
+            assign color_accent_mix_alpha = color_accent_mix | color_modify: 'alpha', 0.25
+          else
+            assign color_accent_mix_alpha = color_accent_mix | color_modify: 'alpha', 0.10
+          endif
+
+          comment
+            Maximum color brightness is 255
+            Change button text color to black if brightness is more than 70.5% ( 70.5% of 255 is ~180 )
+            Change button border to match button text color in case button background is the same as the page body background
+          endcomment
+
+          comment
+            Button colors
+          endcomment
+
+          comment
+            Primary buttons colors
+          endcomment
+          assign primary_buttons_color = scheme.settings.btn_primary_bg
+          assign primary_buttons_alpha_05 = primary_buttons_color | color_modify: 'alpha', 0.05
+          assign primary_buttons_alpha_10 = primary_buttons_color | color_modify: 'alpha', 0.10
+          assign primary_buttons_alpha_50 = primary_buttons_color | color_modify: 'alpha', 0.50
+
+          assign primary_buttons_color_opposite = primary_buttons_color | color_lighten: 100
+          assign primary_buttons_color_contrast = primary_buttons_color | color_contrast: primary_buttons_color_opposite
+          if primary_buttons_color_contrast < 2
+            assign primary_buttons_color_opposite = primary_buttons_color | color_darken: 100
+          endif
+          assign primary_buttons_color_alpha_20 = primary_buttons_color_opposite | color_modify: 'alpha', 0.20
+          assign primary_buttons_hover = primary_buttons_color_alpha_20
+
+          assign primary_buttons_brightness = primary_buttons_color | color_brightness
+          if primary_buttons_brightness > 153
+            assign color_primary_buttons_lighten_darken = primary_buttons_color | color_darken: 10
+          else
+            assign color_primary_buttons_lighten_darken = primary_buttons_color | color_lighten: 10
+          endif
+          assign color_primary_buttons_lighten_darken_alpha_20 = color_primary_buttons_lighten_darken | color_modify: 'alpha', 0.20
+          assign color_primary_buttons_lighten_darken_alpha_30 = color_primary_buttons_lighten_darken | color_modify: 'alpha', 0.30
+
+          if primary_buttons_color == '#000000'
+            assign primary_buttons_hover = color_white_alpha_50
+          endif
+
+          comment
+            Secondary buttons colors
+          endcomment
+          assign secondary_buttons_color = scheme.settings.btn_secondary_bg
+          assign secondary_buttons_alpha_05 = secondary_buttons_color | color_modify: 'alpha', 0.05
+          assign secondary_buttons_alpha_10 = secondary_buttons_color | color_modify: 'alpha', 0.10
+          assign secondary_buttons_alpha_50 = secondary_buttons_color | color_modify: 'alpha', 0.50
+
+          assign secondary_buttons_color_opposite = secondary_buttons_color | color_lighten: 100
+          assign secondary_buttons_color_contrast = secondary_buttons_color | color_contrast: secondary_buttons_color_opposite
+          if secondary_buttons_color_contrast < 2
+            assign secondary_buttons_color_opposite = secondary_buttons_color | color_darken: 100
+          endif
+          assign secondary_buttons_color_alpha_20 = secondary_buttons_color_opposite | color_modify: 'alpha', 0.20
+
+          assign secondary_buttons_brightness = secondary_buttons_color | color_brightness
+          if secondary_buttons_brightness > 153
+            assign color_secondary_buttons_lighten_darken = secondary_buttons_color | color_darken: 10
+          else
+            assign color_secondary_buttons_lighten_darken = secondary_buttons_color | color_lighten: 10
+          endif
+          assign color_secondary_buttons_lighten_darken_alpha_20 = color_secondary_buttons_lighten_darken | color_modify: 'alpha', 0.20
+          assign color_secondary_buttons_lighten_darken_alpha_30 = color_secondary_buttons_lighten_darken | color_modify: 'alpha', 0.30
+
+          comment
+            Outline buttons colors
+          endcomment
+
+          assign outline_btn_primary_bg_color = 'transparent'
+          assign outline_btn_primary_text_color = primary_buttons_color
+          assign outline_btn_primary_border_color = primary_buttons_color
+          assign outline_btn_primary_bg_hover = color_primary_buttons_lighten_darken_alpha_20
+
+          assign outline_btn_secondary_bg_color = 'transparent'
+          assign outline_btn_secondary_text_color = secondary_buttons_color
+          assign outline_btn_secondary_border_color = secondary_buttons_color
+          assign outline_btn_secondary_bg_hover = color_secondary_buttons_lighten_darken_alpha_20
+
+          assign outline_btn_white_bg_color = 'transparent'
+          assign outline_btn_white_text_color = color_white
+          assign outline_btn_white_border_color = color_white
+
+          assign outline_btn_black_bg_color = 'transparent'
+          assign outline_btn_black_text_color = color_black
+          assign outline_btn_black_border_color = color_black
+
+          comment
+            Solid buttons with border colors
+          endcomment
+
+          assign outline_solid_btn_primary_bg_color = primary_buttons_color
+          assign outline_solid_btn_primary_text_color = primary_buttons_color_opposite
+          assign outline_solid_btn_primary_border_color = primary_buttons_color_opposite
+          assign outline_solid_btn_primary_bg_hover = primary_buttons_color_alpha_20
+
+          assign outline_solid_btn_secondary_bg_color = secondary_buttons_color
+          assign outline_solid_btn_secondary_text_color = secondary_buttons_color_opposite
+          assign outline_solid_btn_secondary_border_color = secondary_buttons_color_opposite
+          assign outline_solid_btn_secondary_bg_hover = secondary_buttons_color_alpha_20
+
+          assign outline_solid_btn_white_bg_color = color_white
+          assign outline_solid_btn_white_text_color = color_black
+          assign outline_solid_btn_white_border_color = color_black
+
+          assign outline_solid_btn_black_bg_color = color_black
+          assign outline_solid_btn_black_text_color = color_white
+          assign outline_solid_btn_black_border_color = color_white
+
+          assign overlay = scheme.settings.overlay
+
+          comment
+            Quick Add
+          endcomment
+          assign quick_add_bg_color = scheme.settings.quick_add_bg_color
+          assign quick_add_text_color = scheme.settings.quick_add_text_color
+
+          assign color_quick_add_bg = color_body_bg
+          if quick_add_bg_color != 'rgba(0,0,0,0)' and quick_add_bg_color != blank
+            assign color_quick_add_bg = quick_add_bg_color
+          endif
+
+          assign color_upsells_text = color_body_text
+          if quick_add_text_color != 'rgba(0,0,0,0)' and quick_add_text_color != blank
+            assign color_quick_add_text = quick_add_text_color
+          endif
+
+          comment
+            Upsells
+          endcomment
+          assign upsells_bg_color = scheme.settings.upsells_bg_color
+          assign upsells_text_color = scheme.settings.upsells_text_color
+
+          assign color_upsells_bg = color_body_bg
+          if upsells_bg_color != 'rgba(0,0,0,0)' and upsells_bg_color != blank
+            assign color_upsells_bg = upsells_bg_color
+          endif
+
+          assign color_upsells_text = color_body_text
+          assign color_upsells_text_lighten = color_body_text | color_lighten: 20
+          assign color_upsells_disabled_grey_darken = color_body_text | color_modify: 'alpha', 0.45
+          if upsells_text_color != 'rgba(0,0,0,0)' and upsells_text_color != blank
+            assign color_upsells_text = upsells_text_color
+            assign color_upsells_text_lighten = upsells_text_color | color_lighten: 20
+            assign color_upsells_disabled_grey_darken = upsells_text_color | color_modify: 'alpha', 0.45
+          endif
+        -%}
+
+        --COLOR-BODY-BG-OPPOSITE-ALPHA-25: {{ color_body_bg_opposite_alpha_25 }};
+        --COLOR-PRIMARY-OPPOSITE: {{ primary_buttons_color_opposite }};
+        --COLOR-PRIMARY-LIGHTEN-DARKEN-ALPHA-20: {{ color_primary_buttons_lighten_darken_alpha_20 }};
+        --COLOR-PRIMARY-LIGHTEN-DARKEN-ALPHA-30: {{ color_primary_buttons_lighten_darken_alpha_30 }};
+
+        --PRIMARY-BUTTONS-COLOR-BG: {{ primary_buttons_color }};
+        --PRIMARY-BUTTONS-COLOR-TEXT: {{ primary_buttons_color_opposite }};
+        --PRIMARY-BUTTONS-COLOR-TEXT-ALPHA-10: {{ primary_buttons_color_opposite | color_modify: 'alpha', 0.1 }};
+        --PRIMARY-BUTTONS-COLOR-BORDER: {{ primary_buttons_color }};
+        --PRIMARY-BUTTONS-COLOR-HOVER: {{ primary_buttons_hover }};
+
+        --PRIMARY-BUTTONS-COLOR-LIGHTEN-DARKEN: {{ color_primary_buttons_lighten_darken }};
+
+        --PRIMARY-BUTTONS-COLOR-ALPHA-05: {{ primary_buttons_alpha_05 }};
+        --PRIMARY-BUTTONS-COLOR-ALPHA-10: {{ primary_buttons_alpha_10 }};
+        --PRIMARY-BUTTONS-COLOR-ALPHA-50: {{ primary_buttons_alpha_50 }};
+
+        {%- comment -%} Secondary button colors {%- endcomment -%}
+        --COLOR-SECONDARY-OPPOSITE: {{ secondary_buttons_color_opposite }};
+        --COLOR-SECONDARY-OPPOSITE-ALPHA-20: {{ secondary_buttons_color_alpha_20 }};
+        --COLOR-SECONDARY-LIGHTEN-DARKEN-ALPHA-20: {{ color_secondary_buttons_lighten_darken_alpha_20 }};
+        --COLOR-SECONDARY-LIGHTEN-DARKEN-ALPHA-30: {{ color_secondary_buttons_lighten_darken_alpha_30 }};
+
+        --SECONDARY-BUTTONS-COLOR-BG: {{ secondary_buttons_color }};
+        --SECONDARY-BUTTONS-COLOR-TEXT: {{ secondary_buttons_color_opposite }};
+        --SECONDARY-BUTTONS-COLOR-TEXT-ALPHA-10: {{ secondary_buttons_color_opposite | color_modify: 'alpha', 0.1 }};
+        --SECONDARY-BUTTONS-COLOR-BORDER: {{ secondary_buttons_color }};
+
+        --SECONDARY-BUTTONS-COLOR-ALPHA-05: {{ secondary_buttons_alpha_05 }};
+        --SECONDARY-BUTTONS-COLOR-ALPHA-10: {{ secondary_buttons_alpha_10 }};
+        --SECONDARY-BUTTONS-COLOR-ALPHA-50: {{ secondary_buttons_alpha_50 }};
+
+        {%- comment -%} Outline buttons colors {%- endcomment -%}
+        --OUTLINE-BUTTONS-PRIMARY-BG: {{ outline_btn_primary_bg_color }};
+        --OUTLINE-BUTTONS-PRIMARY-TEXT: {{ outline_btn_primary_text_color }};
+        --OUTLINE-BUTTONS-PRIMARY-TEXT-ALPHA-10: {{ outline_btn_primary_text_color | color_modify: 'alpha', 0.1 }};
+        --OUTLINE-BUTTONS-PRIMARY-BORDER: {{ outline_btn_primary_border_color }};
+        --OUTLINE-BUTTONS-PRIMARY-BG-HOVER: {{ outline_btn_primary_bg_hover }};
+
+        --OUTLINE-BUTTONS-SECONDARY-BG: {{ outline_btn_secondary_bg_color }};
+        --OUTLINE-BUTTONS-SECONDARY-TEXT: {{ outline_btn_secondary_text_color }};
+        --OUTLINE-BUTTONS-SECONDARY-TEXT-ALPHA-10: {{ outline_btn_secondary_text_color | color_modify: 'alpha', 0.1 }};
+        --OUTLINE-BUTTONS-SECONDARY-BORDER: {{ outline_btn_secondary_border_color }};
+        --OUTLINE-BUTTONS-SECONDARY-BG-HOVER: {{ outline_btn_secondary_bg_hover }};
+
+        --OUTLINE-BUTTONS-WHITE-BG: {{ outline_btn_white_bg_color }};
+        --OUTLINE-BUTTONS-WHITE-TEXT: {{ outline_btn_white_text_color }};
+        --OUTLINE-BUTTONS-WHITE-TEXT-ALPHA-10: {{ outline_btn_white_text_color | color_modify: 'alpha', 0.1 }};
+        --OUTLINE-BUTTONS-WHITE-BORDER: {{ outline_btn_white_border_color }};
+
+        --OUTLINE-BUTTONS-BLACK-BG: {{ outline_btn_black_bg_color }};
+        --OUTLINE-BUTTONS-BLACK-TEXT: {{ outline_btn_black_text_color }};
+        --OUTLINE-BUTTONS-BLACK-TEXT-ALPHA-10: {{ outline_btn_black_text_color | color_modify: 'alpha', 0.1 }};
+        --OUTLINE-BUTTONS-BLACK-BORDER: {{ outline_btn_black_border_color }};
+
+        {%- comment -%} Solid buttons with border colors {%- endcomment -%}
+
+        --OUTLINE-SOLID-BUTTONS-PRIMARY-BG: {{ outline_solid_btn_primary_bg_color }};
+        --OUTLINE-SOLID-BUTTONS-PRIMARY-TEXT: {{ outline_solid_btn_primary_text_color }};
+        --OUTLINE-SOLID-BUTTONS-PRIMARY-TEXT-ALPHA-10: {{ outline_solid_btn_primary_text_color | color_modify: 'alpha', 0.1 }};
+        --OUTLINE-SOLID-BUTTONS-PRIMARY-BORDER: {{ outline_solid_btn_primary_border_color }};
+        --OUTLINE-SOLID-BUTTONS-PRIMARY-BG-HOVER: {{ outline_solid_btn_primary_bg_hover }};
+
+        --OUTLINE-SOLID-BUTTONS-SECONDARY-BG: {{ outline_solid_btn_secondary_bg_color }};
+        --OUTLINE-SOLID-BUTTONS-SECONDARY-TEXT: {{ outline_solid_btn_secondary_text_color }};
+        --OUTLINE-SOLID-BUTTONS-SECONDARY-TEXT-ALPHA-10: {{ outline_solid_btn_secondary_text_color | color_modify: 'alpha', 0.1 }};
+        --OUTLINE-SOLID-BUTTONS-SECONDARY-BORDER: {{ outline_solid_btn_secondary_border_color }};
+        --OUTLINE-SOLID-BUTTONS-SECONDARY-BG-HOVER: {{ outline_solid_btn_secondary_bg_hover }};
+
+        --OUTLINE-SOLID-BUTTONS-WHITE-BG: {{ outline_solid_btn_white_bg_color }};
+        --OUTLINE-SOLID-BUTTONS-WHITE-TEXT: {{ outline_solid_btn_white_text_color }};
+        --OUTLINE-SOLID-BUTTONS-WHITE-TEXT-ALPHA-10: {{ outline_solid_btn_white_text_color | color_modify: 'alpha', 0.1 }};
+        --OUTLINE-SOLID-BUTTONS-WHITE-BORDER: {{ outline_solid_btn_white_border_color }};
+
+        --OUTLINE-SOLID-BUTTONS-BLACK-BG: {{ outline_solid_btn_black_bg_color }};
+        --OUTLINE-SOLID-BUTTONS-BLACK-TEXT: {{ outline_solid_btn_black_text_color }};
+        --OUTLINE-SOLID-BUTTONS-BLACK-TEXT-ALPHA-10: {{ outline_solid_btn_black_text_color | color_modify: 'alpha', 0.1 }};
+        --OUTLINE-SOLID-BUTTONS-BLACK-BORDER: {{ outline_solid_btn_black_border_color }};
+
+        {%- comment -%} Global colors {%- endcomment -%}
+
+        --COLOR-HEADING: {{ color_heading }};
+        --COLOR-TEXT: {{ color_body_text }};
+        --COLOR-TEXT-DARKEN: {{ color_body_text | color_darken: 20 }};
+        --COLOR-TEXT-LIGHTEN: {{ color_body_text | color_lighten: 20 }};
+        --COLOR-TEXT-ALPHA-5: {{ color_body_text | color_modify: 'alpha', 0.05 }};
+        --COLOR-TEXT-ALPHA-8: {{ color_body_text | color_modify: 'alpha', 0.08 }};
+        --COLOR-TEXT-ALPHA-10: {{ color_body_text | color_modify: 'alpha', 0.10 }};
+        --COLOR-TEXT-ALPHA-15: {{ color_body_text | color_modify: 'alpha', 0.15 }};
+        --COLOR-TEXT-ALPHA-20: {{ color_body_text | color_modify: 'alpha', 0.20 }};
+        --COLOR-TEXT-ALPHA-25: {{ color_body_text | color_modify: 'alpha', 0.25 }};
+        --COLOR-TEXT-ALPHA-50: {{ color_body_text | color_modify: 'alpha', 0.50 }};
+        --COLOR-TEXT-ALPHA-60: {{ color_body_text | color_modify: 'alpha', 0.60 }};
+        --COLOR-TEXT-ALPHA-85: {{ color_body_text | color_modify: 'alpha', 0.85 }};
+
+        --COLOR-BG-RGB: {{ color_body_bg | color_extract: 'red' }}, {{ color_body_bg | color_extract: 'green' }}, {{ color_body_bg | color_extract: 'blue' }};
+        --COLOR-BG-GRADIENT: {{ color_bg_gradient | default: color_body_bg }};
+        --COLOR-BG: {{ color_body_bg }};
+        --COLOR-BG-ALPHA-25: {{ color_body_bg | color_modify: 'alpha', 0.25 }};
+        --COLOR-BG-ALPHA-35: {{ color_body_bg | color_modify: 'alpha', 0.35 }};
+        --COLOR-BG-ALPHA-60: {{ color_body_bg | color_modify: 'alpha', 0.60 }};
+        --COLOR-BG-ALPHA-65: {{ color_body_bg | color_modify: 'alpha', 0.65 }};
+        --COLOR-BG-ALPHA-85: {{ color_body_bg | color_modify: 'alpha', 0.85 }};
+        --COLOR-BG-DARKEN: {{ color_body_bg | color_darken: 10 }};
+        --COLOR-BG-LIGHTEN-DARKEN: {{ color_body_bg_lighten_darken }};
+        --COLOR-BG-LIGHTEN-DARKEN-SHIMMER-BG: {{ color_body_bg_lighten_darken_shimmer_bg }};
+        --COLOR-BG-LIGHTEN-DARKEN-SHIMMER-EFFECT: {{ color_body_bg_lighten_darken_shimmer_effect }};
+        --COLOR-BG-LIGHTEN-DARKEN-SHIMMER-ENHANCEMENT: {{ color_body_bg_lighten_darken_shimmer_enhancement }};
+        --COLOR-BG-LIGHTEN-DARKEN-FOREGROUND: {{ color_body_bg_lighten_darken_foreground }};
+        --COLOR-BG-LIGHTEN-DARKEN-HIGHLIGHT: {{ color_body_bg_lighten_darken_highlight }};
+        --COLOR-BG-LIGHTEN-DARKEN-SEARCH-LOADER: {{ color_body_bg_lighten_darken_search_loader }};
+        --COLOR-BG-LIGHTEN-DARKEN-SEARCH-LOADER-LINE: {{ color_body_bg_lighten_darken_search_loader_line }};
+        --COLOR-BG-LIGHTEN-DARKEN-2: {{ color_body_bg_lighten_darken | color_darken: 10 }};
+        --COLOR-BG-LIGHTEN-DARKEN-3: {{ color_body_bg_lighten_darken | color_darken: 15 }};
+        --COLOR-BG-LIGHTEN-DARKEN-4: {{ color_body_bg_lighten_darken | color_darken: 20 }};
+        --COLOR-BG-LIGHTEN-DARKEN-5: {{ color_body_bg_lighten_darken | color_darken: 25 }};
+        --COLOR-BG-LIGHTEN-DARKEN-6: {{ color_body_bg_lighten_darken | color_darken: 30 }};
+        --COLOR-BG-LIGHTEN-DARKEN-CONTRAST: {{ color_body_bg_lighten_darken_contrast }};
+        --COLOR-BG-LIGHTEN-DARKEN-CONTRAST-2: {{ color_body_bg_lighten_darken_contrast_2 }};
+        --COLOR-BG-LIGHTEN-DARKEN-CONTRAST-3: {{ color_body_bg_lighten_darken_contrast_3 }};
+        --COLOR-BG-LIGHTEN-DARKEN-CONTRAST-4: {{ color_body_bg_lighten_darken_contrast_4 }};
+        --COLOR-BG-LIGHTEN-DARKEN-CONTRAST-5: {{ color_body_bg_lighten_darken_contrast_5 }};
+        --COLOR-BG-LIGHTEN-DARKEN-CONTRAST-6: {{ color_body_bg_lighten_darken_contrast_6 }};
+
+        --COLOR-INPUT-BG: {{ color_body_bg }};
+
+        --COLOR-ACCENT: {{ color_accent }};
+        --COLOR-ACCENT-TEXT: {{ color_accent_text }};
+        --COLOR-ACCENT-OPPOSITE: {{ color_accent_opposite }};
+        --COLOR-ACCENT-MIX-ALPHA: {{ color_accent_mix_alpha }};
+
+        --COLOR-BORDER: {{ color_border }};
+        --COLOR-BORDER-ALPHA-15: {{ color_border | color_modify: 'alpha', 0.15 }};
+        --COLOR-BORDER-ALPHA-30: {{ color_border | color_modify: 'alpha', 0.30 }};
+        --COLOR-BORDER-ALPHA-50: {{ color_border | color_modify: 'alpha', 0.50 }};
+        --COLOR-BORDER-ALPHA-65: {{ color_border | color_modify: 'alpha', 0.65 }};
+        --COLOR-BORDER-LIGHTEN-DARKEN: {{ color_border_lighten_darken }};
+        --COLOR-BORDER-HAIRLINE: {{ color_body_bg | color_darken: 3 }};
+        --COLOR-LINK: {{ scheme.settings.links }};
+        --COLOR-BG-OVERLAY: {{ overlay | color_modify: 'alpha', 0.15 }};
+
+        {%- comment -%} Quick Add {%- endcomment -%}
+        --COLOR-QUICK-ADD-BG: {{ color_quick_add_bg }};
+        --COLOR-QUICK-ADD-TEXT: {{ color_quick_add_text }};
+
+        {%- comment -%} Upsells {%- endcomment -%}
+        --COLOR-UPSELLS-BG: {{ color_upsells_bg }};
+        --COLOR-UPSELLS-TEXT: {{ color_upsells_text }};
+        --COLOR-UPSELLS-TEXT-LIGHTEN: {{ color_upsells_text_lighten }};
+        --COLOR-UPSELLS-DISABLED-GREY-DARKEN: {{ color_upsells_disabled_grey_darken }};
+        --UPSELLS-HEIGHT: {{ settings.upsells_height | append: 'px' }};
+        --UPSELLS-IMAGE-WIDTH: {{ settings.upsells_image_width | append: '%' }};
+
+        --COLOR-DISABLED-GREY: {{ color_body_text | color_modify: 'alpha', 0.05 }};
+        --COLOR-DISABLED-GREY-DARKEN: {{ color_body_text | color_modify: 'alpha', 0.45 }};
+
+        /* Dynamic color variables */
+        --bg: var(--COLOR-BG-GRADIENT, var(--COLOR-BG));
+        --text: var(--COLOR-TEXT);
+        --heading: var(--COLOR-HEADING);
+        --accent: var(--COLOR-ACCENT);
+        --border: var(--COLOR-BORDER);
+        --bg-alpha-25: var(--COLOR-BG-ALPHA-25);
+        --bg-alpha-35: var(--COLOR-BG-ALPHA-35);
+        --bg-alpha-60: var(--COLOR-BG-ALPHA-60);
+        --bg-darken: var(--COLOR-BG-DARKEN);
+        --bg-lighten-darken: var(--COLOR-BG-LIGHTEN-DARKEN);
+        --bg-lighten-darken-shimmer-bg: var(--COLOR-BG-LIGHTEN-DARKEN-SHIMMER-BG);
+        --bg-lighten-darken-shimmer-effect: var(--COLOR-BG-LIGHTEN-DARKEN-SHIMMER-EFFECT);
+        --bg-lighten-darken-shimmer-enhancement: var(--COLOR-BG-LIGHTEN-DARKEN-SHIMMER-ENHANCEMENT);
+        --bg-lighten-darken-foreground: var(--COLOR-BG-LIGHTEN-DARKEN-FOREGROUND);
+        --bg-lighten-darken-highlight: var(--COLOR-BG-LIGHTEN-DARKEN-HIGHLIGHT);
+        --bg-lighten-darken-search-loader: var(--COLOR-BG-LIGHTEN-DARKEN-SEARCH-LOADER);
+        --bg-lighten-darken-search-loader-line: var(--COLOR-BG-LIGHTEN-DARKEN-SEARCH-LOADER-LINE);
+        --bg-lighten-darken-contrast: var(--COLOR-BG-LIGHTEN-DARKEN-CONTRAST);
+        --overlay: {{ overlay }};
+        --bg-overlay: {{ color_white_black | color_modify: 'alpha', 0.5 }};
+        --link: var(--COLOR-LINK);
+        --text-darken: var(--COLOR-TEXT-DARKEN);
+        --text-lighten: var(--COLOR-TEXT-LIGHTEN);
+        --text-alpha-5: var(--COLOR-TEXT-ALPHA-5);
+        --text-alpha-8: var(--COLOR-TEXT-ALPHA-8);
+        --text-alpha-10: var(--COLOR-TEXT-ALPHA-10);
+        --text-alpha-15: var(--COLOR-TEXT-ALPHA-15);
+        --text-alpha-25: var(--COLOR-TEXT-ALPHA-25);
+        --text-alpha-50: var(--COLOR-TEXT-ALPHA-50);
+        --text-alpha-60: var(--COLOR-TEXT-ALPHA-60);
+        --text-alpha-85: var(--COLOR-TEXT-ALPHA-85);
+        --accent-text: var(--COLOR-ACCENT-TEXT);
+        --sale-bg: var(--COLOR-SALE-BG);
+        --sale-text: var(--COLOR-SALE-TEXT);
+        --custom-bg: var(--COLOR-CUSTOM-BG);
+        --custom-text: var(--COLOR-CUSTOM-TEXT);
+        --sold-bg: var(--COLOR-SOLD-BG);
+        --sold-text: var(--COLOR-SOLD-TEXT);
+        --saving-bg: var(--COLOR-SAVING-BG);
+        --saving-text: var(--COLOR-SAVING-TEXT);
+        --input-bg: var(--COLOR-INPUT-BG);
+        --border-alpha-15: var(--COLOR-BORDER-ALPHA-15);
+        --border-alpha-30: var(--COLOR-BORDER-ALPHA-30);
+        --border-alpha-50: var(--COLOR-BORDER-ALPHA-50);
+        --border-alpha-65: var(--COLOR-BORDER-ALPHA-65);
+        --border-lighten-darken: var(--COLOR-BORDER-LIGHTEN-DARKEN);
+        --hairline: var(--COLOR-BORDER-HAIRLINE);
+        --error: var(--COLOR-ERROR);
+        --error-bg: var(--COLOR-ERROR-BG);
+        --success: var(--COLOR-SUCCESS);
+        --success-bg: var(--COLOR-SUCCESS-BG);
+        --disabled-grey: var(--COLOR-DISABLED-GREY);
+        --disabled-grey-darken: var(--COLOR-DISABLED-GREY-DARKEN);
+        --white: var(--COLOR-WHITE);
+        --white-darken: var(--COLOR-WHITE-DARKEN);
+        --white-alpha-10: var(--COLOR-WHITE-ALPHA-10);
+        --white-alpha-20: var(--COLOR-WHITE-ALPHA-20);
+        --white-alpha-25: var(--COLOR-WHITE-ALPHA-25);
+        --white-alpha-50: var(--COLOR-WHITE-ALPHA-50);
+        --white-alpha-60: var(--COLOR-WHITE-ALPHA-60);
+        --black: var(--COLOR-BLACK);
+        --black-lighten: var(--COLOR-BLACK-LIGHTEN);
+        --black-alpha-05: var(--COLOR-BLACK-ALPHA-05);
+        --black-alpha-10: var(--COLOR-BLACK-ALPHA-10);
+        --black-alpha-20: var(--COLOR-BLACK-ALPHA-20);
+        --black-alpha-25: var(--COLOR-BLACK-ALPHA-25);
+        --black-alpha-50: var(--COLOR-BLACK-ALPHA-50);
+        --black-alpha-60: var(--COLOR-BLACK-ALPHA-60);
+        --upsells-bg: var(--COLOR-UPSELLS-BG);
+        --upsells-text: var(--COLOR-UPSELLS-TEXT);
+        --upsells-text-lighten: var(--COLOR-UPSELLS-TEXT-LIGHTEN);
+        --upsells-disabled-grey-darken: var(--COLOR-UPSELLS-DISABLED-GREY-DARKEN);
+      }
+    {% endfor %}
+
+    {{ scheme_classes | prepend: 'body' }} {
+      color: var(--text);
+      background: var(--bg);
+    }
+
+    {%- comment -%} CSS variables defined in Theme settings {%- endcomment -%}
+    :root {
+      --COLOR-SALE-BG: {{ settings.sale_bg_color }};
+      --COLOR-SALE-TEXT: {{ settings.sale_text_color }};
+      --COLOR-CUSTOM-BG: {{ settings.custom_bg_color }};
+      --COLOR-CUSTOM-TEXT: {{ settings.custom_text_color }};
+      --COLOR-SOLD-BG: {{ settings.sold_bg_color }};
+      --COLOR-SOLD-TEXT: {{ settings.sold_text_color }};
+      --COLOR-SAVING-BG: {{ settings.saving_bg_color }};
+      --COLOR-SAVING-TEXT: {{ settings.saving_text_color }};
+
+      --COLOR-WHITE-BLACK: {{ color_white_black }};
+      --COLOR-BLACK-WHITE: {{ color_black_white }};
+      --COLOR-BLACK-WHITE-ALPHA-25: {{ color_black_white | color_modify: 'alpha', 0.25 }};
+      --COLOR-BLACK-WHITE-ALPHA-34: {{ color_black_white | color_modify: 'alpha', 0.34 }};
+
+      {%- comment -%} Hardcoded colors {%- endcomment -%}
+      --COLOR-MENU-BG: {{ menu_bg_color }};
+      --COLOR-MENU-LINK: {{ header_link }};
+      --COLOR-MENU-LINK-OPPOSITE: {{ header_link_opposite_alpha_15 }};
+      --COLOR-MENU-TRANSPARENT-LINK: {{ settings.menu_transparent_color }};
+      --COLOR-MENU-TEXT-ALPHA-5: {{ settings.header_link | color_modify: 'alpha', 0.05 }};
+      --COLOR-MENU-BG-ALPHA-10: {{ menu_bg_color | color_modify: 'alpha', 0.10 }};
+      --COLOR-MENU-BG-INPUT: {{ menu_bg_color }};
+      --COLOR-MENU-BG-LIGHTEN-DARKEN-FOREGROUND: {{ color_menu_bg_lighten_darken_foreground }};
+
+      --COLOR-ERROR: #D02E2E;
+      --COLOR-ERROR-BG: {{ '#ffffff' | color_mix: '#D02E2E', 75 }};
+      --COLOR-SUCCESS: #56AD6A;
+      --COLOR-SUCCESS-BG: #ECFEF0;
+      --COLOR-WARN: #ECBD5E;
+      --COLOR-TRANSPARENT: rgba(255, 255, 255, 0);
+
+      --COLOR-WHITE: {{ color_white }};
+      --COLOR-WHITE-DARKEN: {{ color_white_darken_5 }};
+      --COLOR-WHITE-ALPHA-10: {{ color_white_alpha_10 }};
+      --COLOR-WHITE-ALPHA-20: {{ color_white_alpha_20 }};
+      --COLOR-WHITE-ALPHA-25: {{ color_white_alpha_25 }};
+      --COLOR-WHITE-ALPHA-50: {{ color_white_alpha_50 }};
+      --COLOR-WHITE-ALPHA-60: {{ color_white_alpha_60 }};
+      --COLOR-BLACK: {{ color_black }};
+      --COLOR-BLACK-LIGHTEN: {{ color_black_lighten_10 }};
+      --COLOR-BLACK-ALPHA-05: {{ color_black_alpha_05 }};
+      --COLOR-BLACK-ALPHA-10: {{ color_black_alpha_10 }};
+      --COLOR-BLACK-ALPHA-20: {{ color_black_alpha_20 }};
+      --COLOR-BLACK-ALPHA-25: {{ color_black_alpha_25 }};
+      --COLOR-BLACK-ALPHA-50: {{ color_black_alpha_50 }};
+      --COLOR-BLACK-ALPHA-60: {{ color_black_alpha_60 }};
+
+      {%- comment -%} Typography {%- endcomment -%}
+      --FONT-STACK-BODY: {{ base_font.family }}, {{ base_font.fallback_families }};
+      --FONT-STYLE-BODY: {{ base_font.style }};
+      --FONT-STYLE-BODY-ITALIC: {{ base_font_italic.style | default: 'italic' }};
+      --FONT-ADJUST-BODY: {{ settings.text_size | divided_by: 100.0 }};
+
+      --FONT-WEIGHT-BODY: {{ base_font.weight | default: 400 }};
+      --FONT-WEIGHT-BODY-LIGHT: {{ base_font_light.weight | default: 300 }};
+      --FONT-WEIGHT-BODY-MEDIUM: {{ base_font_medium.weight | default: 500 }};
+      --FONT-WEIGHT-BODY-BOLD: {{ base_font_bold.weight | default: 700 }};
+
+      --FONT-STACK-HEADING: {{ heading_font.family }}, {{ heading_font.fallback_families }};
+      --FONT-STYLE-HEADING: {{ heading_font.style }};
+      --FONT-STYLE-HEADING-ITALIC: {{ heading_font_italic.style | default: 'italic' }};
+      --FONT-ADJUST-HEADING: {{ settings.heading_size | divided_by: 100.0 }};
+
+      --FONT-WEIGHT-HEADING: {{ heading_font.weight | default: 400 }};
+      --FONT-WEIGHT-HEADING-LIGHT: {{ heading_font_light.weight | default: 300 }};
+      --FONT-WEIGHT-HEADING-MEDIUM: {{ heading_font_medium.weight | default: 500 }};
+      --FONT-WEIGHT-HEADING-BOLD: {{ heading_font_bold.weight | default: 600 }};
+
+      --FONT-STACK-NAV: {{ nav_font.family }}, {{ nav_font.fallback_families }};
+      --FONT-STYLE-NAV: {{ nav_font.style }};
+      --FONT-STYLE-NAV-ITALIC: {{ nav_font_italic.style | default: 'italic' }};
+      --FONT-ADJUST-NAV: {{ settings.nav_size | divided_by: 100.0 }};
+      --FONT-ADJUST-NAV-TOP-LEVEL: {{ settings.nav_top_level_links_size | divided_by: 100.0 }};
+
+      --FONT-WEIGHT-NAV: {{ nav_font.weight | default: 400 }};
+      --FONT-WEIGHT-NAV-LIGHT: {{ nav_font_light.weight | default: 300 }};
+      --FONT-WEIGHT-NAV-MEDIUM: {{ nav_font_medium.weight | default: 500 }};
+      --FONT-WEIGHT-NAV-BOLD: {{ nav_font_bold.weight | default: 600 }};
+
+      --FONT-ADJUST-PRODUCT-GRID: {{ settings.product_grid_text_size | divided_by: 100.0 }};
+      --FONT-ADJUST-PRODUCT-GRID-HEADING: {{ settings.product_grid_heading_size | divided_by: 100.0 }};
+
+      --FONT-ADJUST-BADGES: {{ settings.product_badges_size | divided_by: 100.0 }};
+
+      --FONT-STACK-BUTTON: {{ button_font.family }}, {{ button_font.fallback_families }};
+      --FONT-STYLE-BUTTON: {{ button_font.style }};
+      --FONT-STYLE-BUTTON-ITALIC: {{ button_font_italic.style | default: 'italic' }};
+      --FONT-ADJUST-SMALL-BUTTON: {{ settings.small_button_size | divided_by: 100.0 }};
+      --FONT-ADJUST-MEDIUM-BUTTON: {{ settings.medium_button_size | divided_by: 100.0 }};
+      --FONT-ADJUST-LARGE-BUTTON: {{ settings.large_button_size | divided_by: 100.0 }};
+
+      --FONT-WEIGHT-BUTTON: {{ button_font_weight }};
+      --FONT-WEIGHT-BUTTON-MEDIUM: {{ button_font_medium.weight | default: 500 }};
+      --FONT-WEIGHT-BUTTON-BOLD: {{ button_font_bold.weight | default: 600 }};
+
+      --FONT-STACK-SUBHEADING: {{ subheading_font.family }}, {{ subheading_font.fallback_families }};
+      --FONT-STYLE-SUBHEADING: {{ subheading_font.style }};
+      --FONT-ADJUST-SUBHEADING: {{ settings.subheading_size | divided_by: 100.0 }};
+
+      --FONT-WEIGHT-SUBHEADING: {{ subheading_font.weight | default: 400 }};
+      --FONT-WEIGHT-SUBHEADING-BOLD: {{ subheading_font_bold.weight | default: 600 }};
+
+      --FONT-STACK-LABEL: {{ label_font.family }}, {{ label_font.fallback_families }};
+      --FONT-STYLE-LABEL: {{ label_font.style }};
+      --FONT-ADJUST-LABEL: {{ settings.label_size | divided_by: 100.0 }};
+
+      --FONT-STACK-HIGHLIGHT: {{ highlight_font.family }}, {{ highlight_font.fallback_families }};
+      --FONT-STYLE-HIGHLIGHT: {{ highlight_font.style }};
+      --FONT-WEIGHT-HIGHLIGHT: {{ highlight_font.weight | default: 400 }};
+
+      --FONT-WEIGHT-LABEL: {{ label_font_weight }};
+
+      --LETTER-SPACING-NAV: {{ settings.nav_letter_spacing | divided_by: 1000.0 | append: 'em' }};
+      --LETTER-SPACING-HEADING: {{ settings.heading_letter_spacing | divided_by: 1000.0 | append: 'em' }};
+      --LETTER-SPACING-SUBHEADING: {{ settings.subheading_letter_spacing | divided_by: 1000.0 | append: 'em' }};
+      --LETTER-SPACING-BUTTON: {{ settings.button_letter_spacing | divided_by: 1000.0 | append: 'em' }};
+      --LETTER-SPACING-LABEL: {{ settings.label_letter_spacing | divided_by: 1000.0 | append: 'em' }};
+
+      --BUTTON-TEXT-CAPS: {{ btn_text_caps }};
+      --HEADING-TEXT-CAPS: {{ heading_text_caps }};
+      --SUBHEADING-TEXT-CAPS: {{ subheading_text_caps }};
+      --LABEL-TEXT-CAPS: {{ label_text_caps }};
+
+      {%- comment -%} Form input elements on mobile {%- endcomment -%}
+      --FONT-SIZE-INPUT: {{ input_font_size }};
+
+      {%- comment -%} Button border radius {%- endcomment -%}
+      --RADIUS: {{ button_border_radius }}px;
+      --RADIUS-SMALL: {{ button_border_radius | at_most: 22 }}px;
+      --RADIUS-TINY: {{ button_border_radius | at_most: 14 }}px;
+      --RADIUS-CHECKBOX: {{ button_border_radius | at_most: 4 }}px;
+      --RADIUS-TEXTAREA: {{ button_border_radius | at_most: 8 }}px;
+
+      {%- comment -%} Badge border radius {%- endcomment -%}
+      --RADIUS-BADGE: {{ badge_border_radius }}px;
+
+      {%- comment -%} Product images aspect ratio and background size {%- endcomment -%}
+      --PRODUCT-MEDIA-PADDING-TOP: {{ settings.image_aspect_ratio | times: 100 | append: '%' }};
+
+      {%- comment -%} Border width on Inputs, selects, dropdowns and buttons {%- endcomment -%}
+      --BORDER-WIDTH: {{ border_width }}px;
+
+      {%- comment -%} Icon width used for header icons, select, toggle plus, toggle minus and close {%- endcomment -%}
+      --STROKE-WIDTH: {{ stroke_width }}px;
+
+      {%- comment -%} Site width {%- endcomment -%}
+      --SITE-WIDTH: 1440px;
+      --SITE-WIDTH-NARROW: 840px;
+
+      {% comment %} Buttons width and height {% endcomment %}
+      --SMALL-BUTTON-WIDTH: {{ settings.small_button_width | append: 'px' }};
+      --MEDIUM-BUTTON-WIDTH: {{ settings.medium_button_width | append: 'px' }};
+      --LARGE-BUTTON-WIDTH: {{ settings.large_button_width | append: 'px' }};
+      --SMALL-BUTTON-HEIGHT: {{ settings.small_button_height | append: 'px' }};
+      --MEDIUM-BUTTON-HEIGHT: {{ settings.medium_button_height | append: 'px' }};
+      --LARGE-BUTTON-HEIGHT: {{ settings.large_button_height | append: 'px' }};
+
+      {%- comment -%} flickity btn icon & style {%- endcomment -%}
+      {%- assign arrow_style = settings.arrow_style -%}
+      {%- if arrow_style == 'chevron' and line_thickness == 'normal' -%}
+        --ICON-ARROW-RIGHT: url( "{{ 'icon-chevron-right.svg' | asset_url }}" );
+      {%- elsif arrow_style == 'chevron' and line_thickness == 'bold' -%}
+        --ICON-ARROW-RIGHT: url( "{{ 'icon-chevron-right-bold.svg' | asset_url }}" );
+      {%- elsif arrow_style == 'arrow' and line_thickness == 'normal' -%}
+        --ICON-ARROW-RIGHT: url( "{{ 'icon-arrow-right.svg' | asset_url }}" );
+      {%- elsif arrow_style == 'arrow' and line_thickness == 'bold' -%}
+        --ICON-ARROW-RIGHT: url( "{{ 'icon-arrow-right-bold.svg' | asset_url }}" );
+      {%- endif -%}
+
+      {%- comment -%} Icons {%- endcomment -%}
+      --loading-svg: url( "{{ 'loading.svg' | asset_url }}" );
+      --icon-check: url( "{{ 'icon-check.svg' | asset_url }}" );
+      --icon-check-swatch: url( "{{ 'icon-check-swatch.svg' | asset_url }}" );
+      --icon-zoom-in: url( "{{ 'icon-zoom-in.svg' | asset_url }}" );
+      --icon-zoom-out: url( "{{ 'icon-zoom-out.svg' | asset_url }}" );
+
+      {%- comment -%} Collection/Search filters sticky bar initial height which is dynamically changed on window load/resize {%- endcomment -%}
+      --collection-sticky-bar-height: 0px;
+      --collection-image-padding-top: 60%;
+
+      --drawer-width: 400px;
+      --drawer-transition: transform 0.4s cubic-bezier(0.46, 0.01, 0.32, 1);
+
+      {%- comment -%} Gutters {%- endcomment -%}
+      --gutter: 60px;
+      --gutter-mobile: 20px;
+      --grid-gutter: 20px;
+      --grid-gutter-mobile: 35px;
+
+      {%- comment -%} Inners {%- endcomment -%}
+      --inner: 20px;
+      --inner-tablet: 18px;
+      --inner-mobile: 16px;
+
+      {%- comment -%} Grid variables {%- endcomment -%}
+      --grid: repeat({{ columns }}, minmax(0, 1fr));
+      --grid-tablet: repeat({{ columns_tablet }}, minmax(0, 1fr));
+      --grid-mobile: repeat(2, minmax(0, 1fr));
+      --megamenu-grid: repeat(4, minmax(0, 1fr));
+      --grid-row: 1 / span {{ columns }};
+
+      {%- comment -%} Scrollbar width {%- endcomment -%}
+      --scrollbar-width: 0px;
+
+      {%- comment -%} Color swatches {%- endcomment -%}
+      --swatch-width: 38px;
+      --swatch-height: 26px;
+      --swatch-size: 32px;
+      --swatch-size-mobile: 30px;
+
+      {% comment %} Aos animations {% endcomment %}
+      --move-offset: 20px;
+
+      {% comment %} PGI slideshow autoplay speed {% endcomment %}
+      --autoplay-speed: 2200ms;
+    }
+
+    {% comment %} Gray background on product grid items {% endcomment %}
+  {%- if settings.show_gray_bg -%}
+    .cart__item__image:after,
+    .product__media__container:after,
+    .products-list__item__image:after,
+    .products-list__item__image-bg:after,
+    .blog-item__product__image:after {
+      content: '';
+      position: absolute;
+      z-index: 1;
+      inset: 0;
+      background: rgba(0, 0, 0, .03);
+      pointer-events: none;
+    }
+  {%- endif -%}
+
+  {%- if settings.show_product_gray_bg -%}
+    .product-upsell__image:after,
+    .popup-quick-view__nav-media:after,
+    .product-gallery__media--image:after,
+    .product-gallery__media--onboarding:after,
+    .product-single__thumbnail-link:after {
+      content: '';
+      position: absolute;
+      z-index: 1;
+      inset: 0;
+      background: rgba(0, 0, 0, .03);
+      pointer-events: none;
+    }
+  {%- endif -%}
+{%- endstyle -%}

@@ -1,0 +1,17 @@
+/*================ "Featured product" ================*/
+.featured-product {
+  background: var(--bg);
+}
+.featured-product .share-button__holder {
+  margin-bottom: 0;
+}
+@media only screen and (min-width: 1024px) {
+  .featured-product .featured-product__onboarding {
+    display: grid;
+    grid-template-columns: 50% 50%;
+  }
+}
+
+.featured-product__gallery {
+  position: relative;
+}

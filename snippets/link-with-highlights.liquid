@@ -1,0 +1,60 @@
+{% comment %}
+  Enhanced text decorations options - Render link with highlights
+{% endcomment %}
+
+{%- liquid
+  assign is_text = is_text | default: false
+  assign link_title = link_title | default: link.title | strip_html | escape
+  assign link_title_lowercase = link_title | downcase | strip_html | escape
+  assign highlight_item = section.settings.highlight_item | downcase | strip_html | escape
+  assign custom_badge_text = section.settings.custom_badge_text
+  assign enable_custom_badge = section.settings.enable_custom_badge
+  assign wrapper = wrapper_override | default: 'a'
+  assign link_url = link_url | default: link.url | default: ''
+
+  assign has_highlight = false
+  if link_hover_effect == 'highlight' and is_text
+    assign has_highlight = true
+  endif
+
+  assign badge_markup = ''
+  if enable_custom_badge and custom_badge_text != blank and highlight_item == link_title_lowercase
+    assign badge_markup = '<span class="navtext__custom-badge">' | append: custom_badge_text | append: '</span>'
+  endif
+-%}
+
+{%- if has_highlight -%}
+  <span class="text-highlight__break"></span>
+{% endif %}
+
+<{{ wrapper }}
+  {% if wrapper == 'a' and link_url != blank %}
+    href="{{ link_url }}"
+  {% endif -%}
+  {{ link_attributes }}
+  {% if has_highlight %}
+    data-has-highlight
+  {% endif %}
+>
+  {%- if link_image_markup != blank -%}
+    {{ link_image_markup }}
+  {%- endif -%}
+
+  {%- if has_highlight -%}
+    <text-highlight
+      class="navtext text-highlight{% if wrapper == 'summary' %} {{ search_label_classes }}{% endif %}"
+      data-highlight-type="highlight"
+    >
+      {{ link_title }}
+      <span class="text-highlight__icon text-highlight__icon--pseudo" data-highlight-holder></span>
+    </text-highlight>
+  {%- elsif skip_span -%}
+    {{ link_title }}
+  {%- elsif is_text -%}
+    <span class="navtext{% if wrapper == 'summary' %} {{ search_label_classes }}{% endif %}">{{ link_title }}</span>
+  {%- endif -%}
+
+  {{ badge_markup }}
+
+  {{ icon_markup }}
+</{{ wrapper }}>

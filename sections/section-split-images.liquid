@@ -1,0 +1,753 @@
+{%- comment -%} /sections/split-images.liquid {%- endcomment -%}
+
+{%- liquid
+  assign section_width = section.settings.width
+  assign image_height = section.settings.image_height
+  if section.settings.enable_mobile_height
+    assign image_height = image_height | append: ' ' | append: section.settings.mobile_image_height
+  endif
+  assign mobile_layout = section.settings.mobile_layout
+  assign title = section.settings.title
+  assign heading_highlight_type = section.settings.heading_highlight_type
+  assign highlight_color = section.settings.highlight_color
+  assign highlight_text_color = section.settings.highlight_text_color
+  assign text = section.settings.text
+  assign heading_size = section.settings.heading_size | times: 0.01
+  assign text_size = section.settings.text_size | times: 0.01
+  assign color_scheme = 'color-' | append: section.settings.color_scheme
+  assign selected_color_scheme = section.settings.color_scheme | strip
+  assign scheme_bg_color = settings.color_schemes[selected_color_scheme].settings.section_bg
+  assign scheme_bg_gradient = settings.color_schemes[selected_color_scheme].settings.section_bg_gradient
+  assign show_text_background = section.settings.show_text_background
+  assign bg_color = section.settings.bg_color
+  assign text_color = section.settings.text_color
+  comment
+    theme-check-disable VariableName
+  endcomment
+  assign button_1_text = section.settings.button_1_text
+  assign button_1_link = section.settings.button_1_link | default: '#!'
+  assign button_1_style = section.settings.button_1_style
+  assign button_1_color = section.settings.button_1_color
+  assign button_1_size = section.settings.button_1_size
+  assign button_2_text = section.settings.button_2_text
+  assign button_2_link = section.settings.button_2_link | default: '#!'
+  assign button_2_style = section.settings.button_2_style
+  assign button_2_color = section.settings.button_2_color
+  assign button_2_size = section.settings.button_2_size
+  assign overlay_type = section.settings.overlay_type
+  assign opacity_overlay = false
+  assign text_underlay = false
+  assign text_position = section.settings.text_position
+  assign animations_enabled = settings.animations_enabled
+  assign animation_anchor = '#SplitImages--' | append: section.id
+  assign animation_delay = 150
+
+  assign mobile_layout_class = 'split-images__pane--first-block'
+
+  if overlay_type == 'opacity'
+    assign opacity_overlay = true
+  elsif overlay_type == 'text' and show_text_background == false
+    assign text_underlay = true
+  endif
+
+  case mobile_layout
+    when 'second-block'
+      if section.blocks.size == 2
+        assign mobile_layout_class = 'split-images__pane--second-block'
+      endif
+    when 'split'
+      assign mobile_layout_class = 'split-images__pane--split'
+    when 'inline'
+      assign mobile_layout_class = 'split-images__pane--inline'
+  endcase
+
+  assign button_1_advanced_class = 'btn--advanced'
+  if button_1_style != 'btn--text'
+    assign button_1_advanced_class = button_1_advanced_class | append: ' btn--advanced-width-height'
+  endif
+  assign button_2_advanced_class = 'btn--advanced'
+  if button_2_style != 'btn--text'
+    assign button_2_advanced_class = button_2_advanced_class | append: ' btn--advanced-width-height'
+  endif
+
+  assign image_block = section.blocks | map: 'settings' | where: 'image'
+  assign image_mobile_block = section.blocks | map: 'settings' | where: 'image_mobile'
+
+  assign img_in_class = false
+  if image_block.size == 0 and image_mobile_block.size == 0
+    assign img_in_class = true
+  endif
+-%}{% comment %}
+  Enhanced text decorations options - Liquid variables
+
+  Dependencies:
+    - Title liquid object from settings: `assign title = section.settings.title`
+    - Highlight type from settings: `assign heading_highlight_type = section.settings.heading_highlight_type`
+    - Highlight color from settings: `assign highlight_color = section.settings.highlight_color or assign highlight_color = block.settings.highlight_color`
+    - SVG icons:
+      - icon-squiggle.svg (assets)
+      - icon-circle.liquid (snippet)
+{% endcomment %}
+
+{%- liquid
+  comment
+   Highlighted words count
+  endcomment
+  assign title_temp = title | split: '<em>'
+  assign em_arr = ''
+  if title_temp.size > 1
+    for text_part in title_temp offset: 1
+      assign em_text = text_part | split: '</em>' | first
+      assign em_arr = em_arr | append: '#separator#' | append: em_text
+    endfor
+  endif
+  assign em_arr = em_arr | split: '#separator#'
+  assign words_count_arr = ''
+  assign letters_count_arr = ''
+  if em_arr.size > 0
+    for words in em_arr offset: 1
+      assign word = words | split: ' '
+      assign words_count_arr = words_count_arr | append: word.size | append: ', '
+      assign letters_count_arr = letters_count_arr | append: words.size | append: ', '
+    endfor
+  endif
+
+  assign words_count_arr = words_count_arr | replace_last: ', ', '' | split: ', '
+  assign letters_count_arr = letters_count_arr | replace_last: ', ', '' | split: ', '
+
+  comment
+   Main highlight types logic
+  endcomment
+  assign icon_url = ''
+  assign icon_color = 'var(--heading)'
+
+  if highlight_color != 'rgba(0,0,0,0)' and highlight_color != ''
+    assign icon_color = highlight_color
+  endif
+
+  capture text_highlight_icon
+    assign has_text_highlight = false
+
+    if title contains '<em>'
+      case heading_highlight_type
+        when 'squiggle'
+          assign icon_url = 'icon-squiggle.svg' | asset_url
+        when 'circle' or 'circle-hand-drawn' or 'underline-hand-drawn'
+          echo '<span class="text-highlight__icon" data-highlight-holder>'
+
+            when 'circle'
+              render 'icon-circle'
+            when 'circle-hand-drawn'
+              render 'icon-circle-hand-drawn'
+            when 'underline-hand-drawn'
+              render 'icon-underline-hand-drawn'
+
+          echo '</span>'
+        when 'highlight' or 'squiggle'
+          echo '<span class="text-highlight__icon text-highlight__icon--pseudo" data-highlight-holder></span>'
+        when 'stroke' or 'circle' or 'circle-hand-drawn' or 'squiggle' or 'highlight' or 'highlight-color' or 'underline' or 'underline-hand-drawn' or 'alternate-font'
+          assign has_text_highlight = true
+      endcase
+    endif
+  endcapture
+
+  capture icon_bg
+    if icon_url != ''
+      echo 'url( "' | append: icon_url | append: '" )'
+    else
+      echo 'none'
+    endif
+  endcapture
+  capture icon_styles
+    assign icon_bg = icon_bg | replace: '"', "'"
+    echo 'style="--icon-url: ' | append: icon_bg | append: ';' | append: '--icon-color: ' | append: icon_color | append: ';"'
+  endcapture
+
+  assign text_highlight_wrapper_class = 'text-highlight-wrapper' | append: ' text-highlight-wrapper--' | append: heading_highlight_type
+  capture text_highlight_start
+    echo '<text-highlight class="text-highlight" ' | append: icon_styles | append: ' data-highlight-type="' | append: heading_highlight_type | append: '">'
+    case heading_highlight_type
+      when 'stroke' or 'highlight-color' or 'underline' or 'alternate-font'
+        echo '<span class="text-highlight__string" data-highlight-holder>'
+    endcase
+  endcapture
+  capture text_highlight_end
+    echo text_highlight_icon
+    case heading_highlight_type
+      when 'stroke' or 'highlight-color' or 'underline' or 'alternate-font'
+        echo '</span>'
+    endcase
+    echo '</text-highlight>'
+  endcapture
+
+  if title != blank and title contains '<em>'
+    case heading_highlight_type
+      when 'squiggle' or 'circle' or 'circle-hand-drawn' or 'stroke' or 'highlight' or 'highlight-color' or 'underline' or 'underline-hand-drawn' or 'alternate-font'
+        assign title = title | replace: '<em>', text_highlight_start | replace: '</em>', text_highlight_end
+
+      when 'circle' or 'circle-hand-drawn'
+        comment
+          Update icon's holder class based on the italicised words count
+        endcomment
+        assign title = title | split: 'class="text-highlight"'
+        assign title_mod = ''
+        for title_part in title offset: 1
+          assign current_part = title_part
+
+          if title_part contains 'text-highlight__icon'
+            capture highlight_icon_classes
+              echo 'text-highlight__icon'
+              assign current_count = words_count_arr[forloop.index0] | times: 1
+              assign letters_count = letters_count_arr[forloop.index0] | times: 1
+              if current_count == 1
+                echo ' text-highlight__icon--single-word'
+              endif
+              if letters_count < 6
+                echo ' text-highlight__icon--short'
+                echo ' text-highlight__icon--l' | append: letters_count
+              endif
+              if letters_count > 15
+                echo ' text-highlight__icon--long'
+              endif
+            endcapture
+
+            assign current_part = title_part | replace: 'text-highlight__icon', highlight_icon_classes
+          endif
+
+          unless forloop.last
+            assign title_mod = title_mod | append: current_part | append: 'class="text-highlight"'
+          else
+            assign title_mod = title_mod | append: current_part
+          endunless
+        endfor
+        assign title_first_part = title | first | append: 'class="text-highlight"'
+        assign title_mod = title_mod | prepend: title_first_part
+        assign title = title_mod
+    endcase
+  endif
+-%}<section
+  class="split-images-section split-images-section--{{ section.id }}{% if img_in_class %} img-in{% endif %} {{ color_scheme }}"
+  id="SplitImages--{{ section.id }}"
+  data-section-id="{{ section.id }}"
+  data-section-type="split-images"
+>
+  <link
+    href="{{ 'section-split-images.css' | asset_url }}"
+    rel="preload"
+    as="style"
+    onload="this.onload=null;this.rel='stylesheet'"
+  >
+
+  {%- style -%}
+    [data-section-id="{{ section.id }}"] {
+      {%- if heading_highlight_type != 'highlight' -%}
+        --highlight-color: var(--text);
+      {%- endif -%}
+
+      {%- if highlight_color != 'rgba(0,0,0,0)' and highlight_color != '' -%}
+        --highlight-color: {{ highlight_color }};
+      {%- endif -%}
+
+      {%- if highlight_text_color != 'rgba(0,0,0,0)' and highlight_text_color != '' -%}
+        --highlight-text-color: {{ highlight_text_color }};
+      {%- endif -%}
+
+      {%- if scheme_bg_gradient != '' -%}
+        --bg: {{ scheme_bg_color }};
+      {%- endif %}
+    }
+    [data-section-id="{{ section.id }}"] .main-heading { --adjust-heading: calc(var(--FONT-ADJUST-HEADING) * {{ heading_size }}); }
+    [data-section-id="{{ section.id }}"] .main-text { --adjust-body: calc(var(--FONT-ADJUST-BODY) * {{ text_size }}); }
+
+    [data-section-id="{{ section.id }}"] .split-images__content-inner {
+      {% if show_text_background and bg_color.alpha != 0.0 and bg_color != blank -%}
+        --bg: {{ bg_color }};
+      {%- endif -%}
+
+      {%- if text_color.alpha != 0.0 and text_color != blank -%}
+        --text: {{ text_color }};
+        --heading: {{ text_color }};
+      {%- endif -%}
+    }
+  {%- endstyle -%}
+
+  {%- if section.blocks.size > 0 -%}
+    <div
+      class="split-images__pane {{ image_height }} {{ mobile_layout_class }}"
+      {% if animations_enabled %}
+        data-aos="zoom-out"
+        data-aos-anchor="{{ animation_anchor }}"
+        data-aos-delay="{{ animation_delay }}"
+        data-aos-duration="1000"
+        {%- assign animation_delay = animation_delay | plus: 150 -%}
+      {% endif %}
+    >
+      {%- for block in section.blocks -%}
+        {%- liquid
+          assign image = block.settings.image
+          assign image_mobile = block.settings.image_mobile
+          assign sizes = '(min-width: 768px) calc(100vw / ' | append: section.blocks.size | append: '), 100vw'
+        -%}
+
+        <div class="split-images__scale split-images__scale--{{ forloop.index }}" {{ block.shopify_attributes }}>
+          {%- unless image_mobile == blank -%}
+            {%- render 'image-fill',
+              is_background: true,
+              img_object: image_mobile,
+              sizes: sizes,
+              classes: 'split-images__bg split-images__bg--mobile'
+            -%}
+          {%- endunless -%}
+
+          {%- render 'image-fill',
+            is_background: true,
+            img_object: image,
+            sizes: sizes,
+            classes: 'split-images__bg split-images__bg--desktop'
+          -%}
+        </div>
+      {%- endfor -%}
+
+      {%- if opacity_overlay -%}
+        <div class="overlay"></div>
+      {%- endif -%}
+    </div>
+
+    <div class="split-images__content align--{{ text_position }}">
+      <div class="{{ section_width }} split-images__content-inner{% if text_underlay %} backdrop--radial{% endif %}{% if show_text_background %} text-background{% endif %}">
+        {%- if title != blank -%}
+          {%- capture title_attributes -%}
+            class="h1 split-images__heading main-heading{% if has_text_highlight %} {{ text_highlight_wrapper_class }}{% endif %}"
+          {%- endcapture -%}
+
+          {% render 'title-text-reveal-and-highlights',
+            title: title,
+            title_attributes: title_attributes,
+            text_reveal: true,
+            has_text_highlight: has_text_highlight,
+            animation_anchor: animation_anchor,
+            animation_order: 1
+          %}
+        {%- endif -%}
+
+        {%- if text != blank -%}
+          <div
+            class="h2 main-text"
+            {% if animations_enabled %}
+              data-aos="hero"
+              data-aos-anchor="{{ animation_anchor }}"
+              data-aos-order="1"
+            {% endif %}
+          >
+            {{ text }}
+          </div>
+        {%- endif -%}
+
+        {%- if button_1_text != blank or button_2_text != blank -%}
+          <div class="slide__buttons main-buttons">
+            {%- if button_1_text != blank -%}
+              <div
+                class="main-buttons__item"
+                {% if animations_enabled %}
+                  data-aos="hero"
+                  data-aos-anchor="{{ animation_anchor }}"
+                  data-aos-order="1"
+                {% endif %}
+              >
+                <a
+                  class="slide__btn btn {{ button_1_style }} {{ button_1_size }} {{ button_1_color }} {{ button_1_advanced_class }}"
+                  href="{{ button_1_link }}"
+                >
+                  <hover-button></hover-button>
+                  {{- button_1_text | escape -}}
+                </a>
+              </div>
+            {%- endif -%}
+
+            {%- if button_2_text != blank -%}
+              <div
+                class="main-buttons__item"
+                {% if animations_enabled %}
+                  data-aos="hero"
+                  data-aos-anchor="{{ animation_anchor }}"
+                  data-aos-order="1"
+                {% endif %}
+              >
+                <a
+                  class="slide__btn btn {{ button_2_style }} {{ button_2_size }} {{ button_2_color }} {{ button_2_advanced_class }}"
+                  href="{{ button_2_link }}"
+                >
+                  <hover-button></hover-button>
+                  {{- button_2_text | escape -}}
+                </a>
+              </div>
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+      </div>
+
+      {%- if button_1_text == blank and button_2_text == blank and button_1_link != '#!' -%}
+        <a class="split-images__link" href="{{ button_1_link }}"></a>
+      {%- endif -%}
+    </div>
+  {%- else -%}
+    {%- render 'no-blocks' -%}
+  {%- endif -%}
+</section>
+
+{% schema %}
+{
+  "name": "Split images",
+  "class": "supports-transparent-header",
+  "max_blocks": 2,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "image_height",
+      "label": "Height",
+      "default": "full-height",
+      "options": [
+        {"value": "full-height", "label": "Full screen"},
+        {"value": "three-quarters-height", "label": "Three quarters of screen"},
+        {"value": "two-thirds-height", "label": "Two thirds of screen"},
+        {"value": "one-half-height", "label": "One half of screen"},
+        {"value": "one-third-height", "label": "One third of screen"},
+        {"value": "one-fifth-height", "label": "One fifth of screen"},
+        {"value": "seven-fifty-height", "label": "750px"},
+        {"value": "six-fifty-height", "label": "650px"},
+        {"value": "five-fifty-height", "label": "550px"},
+        {"value": "four-fifty-height", "label": "450px"}
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_mobile_height",
+      "label": "Enable mobile height",
+      "default": false
+    },
+    {
+      "type": "select",
+      "id": "mobile_image_height",
+      "label": "Mobile height",
+      "default": "five-fifty-height-mobile",
+      "options": [
+        {"value": "full-height-mobile", "label": "Full screen"},
+        {"value": "three-quarters-height-mobile", "label": "Three quarters of screen"},
+        {"value": "two-thirds-height-mobile", "label": "Two thirds of screen"},
+        {"value": "one-half-height-mobile", "label": "One half of screen"},
+        {"value": "one-third-height-mobile", "label": "One third of screen"},
+        {"value": "one-fifth-height-mobile", "label": "One fifth of screen"},
+        {"value": "seven-fifty-height-mobile", "label": "750px"},
+        {"value": "six-fifty-height-mobile", "label": "650px"},
+        {"value": "five-fifty-height-mobile", "label": "550px"},
+        {"value": "four-fifty-height-mobile", "label": "450px"}
+      ]
+    },
+    {
+      "type": "select",
+      "id": "mobile_layout",
+      "label": "Mobile layout",
+      "default": "split",
+      "info": "When both images are shown on mobile",
+      "options": [
+        {"label": "First block image", "value": "first-block"},
+        {"label": "Second block image", "value": "second-block"},
+        {"label": "Split", "value": "split"},
+        {"label": "Inline", "value": "inline"}
+      ]
+    },
+    {
+      "type": "select",
+      "id": "text_position",
+      "label": "Content alignment",
+      "default": "middle-center",
+      "options": [
+        {"value": "top-left", "label": "Top left"},
+        {"value": "top-center", "label": "Top center"},
+        {"value": "top-right", "label": "Top right"},
+        {"value": "middle-center", "label": "Center"},
+        {"value": "bottom-left", "label": "Bottom left"},
+        {"value": "bottom-center", "label": "Bottom center"},
+        {"value": "bottom-right", "label": "Bottom right"}
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Images"
+    },
+    {
+      "type": "select",
+      "id": "overlay_type",
+      "label": "Overlay type",
+      "default": "disabled",
+      "options": [
+        {"value": "disabled", "label": "Disabled"},
+        {"value": "opacity", "label": "Opacity overlay"},
+        {"value": "text", "label": "Text underlay"}
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Text"
+    },
+    {
+      "type": "select",
+      "id": "width",
+      "label": "Width",
+      "default": "wrapper--narrow",
+      "options": [
+        {"value": "wrapper--full-padded", "label": "Full width padded"},
+        {"value": "wrapper", "label": "Page width"},
+        {"value": "wrapper--narrow", "label": "Page width narrow"}
+      ]
+    },
+    {
+      "type": "richtext",
+      "id": "title",
+      "label": "Heading",
+      "default": "<p>Welcome to Palo Alto</p>",
+      "info": "Highlight one or two key words in your heading by italicizing them, then choose the highlight option below"
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "label": "Heading size",
+      "default": 120,
+      "min": 50,
+      "max": 200,
+      "step": 10,
+      "unit": "%"
+    },
+    {
+      "type": "header",
+      "content": "Highlight"
+    },
+    {
+      "type": "select",
+      "id": "heading_highlight_type",
+      "label": "Type",
+      "default": "underline-hand-drawn",
+      "info": "The font choice for the \"Alternate font\" type can be configured in the theme typography settings.",
+      "options": [
+        {"value": "italics", "label": "Italics (no decoration)"},
+        {"value": "highlight", "label": "Highlight"},
+        {"value": "highlight-color", "label": "Text color"},
+        {"value": "underline", "label": "Underline (digital)"},
+        {"value": "underline-hand-drawn", "label": "Underline (hand-drawn)"},
+        {"value": "squiggle", "label": "Squiggle"},
+        {"value": "circle", "label": "Circle (digital)"},
+        {"value": "circle-hand-drawn", "label": "Circle (hand-drawn)"},
+        {"value": "stroke", "label": "Stroke (outlined text)"},
+        {"value": "alternate-font", "label": "Alternate font"}
+      ]
+    },
+    {
+      "type": "color",
+      "id": "highlight_color",
+      "label": "Highlight color",
+      "default": "#000",
+      "alpha": true
+    },
+    {
+      "type": "color",
+      "id": "highlight_text_color",
+      "label": "Text color",
+      "alpha": true
+    },
+    {
+      "type": "textarea",
+      "id": "text",
+      "label": "Text",
+      "default": "Describe in a few words your special products, collection, or brand."
+    },
+    {
+      "type": "range",
+      "id": "text_size",
+      "label": "Text size",
+      "default": 100,
+      "min": 70,
+      "max": 150,
+      "step": 10,
+      "unit": "%"
+    },
+    {
+      "type": "header",
+      "content": "Button 1"
+    },
+    {
+      "type": "text",
+      "id": "button_1_text",
+      "label": "Text",
+      "default": "Learn More",
+      "info": "Leave blank to link entire image"
+    },
+    {
+      "type": "url",
+      "id": "button_1_link",
+      "label": "Link"
+    },
+    {
+      "type": "select",
+      "id": "button_1_color",
+      "label": "Color",
+      "default": "btn--white",
+      "options": [
+        {"label": "Primary", "value": "btn--primary"},
+        {"label": "Secondary", "value": "btn--secondary"},
+        {"label": "White", "value": "btn--white"},
+        {"label": "Black", "value": "btn--black"}
+      ]
+    },
+    {
+      "type": "select",
+      "id": "button_1_style",
+      "label": "Button style",
+      "default": "btn--solid-border",
+      "options": [
+        {"label": "Solid", "value": "btn--solid"},
+        {"label": "Outline", "value": "btn--outline"},
+        {"label": "Solid with border", "value": "btn--solid-border"},
+        {"label": "Soft", "value": "btn--soft"},
+        {"label": "Text", "value": "btn--text"}
+      ]
+    },
+    {
+      "type": "select",
+      "id": "button_1_size",
+      "label": "Size",
+      "default": "btn--medium",
+      "options": [
+        {"label": "Small", "value": "btn--small"},
+        {"label": "Medium", "value": "btn--medium"},
+        {"label": "Large", "value": "btn--large"}
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Button 2"
+    },
+    {
+      "type": "text",
+      "id": "button_2_text",
+      "label": "Text"
+    },
+    {
+      "type": "url",
+      "id": "button_2_link",
+      "label": "Link"
+    },
+    {
+      "type": "select",
+      "id": "button_2_color",
+      "label": "Second button color",
+      "default": "btn--black",
+      "options": [
+        {"label": "Primary", "value": "btn--primary"},
+        {"label": "Secondary", "value": "btn--secondary"},
+        {"label": "White", "value": "btn--white"},
+        {"label": "Black", "value": "btn--black"}
+      ]
+    },
+    {
+      "type": "select",
+      "id": "button_2_style",
+      "label": "Second button style",
+      "default": "btn--solid",
+      "options": [
+        {"label": "Solid", "value": "btn--solid"},
+        {"label": "Outline", "value": "btn--outline"},
+        {"label": "Solid with border", "value": "btn--solid-border"},
+        {"label": "Soft", "value": "btn--soft"},
+        {"label": "Text", "value": "btn--text"}
+      ]
+    },
+    {
+      "type": "select",
+      "id": "button_2_size",
+      "label": "Second button size",
+      "default": "btn--medium",
+      "options": [
+        {"label": "Small", "value": "btn--small"},
+        {"label": "Medium", "value": "btn--medium"},
+        {"label": "Large", "value": "btn--large"}
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-3"
+    },
+    {
+      "type": "paragraph",
+      "content": "Overrides color scheme. Set to Transparent to revert back to using color schemes."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_text_background",
+      "label": "Show text background",
+      "default": false
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background",
+      "alpha": true
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text",
+      "alpha": true
+    }
+  ],
+  "blocks": [
+    {
+      "type": "image",
+      "name": "Image",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "header",
+          "content": "Mobile"
+        },
+        {
+          "type": "image_picker",
+          "id": "image_mobile",
+          "label": "Image",
+          "info": "Optional"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Split images",
+      "category": "Banners",
+      "blocks": [
+        {
+          "type": "image"
+        },
+        {
+          "type": "image"
+        }
+      ]
+    }
+  ],
+  "disabled_on": {
+    "groups": ["header", "aside", "footer"]
+  }
+}
+{% endschema %}

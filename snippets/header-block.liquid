@@ -1,0 +1,169 @@
+{% comment %}
+  Header block content, used in both mobile header and desktop header.
+  Accepts a block, returns the content to render for that block.
+
+  Required params:
+  * block: the block that should be rendered.
+
+  {% render 'header-block', block: block %}
+
+{% endcomment %}
+
+{%- case block.type -%}
+  {%- when 'image' -%}
+    {%- liquid
+      assign block_id = 'headerBlock--' | append: block.id
+      assign block_selector_id = '#' | append: block_id
+      assign is_wide = block.settings.wide_image
+      assign overlay_type = block.settings.overlay_type
+      assign image = block.settings.image
+      assign title = block.settings.title
+      assign link = block.settings.link
+      assign description = block.settings.link_text
+      assign text_color = block.settings.text_color
+
+      assign text_color_brightness = text_color | color_brightness | round
+      if text_color_brightness > 153
+        assign text_color_opposite = text_color | color_darken: 100
+      else
+        assign text_color_opposite = text_color | color_lighten: 100
+      endif
+
+      assign text_color_opposite_alpha_15 = text_color_opposite | color_modify: 'alpha', 0.15
+
+      capture hover_scale_class
+        if link != blank
+          unless image
+            echo ' hover-scale-svg'
+          else
+            echo ' hover-scale'
+          endunless
+        endif
+      endcapture
+
+      assign width_class = 'menu__block--narrow'
+      if is_wide
+        assign width_class = 'menu__block--wide'
+      endif
+
+      assign heading_size = block.settings.heading_size | times: 0.01
+      assign heading_size_medium = heading_size
+      if heading_size > 1.5
+        assign heading_size_medium = heading_size | times: 0.85
+      endif
+      if heading_size > 2
+        assign heading_size_medium = heading_size | times: 0.7
+      endif
+      if heading_size > 2.5
+        assign heading_size_medium = heading_size | times: 0.55
+      endif
+
+      comment
+        Images sizes
+      endcomment
+      assign wide_images = section.blocks | map: 'settings' | where: 'wide_image'
+      assign wide_images_count = wide_images | where: 'position', index
+      assign margin_size = 30
+      assign wide_image_factor = 1
+      capture container_width_percentage
+        case child_count
+          when 0
+            assign margin_size = 60
+            if image_count == 1
+              assign wide_image_factor = 2
+              echo 0.5
+            else
+              assign wide_image_factor = 1.33
+              echo 1
+            endif
+          else
+            if image_count == 1
+              if is_wide
+                echo 0.5
+              else
+                echo 0.265
+              endif
+            elsif image_count == 2
+              if is_wide
+                echo 0.66
+              else
+                echo 0.5
+              endif
+            else
+              if is_wide
+                echo 0.74
+              else
+                echo 0.6
+              endif
+            endif
+        endcase
+      endcapture
+
+      if wide_images_count.size != image_count
+        if is_wide
+          assign wide_image_factor = 1.33
+        endif
+      endif
+
+      assign images_container_width = '100vw * ' | append: container_width_percentage | append: ' - ' | append: margin_size | append: 'px'
+      unless is_wide
+        assign wide_image_factor = 1
+      endunless
+      assign blocks_gaps = image_count | minus: 1
+      assign gaps_calc = 30 | times: blocks_gaps | append: 'px'
+
+      assign sizes = 'calc(((' | append: images_container_width | append: ' - ' | append: gaps_calc | append: ') / ' | append: image_count | append: ') * ' | append: wide_image_factor | append: ')'
+      assign aspect_ratio = block.settings.aspect_ratio | default: 1
+      assign aspect_ratio = 1 | divided_by: aspect_ratio
+    -%}
+
+    <div id="{{ block_id }}" class="{{ width_class }}{% unless image %} img-in{% endunless %}" {{ block.shopify_attributes }}>
+      {%- style -%}
+        {{ block_selector_id }} .hero__title {
+          --adjust-heading: calc(var(--FONT-ADJUST-HEADING) * {{ heading_size_medium }});
+        }
+        @media screen and (min-width: 1024px) {
+          {{ block_selector_id }} .hero__title {
+            --adjust-heading: calc(var(--FONT-ADJUST-HEADING) * {{ heading_size }});
+          }
+        }
+
+        {% if text_color.alpha != 0.0 and text_color != blank %}
+          {{ block_selector_id }} .hero__content {
+            --text: {{ text_color }};
+            --COLOR-MENU-LINK-OPPOSITE: {{ text_color_opposite_alpha_15 }};
+          }
+        {% endif %}
+      {%- endstyle -%}
+
+      <div class="header__dropdown__image{{ hover_scale_class }}">
+        {%- if link != blank -%}
+          <a href="{{ link }}" class="link-over-image">
+        {%- endif -%}
+
+          {%- if title != blank or description != blank -%}
+            <div class="hero__content__wrapper align--bottom-left">
+              <div class="hero__content{% if overlay_type == 'text' %} backdrop--radial{% endif %}">
+                {%- if title != blank -%}
+                  <h2 class="hero__title">
+                    {{ title | escape }}
+                  </h2>
+                {%- endif -%}
+                {%- if description != blank -%}
+                  <p class="hero__description">
+                    {{ description | escape }}
+                  </p>
+                {%- endif -%}
+              </div>
+            </div>
+          {%- endif -%}
+
+        {%- if link != blank -%}
+          </a>
+        {%- endif -%}
+
+        {%- render 'image-fill', img_object: image, aspect_ratio: aspect_ratio, sizes: sizes, loading: 'lazy', fetchpriority: 'high' -%}
+      </div>
+    </div>
+
+{%- endcase -%}

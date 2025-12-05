@@ -1,0 +1,822 @@
+{%- comment -%}
+    Renders product form with buy buttons
+
+    Accepts:
+    - product: {Object} Product object (required)
+    - section: {Object} Section object (required - needed by partials)
+    - section_id: {String} Section ID (required)
+    - block: {Object} Block object (optional)
+    - product_form_id: {String} The ID of the product form (required)
+    - current_variant: {Object} Current selected variant (required)
+    - unique: {String} Unique ID for the form (required)
+    - animations_enabled: {Boolean} Whether animations are enabled (optional)
+    - animation_anchor: {String} AOS animation anchor (optional)
+    - animation_order: {Number} AOS animation order (optional)
+    - show_quantity: {Boolean} Whether to show quantity selector (optional)
+    - show_remaining: {Boolean} Whether to show remaining inventory (optional)
+    - show_labels: {Boolean} Whether to show variant option labels (optional)
+    - label_text_caps: {Boolean} Whether label text should be capitalized (optional)
+    - is_quick_view: {Boolean} Whether this is a quick view (optional, default: false)
+
+    Usage:
+    {%- render 'product-form',
+      product: product,
+      section: section,
+      section_id: section_id,
+      block: block,
+      product_form_id: product_form_id,
+      current_variant: current_variant,
+      unique: unique,
+      animations_enabled: animations_enabled,
+      animation_anchor: animation_anchor,
+      animation_order: animation_order,
+      show_quantity: show_quantity,
+      show_remaining: show_remaining,
+      show_labels: show_labels,
+      label_text_caps: label_text_caps,
+      is_quick_view: is_quick_view
+    -%}
+{%- endcomment -%}
+
+{%- liquid
+    assign unique = unique | default: ''
+    assign variants_style = settings.variants_style
+    assign show_variant_image = settings.show_variant_image
+    assign gift_card_recipient_feature_active = false
+
+    if settings.show_gift_card_recipient and product.gift_card?
+        assign gift_card_recipient_feature_active = true
+    endif
+-%}
+
+{%- if show_remaining and is_quick_view -%}
+    <div
+        class="product__block"
+        id="Inventory-{{ unique }}"
+    >
+        {%- render 'inventory-countdown',
+            current_variant: current_variant,
+            product_variants: product.variants
+        -%}
+    </div>
+{%- endif -%}
+
+{%- comment -%} Size Chart Button Logic {%- endcomment -%}
+{%- liquid
+    assign show_size_guide = false
+    assign size_guide_string = 'general.size_chart.button' | t
+    assign info_page_title_override = settings.info_page_title_override
+
+    assign tags_string = product.tags | join: ','
+    assign size_separator = '_size_'
+    assign specific_pages = ''
+    if tags_string contains size_separator
+        for tag in product.tags
+            if tag contains size_separator
+                assign page_handle = tag | split: size_separator | last | split: ',' | first
+                assign specific_pages = specific_pages | append: page_handle | append: ','
+            endif
+        endfor
+    endif
+    assign specific_pages_arr = specific_pages | split: ','
+    if specific_pages_arr.size > 0
+        assign show_size_guide = true
+    endif
+
+    assign product_size_chart = product.metafields.theme.size_chart.value
+    assign info_page = settings.info_page
+    if product_size_chart != blank or info_page != blank
+        if product_size_chart != blank
+            assign info_page = product_size_chart
+        elsif info_page != blank
+            assign info_page = pages[info_page]
+        endif
+        assign show_size_guide = true
+    endif
+
+    assign size_chart_button_as_label = false
+    assign has_size_option = false
+    unless product.has_only_default_variant
+        for option in product.options_with_values
+            assign separator = option.name | handle | prepend: ',' | append: ','
+            assign size_translation = 'general.size_chart.size' | t
+            assign translation_string = size_translation | remove: '  ' | replace: ', ', ',' | replace: ' ,', ',' | replace: ',', '____' | handle | replace: '____', ',' | append: ',' | prepend: ','
+            unless translation_string contains separator
+                continue
+            endunless
+            assign has_size_option = true
+        endfor
+    endunless
+
+    if has_size_option and show_labels
+        assign size_chart_button_as_label = true
+    endif
+
+    assign size_button_text = size_guide_string
+    if info_page_title_override != blank
+        assign size_button_text = info_page_title_override
+    endif
+    if label_text_caps
+        assign size_button_text = size_button_text | replace: 'ß', '<span style="text-transform: lowercase;">ß</span>'
+    endif
+-%}
+
+{%- comment -%} Check if there's actual content for the size guide {%- endcomment -%}
+{%- liquid
+    assign empty_size_guide = true
+
+    comment
+        Check if any of the tag-based pages have content
+    endcomment
+    for page_handle in specific_pages_arr
+        assign page_size_chart = pages[page_handle]
+        if page_size_chart.title != blank
+            assign empty_size_guide = false
+            break
+        endif
+    endfor
+
+    comment
+        Check if the info page has content
+    endcomment
+    if info_page != blank and info_page.title != blank
+        assign empty_size_guide = false
+    endif
+-%}
+
+{%- capture size_chart_button -%}
+  {%- unless empty_size_guide -%}
+    <button type="button" class="product__popup__link label-typography" href="{{ info_page.url | default: '#!' }}" aria-controls="size-chart--{{ unique }}">
+      <drawer-toggle></drawer-toggle>
+      {%- render 'icon-ruler' -%}
+      <span>{{ size_button_text }}</span>
+    </button>
+  {%- endunless -%}
+{%- endcapture -%}
+
+{%- unless size_chart_button_as_label or size_chart_button == blank -%}
+    <div
+        class="product__form__size-chart"
+        {% if animations_enabled %}
+            data-aos="hero"
+            data-aos-anchor="{{ animation_anchor }}"
+            data-aos-order="{{ animation_order }}"
+            {%- assign animation_order = animation_order | plus: 1 -%}
+        {% endif %}
+    >
+        {{- size_chart_button -}}
+    </div>
+{%- endunless -%}
+
+{% comment %} Shop pay split payment terms {% endcomment %}
+<div
+    class="shop-pay-terms"
+    {% if animations_enabled %}
+        data-aos="hero"
+        data-aos-anchor="{{ animation_anchor }}"
+        data-aos-order="{{ animation_order }}"
+        {%- assign animation_order = animation_order | plus: 1 -%}
+    {% endif %}
+>
+    {{ form | payment_terms }}
+</div>
+
+{%- capture quantity_selector -%}
+  <div class="select__fieldset" id="Quantity-Form-{{ unique }}" data-quantity-wrapper>
+    <span class="select__label label-typography" id="{{ unique }}-select-quantity-label">{{ 'products.product.quantity.quantity' | t }}</span>
+
+    {%- if settings.quantity_style == 'dropdown' -%}
+      <popout-select class="select-popout select-popout--small" data-popout-prevent="true">
+        <button type="button" class="select-popout__toggle{% if variants_style == 'boxes' %} select-popout__toggle--qty{% endif %}" aria-expanded="false" aria-controls="{{ unique }}-select-quantity" aria-labelledby="{{ unique }}-select-quantity-label" data-popout-toggle data-popout-quantity>
+          <span class="select-popout__value" data-popout-text data-quantity-select>1</span>
+          {%- render 'icon-select' -%}
+        </button>
+
+        <div id="{{ unique }}-select-quantity" class="select-popout__list" data-popout-list>
+          <ul class="select-popout__list__scroll" data-scroll-lock-scrollable>
+            {%- for idx in (1..10) -%}
+              <li class="select-popout__item{% if forloop.index == 1 %} select-popout__item--current{% endif %}">
+                <a class="select-popout__option" href="#" {% if forloop.index == 1 %}aria-current="true"{% endif %} data-value="{{ forloop.index }}" data-popout-option>
+                  <span>{{ forloop.index }} {% if forloop.last %}+{% endif %}</span>
+                </a>
+              </li>
+            {%- endfor -%}
+          </ul>
+        </div>
+      </popout-select>
+    {%- endif -%}
+
+    <quantity-counter class="quantity-selector" data-quantity-holder>
+      <label for="product-quantity-buttons-{{ section.id }}" class="label-hidden">{{ 'products.product.quantity.quantity' | t }}</label>
+
+      <button type="button" class="quantity__btn quantity__btn--decrease" data-quantity-minus data-quantity-button tabindex="0" title="{{ 'general.accessibility.decrease' | t }} - {{ product.title | strip_html -}}">
+        <span class="visually-hidden">{{ 'general.accessibility.decrease' | t }}</span>
+        {%- render 'icon-toggle-minus' -%}
+      </button>
+
+      <input
+        class="quantity__selector quantity__input"
+        type="number"
+        name="quantity"
+        id="product-quantity-buttons-{{ section.id }}"
+        data-quantity-field
+        data-cart-quantity="{{ cart_qty }}"
+        data-min="{{ current_variant.quantity_rule.min }}"
+        min="{{ current_variant.quantity_rule.min }}"
+        {% if current_variant.quantity_rule.max != null %}
+          data-max="{{ current_variant.quantity_rule.max }}"
+          max="{{ current_variant.quantity_rule.max }}"
+        {% endif %}
+        step="{{ current_variant.quantity_rule.increment }}"
+        value="{{ current_variant.quantity_rule.min }}"
+        aria-label="quantity"
+        autocomplete="off"
+        title="{{- 'products.product.quantity.quantity' | t }} - {{ product.title | strip_html -}}"
+        pattern="[0-9]*"
+        form="{{ product_form_id }}" />
+
+      <button type="button" class="quantity__btn quantity__btn--increase" data-quantity-plus data-quantity-button tabindex="0" title="{{- 'general.accessibility.increase' | t }} - {{ product.title | strip_html -}}">
+        <span class="visually-hidden">{{ 'general.accessibility.increase' | t }}</span>
+        {%- render 'icon-toggle-plus' -%}
+      </button>
+    </quantity-counter>
+
+    <div class="quantity__rules caption hidden" id="Quantity-Rules-{{ unique }}" data-quantity-rules>
+      {%- if current_variant.quantity_rule.increment > 1 -%}
+        <hr class="hr--full">
+        {{- 'products.product.quantity.multiples_of' | t: quantity: current_variant.quantity_rule.increment -}}
+        </hr>
+      {%- endif -%}
+      {%- if current_variant.quantity_rule.min > 1 -%}
+        <hr class="hr--full">
+        {{- 'products.product.quantity.minimum_of' | t: quantity: current_variant.quantity_rule.min -}}
+        </hr>
+      {%- endif -%}
+      {%- if current_variant.quantity_rule.max != null -%}
+        <hr class="hr--full">
+        {{- 'products.product.quantity.maximum_of' | t: quantity: current_variant.quantity_rule.max -}}
+        </hr>
+      {%- endif -%}
+    </div>
+  </div>
+{%- endcapture -%}
+
+{%- capture form_fields -%}
+  {%- if is_quick_view -%}{%- comment -%}
+  Determine if current option matches siblings handle translations
+  Inherited variables:
+    - product: {Object} Product object.
+    - section: {Object} the current Section this code block belongs to.
+    - option_name_handle_separator: {String} handle option.name surrounded by commas
+  Returns variables:
+    - hide_sib_option: {Boolean}
+    - is_current_product_in_siblings: {Boolean}
+{%- endcomment -%}
+
+{%- liquid
+  assign sib_options_count = 0
+  assign hide_sib_option = false
+  assign sib_translation = 'general.siblings.swatches' | t
+  assign sib_translation_string = sib_translation | remove: '  ' | replace: ', ', ',' | replace: ' ,', ',' | replace: ',', '____' | handle | replace: '____', ',' | append: ',' | prepend: ','
+
+  if sib_translation_string contains option_name_handle_separator
+    assign sib_options = product.options_with_values | where: 'name', option.name
+    assign sib_options_count = sib_options[0].values.size
+  endif
+  if sib_options_count == 1
+    assign hide_sib_option = true
+  endif
+
+  assign is_current_product_in_siblings = false
+
+  if metaobjects[settings.theme_siblings] != blank
+    for entry in metaobjects[settings.theme_siblings].values
+      assign sibling_products = entry.product_list.value
+      assign has_siblings = sibling_products | has: 'id', product.id
+
+      if has_siblings and sibling_products != blank
+        assign is_current_product_in_siblings = true
+        break
+      endif
+    endfor
+  endif
+-%}
+{% if is_current_product_in_siblings %}
+      {% render 'product-siblings',
+        product: product,
+        block: block,
+        animation_attributes: animation_attributes,
+        label_text_caps: label_text_caps,
+        is_quick_view: true
+      %}
+    {% endif %}
+  {%- endif -%}
+
+  {%- unless product.has_only_default_variant -%}
+    {%- assign selects_counter = 0 -%}
+    <variant-selects
+      class="product__selectors"
+      id="variant-selects-{{ unique }}"
+      data-section="{{ section_id }}"
+      data-product-options
+    >
+      {%- assign color_swatches_type = settings.color_swatches_type -%}
+      {%- unless is_quick_view -%}
+        {%- liquid
+          assign color_options_count = 0
+          assign animation_order_0 = animation_order
+          assign animation_order_1 = animation_order | plus: 1
+          assign animation_order_2 = animation_order | plus: 2
+          assign color_index = 0
+        -%}
+
+        {%- for option in product.options_with_values -%}
+          {%- assign option_name_handle_separator = option.name | handle | prepend: ',' | append: ',' -%}{%- liquid
+  assign is_swatch_option = false
+  assign is_native_swatch_option = false
+
+  comment
+    Determine if current option matches swatch handle translations
+  endcomment
+  assign swatch_translation = 'general.swatches.color' | t
+  assign color_translation_string = swatch_translation | remove: '  ' | replace: ', ', ',' | replace: ' ,', ',' | replace: ',', '____' | handle | replace: '____', ',' | append: ',' | prepend: ','
+
+  if color_translation_string contains option_name_handle_separator
+    if color_swatches_type == 'theme'
+      assign is_swatch_option = true
+    endif
+  endif
+
+  if color_swatches_type == 'native'
+    for value in option.values
+      if value.swatch
+        assign is_native_swatch_option = true
+        break
+      endif
+    endfor
+  endif
+-%}{%- comment -%}This functionality checks if variant options contain color. In the first case, check how many colors you have already. The second case set animations depending on the current index{%- endcomment -%}
+          {%- liquid
+            if is_swatch_option or is_native_swatch_option
+              case color_options_count
+                when 0
+                  case forloop.index0
+                    when 1
+                      assign animation_order_0 = animation_order | plus: 1
+                      assign animation_order_1 = animation_order
+                    when 2
+                      assign animation_order_0 = animation_order | plus: 1
+                      assign animation_order_1 = animation_order | plus: 2
+                      assign animation_order_2 = animation_order
+                  endcase
+                when 1
+                  if forloop.index0 == 2
+                    if color_index == 0
+                      assign animation_order_1 = animation_order | plus: 2
+                      assign animation_order_2 = animation_order | plus: 1
+                    else
+                      assign animation_order_0 = animation_order | plus: 2
+                      assign animation_order_2 = animation_order | plus: 1
+                    endif
+                  endif
+              endcase
+              assign color_options_count = color_options_count | plus: 1
+              assign color_index = forloop.index0
+            endif
+          -%}
+        {%- endfor -%}
+      {%- endunless -%}
+
+      {%- for option in product.options_with_values -%}
+        {%- comment -%} Use select over radio for long inputs and mismatched lengths {%- endcomment -%}
+
+        {%- assign option_name_handle_separator = option.name | handle | prepend: ',' | append: ',' -%}
+        {%- assign current_option_position = option.position | prepend: 'option' -%}{%- liquid
+  assign is_swatch_option = false
+  assign is_native_swatch_option = false
+
+  comment
+    Determine if current option matches swatch handle translations
+  endcomment
+  assign swatch_translation = 'general.swatches.color' | t
+  assign color_translation_string = swatch_translation | remove: '  ' | replace: ', ', ',' | replace: ' ,', ',' | replace: ',', '____' | handle | replace: '____', ',' | append: ',' | prepend: ','
+
+  if color_translation_string contains option_name_handle_separator
+    if color_swatches_type == 'theme'
+      assign is_swatch_option = true
+    endif
+  endif
+
+  if color_swatches_type == 'native'
+    for value in option.values
+      if value.swatch
+        assign is_native_swatch_option = true
+        break
+      endif
+    endfor
+  endif
+-%}{%- unless is_quick_view -%}{%- comment -%}
+  Determine if current option matches siblings handle translations
+  Inherited variables:
+    - product: {Object} Product object.
+    - section: {Object} the current Section this code block belongs to.
+    - option_name_handle_separator: {String} handle option.name surrounded by commas
+  Returns variables:
+    - hide_sib_option: {Boolean}
+    - is_current_product_in_siblings: {Boolean}
+{%- endcomment -%}
+
+{%- liquid
+  assign sib_options_count = 0
+  assign hide_sib_option = false
+  assign sib_translation = 'general.siblings.swatches' | t
+  assign sib_translation_string = sib_translation | remove: '  ' | replace: ', ', ',' | replace: ' ,', ',' | replace: ',', '____' | handle | replace: '____', ',' | append: ',' | prepend: ','
+
+  if sib_translation_string contains option_name_handle_separator
+    assign sib_options = product.options_with_values | where: 'name', option.name
+    assign sib_options_count = sib_options[0].values.size
+  endif
+  if sib_options_count == 1
+    assign hide_sib_option = true
+  endif
+
+  assign is_current_product_in_siblings = false
+
+  if metaobjects[settings.theme_siblings] != blank
+    for entry in metaobjects[settings.theme_siblings].values
+      assign sibling_products = entry.product_list.value
+      assign has_siblings = sibling_products | has: 'id', product.id
+
+      if has_siblings and sibling_products != blank
+        assign is_current_product_in_siblings = true
+        break
+      endif
+    endfor
+  endif
+-%}
+{%- endunless -%}{%- comment -%}
+  Determine if current option matches size handle translations
+  Inherited variables:
+    - option_name_handle_separator: {String} handle option.name surrounded by commas
+  Returns variables:
+    - is_size_option: {Boolean}
+{%- endcomment -%}
+
+{%- liquid
+  assign is_size_option = false
+  assign size_translation = 'general.size_chart.size' | t
+  assign translation_string = size_translation | remove: '  ' | replace: ', ', ',' | replace: ' ,', ',' | replace: ',', '____' | handle | replace: '____', ',' | append: ',' | prepend: ','
+
+  if translation_string contains option_name_handle_separator
+    assign is_size_option = true
+  endif
+-%}{%- comment -%}
+  Determine if current option should show images
+{%- endcomment -%}
+
+{%- liquid
+  if settings.show_variant_image
+    assign has_variant_option_image = false
+    assign color_swatch_variant_image = false
+
+    assign variant_option_image_translation = 'products.product.variant_option_image' | t
+    assign translation_string_variant_option_image = variant_option_image_translation | remove: '  ' | replace: ', ', ',' | replace: ' ,', ',' | replace: ',', '____' | handle | replace: '____', ',' | append: ',' | prepend: ','
+
+    if translation_string_variant_option_image contains option_name_handle_separator
+      assign has_variant_option_image = true
+    endif
+
+    if color_translation_string contains translation_string_variant_option_image
+      assign color_swatch_variant_image = true
+    endif
+  endif
+-%}{%- liquid
+          assign size_options_less_two = false
+          assign show_size_guide_as_label = false
+          if show_size_guide and is_size_option and size_chart_button_as_label
+            assign show_size_guide_as_label = true
+
+            if option.values.size <= 2
+              assign size_options_less_two = true
+            endif
+          endif
+
+          assign longest_value = 0
+          assign shortest_value = 100
+          for value in option.values
+            if value.size > longest_value
+              assign longest_value = value.size
+            endif
+
+            if value.size < shortest_value
+              assign shortest_value = value.size
+            endif
+          endfor
+
+          assign flexible = true
+          assign chars_diff = longest_value | minus: shortest_value
+          if chars_diff < 5 and longest_value < 6
+            assign flexible = false
+          endif
+
+          assign enable_variant_boxes = false
+          if variants_style == 'boxes' or variants_style == 'auto' and longest_value < 16
+            assign enable_variant_boxes = true
+          endif
+
+          capture selector_wrapper_class
+            echo 'selector-wrapper'
+            if enable_variant_boxes
+              echo ' selector-wrapper--boxes'
+
+              unless has_variant_option_image or flexible or is_swatch_option or is_native_swatch_option
+                echo ' selector-wrapper--grid'
+
+                if size_options_less_two
+                  echo ' selector-wrapper--grid-small'
+                endif
+              endunless
+            endif
+
+            if is_swatch_option or is_native_swatch_option
+              echo ' selector-wrapper--swatches'
+            endif
+
+            if hide_sib_option and is_current_product_in_siblings
+              echo ' hidden'
+            endif
+          endcapture
+
+          assign animation_order_variable = 'animation_order_' | append: forloop.index0
+        -%}
+
+        <div class="{{ selector_wrapper_class }}"
+          data-selector-wrapper
+          data-option-position="{{ option.position }}"
+          {% if animations_enabled %}
+            data-aos="hero"
+            data-aos-anchor="{{ animation_anchor }}"
+            data-aos-order="{{ [animation_order_variable] }}"
+          {% endif %}>
+          {%- if enable_variant_boxes or is_swatch_option or is_native_swatch_option -%}
+            {%- liquid
+              assign current_value = current_variant.options[forloop.index0]
+
+              capture radio_fieldset_class
+                echo 'radio__fieldset'
+                echo ' radio__fieldset--' | append: settings.color_swatches_product_style
+
+                if show_size_guide_as_label
+                  echo ' radio__fieldset--sizeguide'
+                endif
+
+                if has_variant_option_image
+                  echo ' radio__fieldset--variant-option-image'
+
+                  if settings.variant_image_style == 'stacked'
+                    echo ' radio__fieldset--variant-option-image-stacked'
+                  else
+                    echo ' radio__fieldset--variant-option-image-inline'
+                  endif
+                endif
+              endcapture
+
+              assign option_name_label = option.name | escape_once
+              if label_text_caps
+                assign option_name_label = option_name_label | replace: 'ß', '<span style="text-transform: lowercase;">ß</span>'
+              endif
+
+              assign has_swatches = false
+              if is_swatch_option or is_native_swatch_option
+                unless color_swatch_variant_image and show_variant_image
+                  assign has_swatches = true
+                endunless
+              endif
+            -%}
+
+            {% if has_swatches %}
+              <swatches-component>
+            {% endif %}
+
+            <fieldset class="{{ radio_fieldset_class }}">
+              <legend class="radio__legend"{% if has_swatches %} data-swatches-label{% endif %}>
+                <span class="radio__legend__label label-typography">{{ option_name_label }}</span>
+                {%- if show_size_guide_as_label -%}{{- size_chart_button -}}{%- endif -%}
+              </legend>
+
+              <div class="radio__buttons" data-variant-buttons>
+                {%- for value in option.values -%}
+                  {%- capture input_id -%}{{ unique }}-{{ product.id }}-{{ option.name | escape_once }}-{{ value | handle }}{%- endcapture -%}
+
+                  {% render 'product-option-value',
+                      product: product,
+                      option: option,
+                      value: value,
+                      current_option_position: current_option_position,
+                      input_id: input_id,
+                      product_form_id: product_form_id,
+                      is_swatch_option: is_swatch_option,
+                      is_native_swatch_option: is_native_swatch_option,
+                      show_variant_image: show_variant_image,
+                      color_swatch_variant_image: color_swatch_variant_image,
+                      has_variant_option_image: has_variant_option_image
+                    %}
+                {%- endfor -%}
+              </div>
+            </fieldset>
+            {%- if is_swatch_option or is_native_swatch_option -%}
+              <button type="button" class="btn btn--text swatch__more" aria-expanded="false" aria-controls="CollectionFilterActions--product-type" data-swatches-more>
+                <span>{{ 'products.product.show_more' | t }}</span>
+                <span>{{ 'products.product.show_less' | t }}</span>
+              </button>
+            {%- endif -%}
+            {% if has_swatches %}
+              </swatches-component>
+            {% endif %}
+          {%- else -%}
+            {%- assign selects_counter = selects_counter | plus: 1 -%}
+            <div class="select__fieldset">
+              {%- capture input_id -%}{{ unique }}-{{ product.id }}-option-{{ option.position }}{%- endcapture -%}
+              <div class="select__label label-typography" id="{{ unique }}-select-{{ option.name | handle }}-label">
+                {%- liquid
+                  if show_size_guide_as_label
+                    echo size_chart_button
+                  else
+                    assign option_name_label = option.name | escape_once
+                    if label_text_caps
+                      assign option_name_label = option_name_label | replace: 'ß', '<span style="text-transform: lowercase;">ß</span>'
+                    endif
+                    echo option_name_label
+                  endif
+                -%}
+              </div>
+
+              <popout-select class="select-popout" data-popout-prevent="true">
+                <button
+                  type="button"
+                  class="select-popout__toggle"
+                  aria-expanded="false"
+                  aria-controls="{{ unique }}-select-{{ option.name | handle }}"
+                  aria-labelledby="{{ unique }}-select-{{ option.name | handle }}-label"
+                  data-select-soldout=" - {{ 'products.product.sold_out' | t }}"
+                  data-select-unavailable=" - {{ 'products.product.unavailable' | t }}"
+                  data-popout-toggle
+                >
+                  <span class="select-popout__value" data-popout-text>{{ option.selected_value }}</span>
+                  {%- render 'icon-select' -%}
+                </button>
+
+                <div id="{{ unique }}-select-{{ option.name | handle }}" class="select-popout__list" data-popout-list>
+                  <ul class="select-popout__list__scroll" data-scroll-lock-scrollable>
+                    {%- for value in option.values -%}
+                      <li
+                        class="select-popout__item {% if option.selected_value == value %}select-popout__item--current{% endif %}"
+                        id="{{ input_id }}"
+                        value="{{ value | escape }}"
+                        {% if value.selected %}
+                          selected="selected"
+                        {% endif %}
+                        data-product-url="{{ value.product_url }}"
+                        data-option-value-id="{{ value.id }}"
+                      >
+                        <a
+                          class="select-popout__option{% unless value.available %} unavailable{% endunless %}"
+                          href="#"
+                          {% if option.selected_value == value %}aria-current="true"{% endif %}
+                            data-value="{{ value | escape_once }}"
+                            data-popout-option
+                            data-select-soldout=" - {{ 'products.product.sold_out' | t }}"
+                            data-select-unavailable=" - {{ 'products.product.unavailable' | t }}"
+                          >
+                          <span>
+                            {{ value | escape_once }}
+                          </span>
+                        </a>
+                      </li>
+                    {%- endfor -%}
+                  </ul>
+                </div>
+
+                {%- liquid
+                  assign selected_option_value_id = ''
+                  assign selected_option_product_url = ''
+                  for val in option.values
+                    if val.selected
+                      assign selected_option_value_id = val.id
+                      assign selected_option_product_url = val.product_url
+                      break
+                    endif
+                  endfor
+                -%}
+                <input
+                  form="{{ product_form_id }}"
+                  type="hidden"
+                  name="options[{{ option.name | escape }}]-{{ unique }}"
+                  id="{{ input_id }}"
+                  value="{{ option.selected_value | escape }}"
+                  data-popout-input
+                  data-single-option-selector
+                  data-index="option{{ option.position }}"
+                  data-option-value-id="{{ selected_option_value_id }}"
+                  data-product-url="{{ selected_option_product_url }}"
+                >
+              </popout-select>
+            </div>
+          {%- endif -%}
+        </div>
+      {%- endfor -%}
+      {%- assign animation_order = animation_order | plus: product.options_with_values.size -%}
+      <script type="application/json" data-selected-variant>
+        {{ product.selected_or_first_available_variant | json }}
+      </script>
+    </variant-selects>
+  {%- endunless -%}
+{%- endcapture -%}
+
+{{- form_fields -}}
+
+{%- if gift_card_recipient_feature_active -%}
+    {%- render 'gift-card-recipient-form',
+        product: product,
+        form: form,
+        section: section,
+        animations_enabled: animations_enabled,
+        animation_order: animation_order,
+        animation_anchor: animation_anchor
+    -%}
+    {%- assign animation_order = animation_order | plus: 1 -%}
+{%- endif -%}
+
+{%- if show_quantity -%}
+    <div
+        class="selector-wrapper selector-wrapper--qty"
+        data-selector-wrapper
+        {% if animations_enabled %}
+            data-aos="hero"
+            data-aos-anchor="{{ animation_anchor }}"
+            data-aos-order="{{ animation_order }}"
+            {%- assign animation_order = animation_order | plus: 1 -%}
+        {% endif %}
+    >
+        {{ quantity_selector }}
+    </div>
+{%- endif -%}
+
+{% if show_pattern_product %}
+    {% if product.metafields.custom.sugerowana_wloczka_dla_wzoru != blank %}
+        {% assign pattern_product = product.metafields.custom.sugerowana_wloczka_dla_wzoru.value
+            | first
+        %}
+        {% if pattern_product.available %}
+            <span class="label-typography">
+                {{- block.settings.pattern_product_title -}}
+            </span>
+            <div class="pattern-product">
+                <div class="flex items-start gap-4">
+                    <label
+                        class="label-typography flex cursor-pointer items-center gap-2"
+                        for="pattern_product"
+                    >
+                        <input
+                            type="checkbox"
+                            class="checkbox"
+                            name="pattern_product"
+                            id="pattern_product"
+                            value="1"
+                            data-pattern-product-price="{{ pattern_product.price }}"
+                            data-pattern-product-formatted-price="{{ pattern_product.price | money }}"
+                            data-pattern-product-id="{{ pattern_product.id }}"
+                            data-pattern-product-variants-available="{{ pattern_product.variants.available }}"
+                        >
+                        <div class="pattern-product__image w-[80px]">
+                            {%- liquid
+                                assign image = pattern_product.featured_media
+                                assign image_alt = image.alt | escape | default: pattern_product.title
+                                assign placeholder_svg = 'product-1'
+                                assign sizes = img_sizes | default: 'auto'
+                                assign image_widths = '200, 225, 250, 275, 300, 325, 350, 375, 400'
+
+                                render 'image-fill', classes: 'w-[80px] rounded-full', aspect_ratio: 1, is_background: false, img_object: image, widths: image_widths, sizes: sizes, placeholder_svg: placeholder_svg, alt: image_alt
+                            -%}
+                        </div>
+
+                        <div class="flex flex-col gap-2">
+                            <div class="pattern-product__title flex flex-col gap-2">
+                                <span>
+                                    {{- pattern_product.title -}}
+                                </span>
+                                <div class="flex items-center gap-2">
+                                    <span class="">Sugerowana ilość: 1 x </span>
+                                    {% render 'product-price',
+                                        product: pattern_product,
+                                        namespace: 'pattern-product'
+                                    %}
+                                </div>
+                            </div>
+                        </div>
+                    </label>
+                </div>
+            </div>
+        {% endif %}
+    {% endif %}
+{% endif %}

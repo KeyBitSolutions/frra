@@ -1,0 +1,50 @@
+{%- liquid
+  assign empty_cart_buttons = settings.empty_cart_buttons
+  assign empty_cart_button_text = settings.empty_cart_button_text
+  assign empty_cart_button_link = settings.empty_cart_button_link | default: routes.all_products_collection_url
+  assign cart_button_style = settings.cart_button_style
+  assign cart_button_size = settings.cart_button_size
+  assign cart_button_color = settings.cart_button_color
+  assign animation_order = animation_order | default: 1
+
+  assign button_advanced_class = 'btn--advanced'
+  if cart_button_style != 'btn--text'
+    assign button_advanced_class = button_advanced_class | append: ' btn--advanced-width-height'
+  endif
+-%}
+
+{%- if empty_cart_button_text != blank or linklists[empty_cart_buttons].links.size > 0 -%}
+  <div class="cart-empty-buttons{%- render 'button-fallback-classes', primary_color: cart_button_color, section_bg_color: bg_color -%}">
+    {%- if empty_cart_button_text != blank -%}
+      <div class="cart-empty-buttons__item{% if cart_button_style == 'btn--text' %} cart-empty-buttons__item--text{% endif %}"
+        {% if animations_enabled %}
+          data-aos="hero"
+          data-aos-anchor="{{ aos_anchor }}"
+          data-aos-order="{{ animation_order }}"
+          {%- assign animation_order = animation_order | plus: 1 -%}
+        {% endif %}>
+        <a href="{{ empty_cart_button_link }}" class="btn {{ cart_button_style }} {{ cart_button_color }} {{ cart_button_size }} {{ button_advanced_class }}">
+          <hover-button></hover-button>
+          {{- empty_cart_button_text -}}
+        </a>
+      </div>
+    {%- endif -%}
+
+    {%- if linklists[empty_cart_buttons].links.size > 0 -%}
+      {%- for link in linklists[empty_cart_buttons].links limit: 3 -%}
+        <div class="cart-empty-buttons__item{% if cart_button_style == 'btn--text' %} cart-empty-buttons__item--text{% endif %}"
+          {% if animations_enabled %}
+            data-aos="hero"
+            data-aos-anchor="{{ aos_anchor }}"
+            data-aos-order="{{ animation_order }}"
+            {%- assign animation_order = animation_order | plus: 1 -%}
+          {% endif %}>
+          <a href="{{ link.url }}" class="btn {{ cart_button_style }} {{ cart_button_color }} {{ cart_button_size }} {{ button_advanced_class }}">
+            <hover-button></hover-button>
+            {{- link.title | strip_html | escape -}}
+          </a>
+        </div>
+      {%- endfor -%}
+    {%- endif -%}
+  </div>
+{%- endif -%}

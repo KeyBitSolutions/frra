@@ -1,0 +1,75 @@
+{%- comment -%}
+  Renders a rotating circle text element
+
+  Accepts:
+  - unique_id: {String} You must pass a unique id (required)
+  - show: {Boolean} Shows the circle element. Default: true
+  - hide_on_mobile: {Boolean} Hides the element on mobile. Default: false
+  - text: {String} text (required)
+  - image: {Object} Optional image that replaces the circular text when provided
+  - rotate_animation: {String} Turn the animation on/off or choose to animate it on scroll. Accepts 'none', 'rotate' and 'rotate-on-scroll' values
+  - size: {Number} Changes the size of the circle. Default: 150
+
+  Usage:
+  {% render 'circle-text', unique_id: unique_id, show: true, hide_on_mobile: hide_on_mobile, text: text, image: image, rotate_animation: rotate_animation, size: size%}
+{%- endcomment -%}
+
+{%- liquid
+  assign rotate_animation = rotate_animation | default: 'none'
+  assign size = size | default: 150
+  assign retina_size = size | times: 2
+
+  capture classes
+    if hide_on_mobile
+      echo ' hidden-sm'
+    endif
+
+    if rotate_animation == 'none' and image == blank
+      echo ' is-static-text'
+    elsif rotate_animation == 'rotate'
+      echo ' is-rotating'
+    endif
+  endcapture
+-%}
+
+{%- unless show == false -%}
+  {%- if image != blank or text != blank -%}
+    <div
+      class="circle-text{{ classes }}"
+      data-circle-text
+    >
+      {% if rotate_animation == 'rotate-on-scroll' %}
+        <script src="{{ 'scrollable-parallax.js' | asset_url }}" defer="defer"></script>
+        <parallax-element data-parallax-animation="circle"></parallax-element>
+      {% endif %}
+
+      <div class="circle-text__content">
+        {%- if image != blank -%}
+          {%- liquid
+            assign image_widths = size | append: ', ' | append: retina_size
+            assign image_alt = image.alt | escape
+            assign sizes = '(min-width: 768px) ' | append: size | append: 'px, 125px'
+
+            render 'image', image: image, width: retina_size, widths: image_widths, sizes: sizes, alt: image_alt, cover: false
+          -%}
+        {%- else -%}
+          <svg viewBox="0 0 100 100">
+            <defs>
+              <path id="circle-text-{{- unique_id -}}" d="
+                M 15, 50
+                a 35,35 0 1,1 70,0
+                a 35,35 0 1,1 -70,0
+              "></path>
+            </defs>
+
+            <text dy="0" dx="0" fill="currentColor">
+              <textPath xlink:href="#circle-text-{{- unique_id -}}">
+                {{- text -}}
+              </textPath>
+            </text>
+          </svg>
+        {%- endif -%}
+      </div>
+    </div>
+  {%- endif -%}
+{%- endunless -%}

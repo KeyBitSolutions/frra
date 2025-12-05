@@ -1,0 +1,310 @@
+{%- comment -%}
+  Renders list of collections/buttons  in grid layout
+
+  Accepts:
+  - collection: {Object} collection (required)
+  - custom_collection_image: {Object} Replace collection's image
+  - custom_bg_color: {String} Set a background color
+  - animation_delay: {Number} Factor based on grid items per row
+  - animation_anchor: {String} Link the animation to an ID
+  - carousel: {Boolean} Show the collections in carousel. Default: true
+  - image_shape: {String} Add custom image shape: circle, square or a rectangle
+  - block_shopify_attributes: {Object} Shopify attributes for block
+  - placeholder_index: {Integer} Alternating placeholder images
+  - text_over_image: {Boolean} Show text over images
+  - text_color: {String} Add custom text color
+  - enable_product_count: {Boolean} Show numbers of products in the collection
+  - unique: {String} Section or Block id
+   - "Buttons list" section specific:
+    - button_link: {String} link (required)
+    - border_color: {String} Add custom border color
+    - border_radius: {String} Add border radius setting: square, rounded, pill
+    - type_style: {String} Add custom text font
+    - letter_spacing: {Number} Add custom text letter spacing
+    - section_buttons: {Boolean} Section is Buttons list
+      animations_enabled: {Boolean} Enable/disable animations for buttons list section
+
+  Usage:
+  {%- render 'collection-grid-item', collection: collection, custom_collection_image: custom_collection_image, custom_bg_color: custom_bg_color, animation_delay: animation_delay, animation_anchor: animation_anchor, carousel: carousel, image_shape: image_shape, block_shopify_attributes: block.shopify_attributes, placeholder_index: placeholder_index, text_over_image: text_over_image, text_color: text_color, border_color: border_color, border_radius: border_radius, type_style: type_style, letter_spacing: letter_spacing, unique: unique, section_buttons: section_buttons -%}
+
+  Example:
+  {%- render 'collection-grid-item', collection: collections[block.settings.collection], custom_collection_image: block.settings.custom_collection_image, unique: block.id -%}
+{%- endcomment -%}
+
+{%- liquid
+  assign section_width = section.settings.width
+  assign columns = columns | default: section.settings.collections_per_row | plus: 0
+  assign columns_mobile = columns_mobile | default: 1
+
+  if letter_spacing
+    assign letter_spacing = letter_spacing | divided_by: 1000.0 | append: 'em'
+  endif
+
+  case columns
+    when 1
+      assign size_desktop = 'one-whole'
+    when 2
+      assign size_desktop = 'one-half'
+    when 3
+      assign size_desktop = 'one-third'
+    when 4
+      assign size_desktop = 'one-quarter'
+    when 5
+      assign size_desktop = 'one-fifth'
+    when 6
+      assign size_desktop = 'one-sixth'
+  endcase
+
+  case columns_mobile
+    when 1
+      assign size_mobile = 'mobile--one-whole'
+    when 2
+      assign size_mobile = 'mobile--one-half'
+  endcase
+
+  assign wrapper_width_xlg = '100vw - 120px'
+
+  if section_width == 'wrapper'
+    assign wrapper_width_xlg = '1440px - 120px'
+  endif
+
+  assign gutter_space = columns | minus: 1 | times: 20 | append: 'px'
+
+  assign img_width_xlg = 'calc((' | append: wrapper_width_xlg | append: ' - ' | append: gutter_space | append: ') / ' | append: columns | append: ')'
+  assign img_width_lg = 'calc((100vw - 120px - ' | append: gutter_space | append: ') / ' | append: columns | append: ')'
+  assign img_width_md = 'calc((100vw - 40px - 20px) / 2)'
+  if carousel and columns > 4
+    assign img_width_md = 'calc(((100vw - 40px) * 0.9 - 60px) / 4)'
+  elsif carousel
+    assign img_width_md = 'calc(((100vw - 40px) * 0.9 - 20px) / 2)'
+  endif
+
+  assign img_width_sm = 'calc((100vw - 40px - 20px) / ' | append: columns_mobile | append: ')'
+  assign sizes = '(min-width: 1440px) ' | append: img_width_xlg | append: ', (min-width: 1024px) ' | append: img_width_lg | append: ', (min-width: 768px) ' | append: img_width_md | append: ', ' | append: img_width_sm
+
+  if custom_collection_image
+    assign image = custom_collection_image
+  elsif collection.image
+    assign image = collection.image
+  elsif collection.products.first and collection.products.first.featured_media.preview_image
+    assign image = collection.products.first.featured_media.preview_image
+  endif
+
+  assign aspect_ratio = 1 | divided_by: section.settings.image_aspect_ratio
+
+  if collection.title == blank
+    if heading != blank
+      assign collection_title = heading
+    else
+      assign collection_title = 'homepage.onboarding.collection_title' | t
+    endif
+    assign collection_url = button_link | default: '#!'
+  else
+    assign collection_title = heading | default: collection.title | strip_html | escape | truncatewords: 10
+    assign collection_url = collection.url
+  endif
+
+  assign placeholder_index = placeholder_index | default: 1
+
+  if custom_bg_color.alpha == 0.0 or custom_bg_color == blank
+    assign custom_bg_color = section.settings.bg_color
+
+    if custom_bg_color.alpha == 0.0 or custom_bg_color == blank
+      assign selected_color_scheme = section.settings.color_scheme | strip
+      assign custom_bg_color = settings.color_schemes[selected_color_scheme].settings.overlay
+    endif
+  endif
+
+  unless section_buttons or opacity_overlay
+    assign custom_bg_color = 'none'
+  endunless
+
+  assign show_bg_color = false
+  if custom_bg_color.alpha == 1
+    assign show_bg_color = true
+  endif
+
+  assign custom_bg_color_brightness = custom_bg_color | color_brightness | round
+  if custom_bg_color_brightness > 153
+    assign custom_bg_color_lighten_darken = custom_bg_color | color_darken: 10
+  else
+    assign custom_bg_color_lighten_darken = custom_bg_color | color_lighten: 20
+  endif
+
+  capture item_class
+    echo 'list-collections__item hover-scale'
+
+    if image_shape == 'circle'
+      echo ' list-collections__item--circle'
+    endif
+
+    if image_shape == 'square'
+      echo ' list-collections__item--square'
+    endif
+
+    if text_over_image
+      echo ' list-collections__item--over-image'
+    endif
+
+    if collection == empty
+      echo ' list-collections__item--onboarding'
+    endif
+
+    if carousel
+      echo ' carousel__item'
+    else
+      echo ' grid__item'
+    endif
+
+    echo ' ' | append: size_desktop
+    echo ' ' | append: size_mobile
+  endcapture
+
+  capture item_bg_class
+    echo 'list-collections__item__image-bg'
+  endcapture
+
+  capture content_position_class
+    if text_over_image
+      echo 'list-collections__item__content--overlayed'
+    else
+      echo 'list-collections__item__content--under'
+    endif
+  endcapture
+
+  assign unique = unique | default: block.id
+  assign id = 'listCollectionsItem--' | append: unique
+  assign selector_id = '#' | append: id
+
+  assign animation_delay = animation_delay | default: 0
+  assign aos_delay_default = animation_delay | times: 150
+  assign aos_delay = aos_delay | default: aos_delay_default
+  assign aos_anchor = animation_anchor | default: id | prepend: '#'
+  assign intersection_ratio = intersection_ratio | default: '0.3'
+-%}
+
+{%- if section_buttons -%}
+  {%- assign arrow_style = settings.arrow_style -%}
+  {%- assign line_thickness = settings.line_thickness -%}
+
+  {%- capture button_arrow -%}
+    {%- if arrow_style == 'chevron' and line_thickness == 'normal' -%}
+      {%- render 'icon-chevron-right' -%}
+    {%- elsif arrow_style == 'chevron' and line_thickness == 'bold' -%}
+      {%- render 'icon-chevron-right-bold' -%}
+    {%- elsif arrow_style == 'arrow' and line_thickness == 'normal' -%}
+      {%- render 'icon-arrow-right' -%}
+    {%- elsif arrow_style == 'arrow' and line_thickness == 'bold' -%}
+      {%- render 'icon-arrow-right-bold' -%}
+    {%- endif -%}
+  {%- endcapture -%}
+{%- else -%}
+  {%- assign animations_enabled = settings.animations_enabled -%}
+{%- endif -%}
+
+<div
+  class="{{ item_class }}"
+  id="{{ id }}"
+  {% if carousel %}
+    data-slide
+  {% endif %}
+  {% if animations_enabled %}
+    data-aos-intersection="{{ intersection_ratio }}"
+  {% endif %}
+  {% if block_shopify_attributes %}
+    {{ block_shopify_attributes }}
+  {% endif %}
+>
+  {%- style -%}
+    {% if text_color.alpha != 0.0 and text_color != blank %}
+      {{ selector_id }} { --text: {{ text_color }}; }
+    {% endif %}
+
+    {{ selector_id }} .list-collections__item__image-bg { --overlay: {{ custom_bg_color }}; }
+
+    {% if custom_bg_color.alpha == 0.0 %}
+      {{ selector_id }} .list-collections__item__image-bg:before { content: none; }
+    {% endif %}
+
+    {% if section_buttons %}
+      {{ selector_id }} .btn--primary {
+        {% if text_color.alpha != 0.0 and text_color != blank %}
+          --btn-text: {{ text_color }};
+        {% endif %}
+
+        {% if border_color.alpha != 0.0 and border_color != '' and border_color != blank %}
+          --btn-border: {{ border_color }};
+        {% endif %}
+
+        {% if custom_bg_color.alpha != 0.0 %}
+          --btn-bg: {{ custom_bg_color }};
+          --btn-bg-hover: {{ custom_bg_color_lighten_darken }};
+        {% endif %}
+
+        {% if border_radius %}
+          --radius: {{ border_radius }}px;
+        {% endif %}
+
+        {% if letter_spacing %}
+          --letter-spacing: {{ letter_spacing }};
+        {% endif %}
+      }
+    {% endif %}
+  {%- endstyle -%}
+
+  <a href="{{ collection_url }}" class="list-collections__item__outer{% if section_buttons %} btn--primary{% endif %}">
+    <div
+      class="list-collections__item__image"
+      data-product-media-container
+      {% if animations_enabled %}
+        data-aos="fade-up"
+        data-aos-anchor="{{ aos_anchor }}"
+        data-aos-delay="{{ aos_delay }}"
+      {% endif %}
+    >
+      {%- unless show_bg_color -%}
+        {%- liquid
+          capture placeholder_svg
+            if collection != empty and image == blank
+              echo 'image'
+            else
+              echo 'collection-' | append: placeholder_index
+            endif
+          endcapture
+
+          render 'image-fill', is_background: true, img_object: image, sizes: sizes, aspect_ratio: aspect_ratio, classes: item_bg_class, placeholder_svg: placeholder_svg
+        -%}
+      {%- else -%}
+        <div class="background-size-cover {{ item_bg_class }}"></div>
+      {%- endunless -%}
+    </div>
+
+    <div
+      class="list-collections__item__content {{ content_position_class }}"
+      {% if animations_enabled %}
+        data-aos="fade-up"
+        data-aos-anchor="{{ aos_anchor }}"
+        data-aos-delay="{{ aos_delay }}"
+      {% endif %}
+    >
+      <span class="h3 list-collections__item__title{% if type_style %} {{ type_style }}{% endif %}">
+        {{- collection_title -}}
+      </span>
+
+      {%- if enable_product_count -%}
+        {%- liquid
+          assign collection_all_products_count = collection.all_products_count | default: 10
+          assign collection_products_count = 'products.general.products_with_count' | t: count: collection_all_products_count
+        -%}
+
+        <span class="list-collections__item__products-count">
+          {{ collection_products_count }}
+        </span>
+      {%- endif -%}
+
+      {%- if section.settings.show_arrow -%}
+        {{ button_arrow }}
+      {%- endif -%}
+    </div>
+  </a>
+</div>

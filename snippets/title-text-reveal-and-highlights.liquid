@@ -1,0 +1,197 @@
+{% comment %}
+  Get a string from any richtext field and split it into rows with predetermined HTML tags.
+  Number of rows depends on the line breaks which are added from the richtext field, by the use of paragraphs, headings or bullet/numbered list tags.
+  Each row can be animated with a "cropped text reveal" style.
+  The string can also be modified to include enhanced text decorations.
+
+  Dependencies:
+    - title: {Object} Liquid object from settings that contains the heading that would be modified and rendered - `assign title = section.settings.title` (Required)
+    - title_attributes: {String} Capture all attributes of the title container, such as id, class, data attributes, etc. (Optional)
+    - text_reveal: {Boolean} Enable HTML modifications for text reveal cropping animations (Optional)
+    - has_text_highlight: {Boolean} A variable coming from "Enhanced text decorations options" logic (Required for highlights decorations)
+    - animation_anchor: {String} Hook for the AOS animation (Optional)
+    - animation_order: {Number} The number of ordered items in the section that set up animation delays (Optional)
+
+  Usage:
+  {% render 'title-text-reveal-and-highlights', title: title, title_attributes: title_attributes, text_reveal: true, has_text_highlight: has_text_highlight, animation_anchor: animation_anchor, animation_order: animation_order %}
+{% endcomment %}
+
+{%- liquid
+  assign title_attributes = title_attributes | default: ''
+  assign text_reveal = text_reveal | default: false
+  assign has_text_highlight = has_text_highlight | default: false
+  assign has_count_up = has_count_up | default: false
+  assign aos_anchor_default = section.id | prepend: '#'
+  assign animation_anchor = animation_anchor | default: aos_anchor_default
+  assign animation_order = animation_order | default: 1
+  assign animations_enabled = settings.animations_enabled
+
+  assign first_tag = title | split: '>' | first | replace: '<', '' | split: ' ' | first
+
+  # Handle metafield wrapper divs - extract inner content to avoid extra closing tags
+  assign title_for_processing = title
+
+  if first_tag == 'div' and title contains 'metafield'
+    # Metafield detected! Extract inner content to avoid extra closing tags
+    # Find and extract the inner content
+    # Use replace to remove the metafield wrapper
+    assign metafield_wrapper = title | split: '>' | first | append: '>'
+    assign content_after_wrapper = title | replace_first: metafield_wrapper, ''
+    assign inner_content_only = content_after_wrapper | split: '</div>' | first
+    assign title_for_processing = inner_content_only
+
+    # Re-detect the actual content tag
+    assign first_tag = title_for_processing | split: '>' | first | replace: '<', '' | split: ' ' | first
+  endif
+
+  assign list_items = false
+  if first_tag == 'ol' or first_tag == 'ul'
+    assign list_items = true
+  endif
+
+  # Modified HTML is wrapped in a container with a tag determined by the first encountered tag coming from the richtext field
+  assign opening_tag = '<' | append: first_tag | append: '>'
+  assign closing_tag = '</' | append: first_tag | append: '>'
+  assign first_tag_with_attrs = title_for_processing | split: '>' | first | append: '>'
+  assign line_break_markup_start = '<span class="text-highlight__break">'
+  assign line_break_markup_end = '</span>'
+  assign count_up_duration = count_up_duration | default: 100
+  capture count_up_attributes
+    echo 'data-count-up-duration="'
+    echo count_up_duration
+    echo '"'
+  endcapture
+
+  if has_count_up
+    assign text_count_up_start = '<text-count-up class="text-highlight__break" ' | append: count_up_attributes | append: '>'
+    assign text_count_up_end = '</text-count-up>'
+
+    assign line_break_markup_start = text_count_up_start
+    assign line_break_markup_end = text_count_up_end
+  endif
+  assign contains_stray_tags = false
+
+  # Update HTML tags of "text reveal cropping" and "line break" containers depending on first tag that's used in the richtext field
+  # Splitting title into lines and further modifying them depends on the starting (`tag_start`) and ending (`tag_end`) tags
+  if list_items
+    assign tag_start = '<li>'
+    assign tag_end = '</li>'
+    # Split title string into lines which are then modified below
+    assign title_lines = title_for_processing | replace: '<ul>', '' | replace: '</ul>', '' | replace: '<ol>', '' | replace: '</ol>', '' | split: tag_start
+    assign cropping_markup_start = '<li class="text-reveal__cropper">'
+    assign cropping_markup_end = '</li>'
+    unless animations_enabled and text_reveal
+      assign line_break_markup_start = '<li class="text-highlight__break">'
+      assign line_break_markup_end = '</li>'
+
+      if has_count_up
+        assign line_break_markup_start = line_break_markup_start | append: text_count_up_start
+        assign line_break_markup_end = text_count_up_end | append: line_break_markup_end
+      endif
+    endunless
+  else
+    assign title_sanitized = title_for_processing
+    assign tag_start = opening_tag
+    assign tag_end = closing_tag
+
+    # Handle edge cases where multiple HTML tags are inserted into the richtext field by unifying them into the first tag that's been used
+    # All of the markup is then wrapped in a '<div>' tag instead of keeping mixed tags
+    assign remaining_tags = ',<h1>,<h2>,<h3>,<h4>,<h5>,<h6>,<p>,'
+    assign remaining_opening_tags = remaining_tags | replace: opening_tag, '' | replace: ',,', ',' | split: ','
+    for remaining_opening_tag in remaining_opening_tags
+      unless remaining_opening_tag == ''
+        if title_sanitized contains remaining_opening_tag
+          assign contains_stray_tags = true
+          assign remaining_closing_tag = remaining_opening_tag | replace: '<', '</'
+          assign title_sanitized = title_sanitized | replace: remaining_opening_tag, opening_tag | replace: remaining_closing_tag, closing_tag
+        endif
+      endunless
+    endfor
+
+    # Split title string into rows which are then modified
+    assign title_lines = title_sanitized | split: tag_start
+    assign cropping_markup_start = '<span class="text-reveal__cropper">'
+    assign cropping_markup_end = '</span>'
+  endif
+
+  if contains_stray_tags
+    assign opening_tag = '<div>'
+    assign closing_tag = '</div>'
+  endif
+  # Insert all attributes of the wrapper container, such as id, class, data attributes, etc.
+  capture specific
+    echo ' ' | append: title_attributes | append: '>'
+  endcapture
+  # Insert opening HTML tag of the wrapping container
+  echo opening_tag | replace: '>', specific
+
+  # Modify each line of text to end up with a proper title split into rows
+  for line in title_lines
+    if line != blank
+      if animations_enabled and text_reveal
+        # Insert opening HTML tag of the text reveal cropping container
+        echo cropping_markup_start
+
+        # Add animation data attributes necessary for text reveal cropping animation
+        capture line_break_aos_attributes
+          echo ' data-aos="hero"'
+          echo ' data-aos-anchor="' | append: animation_anchor | append: '"'
+          echo ' data-aos-order="' | append: animation_order | append: '"'
+        endcapture
+
+        # Include opening HTML tag of the line break container
+        echo line_break_markup_start | replace: '>', line_break_aos_attributes | append: '>'
+      else
+        echo line_break_markup_start
+      endif
+
+      assign line_with_links = line | split: '<a'
+      assign line_mod = ''
+
+      # Insert markup necessary for text decorations with anchor tags
+      if line_with_links.size > 1 and has_text_highlight
+        for link_html_part in line_with_links
+          if link_html_part != blank
+            assign link_html_mod = link_html_part
+            if link_html_part contains ' href='
+              assign link_html_mod = link_html_part | prepend: '<a'
+            endif
+
+            if link_html_part contains 'text-highlight'
+              assign link_html_mod = link_html_mod | replace_first: '><text-highlight class="text-highlight', ' data-has-highlight><text-highlight class="text-highlight'
+            endif
+
+            assign line_mod = line_mod | append: link_html_mod
+          endif
+        endfor
+
+        # Remove excess stray tags resulting from the text splitting into lines
+        echo line_mod | replace: tag_end, ''
+      else
+        # Remove excess stray tags if there are no anchor tags in the line
+        echo line | replace: tag_end, ''
+      endif
+
+      # Insert closing HTML tag of the line break container
+      echo line_break_markup_end
+
+      if animations_enabled and text_reveal
+        # Insert closing HTML tag of the text reveal cropping container
+        echo cropping_markup_end
+
+        # Update animation order attribute to set up the sequential animation delays
+        unless forloop.last
+          assign animation_order = animation_order | plus: 1
+        endunless
+      endif
+    endif
+  endfor
+
+  # Keep track of animation order attribute and update if used in sections with such type of animation delays setup
+  if animations_enabled and text_reveal
+    assign animation_order = animation_order | plus: 1
+  endif
+
+  # Insert closing HTML tag of the wrapping container
+  echo closing_tag
+-%}

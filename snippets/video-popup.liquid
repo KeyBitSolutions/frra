@@ -1,0 +1,50 @@
+{%- liquid
+  assign video_link_downcase = video_link | downcase
+  assign video_type = ''
+  assign video_id = ''
+  assign video_parent_id = 'item-video-' | append: unique
+
+  if video_link contains 'vimeo.com'
+    assign video_type = 'vimeo'
+  elsif video_link contains 'youtube.com'
+    assign video_type = 'youtube'
+  elsif video_link contains 'youtu.be'
+    assign video_type = 'youtube'
+    assign youtube_shortlink = true
+  elsif video_link_downcase contains '.mp4'
+    assign video_type = 'native'
+  endif
+
+  assign link_array = video_link | split: '/'
+  assign id_with_params = link_array | last
+
+  if video_type == 'vimeo' or youtube_shortlink
+    comment
+      https://vimeo.com/[ID]?foo=bar&baz=boo
+      https://youtu.be/[ID]?foo=bar&baz=boo
+    endcomment
+    assign starts_with_id = id_with_params | split: '?'
+    assign video_id = starts_with_id | first
+  elsif video_type == 'youtube'
+    comment
+      https://youtube.com/watch?v=[ID]?foo=bar&baz=boo
+    endcomment
+    assign first_param = id_with_params | split: '&' | first
+    assign watch_then_id = first_param | split: '?'
+    assign equals_id = watch_then_id[1]
+    assign ends_with_id = equals_id | split: '='
+    assign video_id = ends_with_id | last
+  endif
+
+  if video_type == 'youtube'
+    capture video_link
+      echo 'https://www.youtube.com/watch?v=' | append: video_id
+    endcapture
+  elsif video_type == 'vimeo'
+    capture video_link
+      echo 'https://vimeo.com/' | append: video_id
+    endcapture
+  endif
+-%}
+
+<script src="{{ 'video-play.js' | asset_url }}" defer="defer"></script>

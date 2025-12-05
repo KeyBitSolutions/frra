@@ -1,0 +1,35 @@
+{%- liquid
+  assign loading_appearance = settings.loading_appearance
+  assign image = settings.loading_image
+  assign image_width = settings.loading_image_width
+
+  if image != blank
+    assign image_alt = image.alt | strip_html | escape
+    assign image_width_retina = image_width | times: 2
+    assign image_widths = image_width | append: ', ' | append: image_width_retina
+    assign sizes = image_width | append: 'px'
+  endif
+-%}
+
+<loading-overlay class="loading-overlay">
+  {%- unless loading_appearance == 'never' -%}
+    <div class="loader loader--image">
+      <div class="loader__image__holder">
+        {%- if image != blank -%}
+          {{ image | image_url: width: image_width_retina
+            | image_tag:
+            widths: image_widths,
+            sizes: sizes,
+            loading: 'eager',
+            fetchpriority: 'high',
+            preload: true,
+            alt: image_alt,
+            class: 'loader__image'
+          }}
+        {%- else -%}
+          <div class="loader__image loader__image--fallback"></div>
+        {%- endif -%}
+      </div>
+    </div>
+  {%- endunless -%}
+</loading-overlay>

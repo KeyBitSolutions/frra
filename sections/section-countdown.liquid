@@ -1,0 +1,1186 @@
+{%- comment -%} /sections/section-countdown.liquid {%- endcomment -%}
+
+{%- liquid
+  assign animations_enabled = settings.animations_enabled
+  assign section_width = section.settings.width
+
+  assign layout_style = section.settings.layout_style
+  assign text_alignment = section.settings.text_alignment
+  assign section_height = section.settings.height
+  assign enable_mobile_height = section.settings.enable_mobile_height
+  assign mobile_height = section.settings.mobile_height
+  assign image_desktop = section.settings.image
+  assign image_mobile = section.settings.image_mobile
+  assign overlay_type = section.settings.overlay_type
+
+  assign enable_zoom_animation = section.settings.enable_zoom_animation
+  assign color_scheme = 'color-' | append: section.settings.color_scheme
+
+  assign text_width = section.settings.text_width
+
+  assign section_id = 'sectionCountdown--' | append: section.id
+  assign section_selector_id = '#' | append: section_id
+  assign animation_order = 1
+  assign animation_anchor = section_selector_id
+  assign is_layout_inline = false
+  assign is_layout_stacked = false
+  assign has_image = false
+  assign timer_bg = false
+  assign large_digits = false
+  assign timer_last = false
+  assign modifiers = ''
+  assign hover_scale = ''
+
+  case layout_style
+    when 'inline'
+      assign modifiers = modifiers | append: ' countdown--inline'
+      assign is_layout_inline = true
+      assign modifiers = modifiers | append: ' countdown--inline-' | append: text_alignment
+    when 'stacked'
+      assign modifiers = modifiers | append: ' countdown--stacked'
+      assign is_layout_stacked = true
+  endcase
+
+  case text_width
+    when 'narrow'
+      assign modifiers = modifiers | append: ' countdown--content-narrow'
+    when 'normal'
+      assign modifiers = modifiers | append: ' countdown--content-normal'
+  endcase
+
+  if image_desktop != blank or image_mobile != blank
+    assign has_image = true
+  endif
+
+  assign main_heading = 'countdown.heading' | t
+  assign timer_block = section.blocks | map: 'type' | where: 'timer'
+  if timer_block != blank
+    assign has_timer = true
+  endif
+-%}
+
+{% if enable_zoom_animation %}
+  <script src="{{ 'scrollable-parallax.js' | asset_url }}" defer="defer"></script>
+{% endif %}
+
+{%- style -%}
+  [data-section-id="{{ section.id }}"] {
+    --PT: {{ section.settings.padding_top }}px;
+    --PB: {{ section.settings.padding_bottom }}px;
+    --min-height: {{ section_height }}px;
+    --custom-bg: {{ timer_bg }};
+  }
+
+  {% if enable_mobile_height and mobile_height != section_height %}
+    @media screen and (max-width: 767px) {
+      [data-section-id="{{ section.id }}"] { --min-height: {{ mobile_height }}px; }
+    }
+  {%- endif %}
+{%- endstyle -%}
+
+{%- for block in section.blocks -%}
+  {%- liquid
+    assign aos_order = animation_order | plus: forloop.index0
+
+    if block.type == 'heading'
+      unless block.settings.text == blank
+        assign main_heading = block.settings.text
+      endunless
+    endif
+  -%}
+
+  {%- if block.type == 'timer' -%}
+    {%- capture timer_markup -%}
+      {%- liquid
+        assign block_bg_opacity = block.settings.bg_opacity
+        assign block_bg_color = block.settings.bg_color
+      -%}{%- liquid
+  assign end_date = block.settings.end_date
+  assign end_time = block.settings.end_time
+  assign period = block.settings.period
+  assign end_message = block.settings.end_message
+
+  assign end_time_hour = end_time | split: ':' | first | times: 1
+  assign end_time_minute = end_time | split: ':' | last
+
+  capture expiration_date
+    echo end_date
+    echo ' '
+    case period
+      when 'am'
+        case end_time_hour
+          when 0, 12
+            echo '00' | append: ':' | append: end_time_minute
+          else
+            echo end_time
+        endcase
+
+      when 'pm'
+        capture hour
+          case end_time_hour
+            when 0, 12
+              echo '12'
+            else
+              if end_time_hour < 12
+                echo end_time_hour | plus: 12
+              else
+                echo end_time_hour
+              endif
+          endcase
+        endcapture
+
+        echo hour | append: ':' | append: end_time_minute
+    endcase
+  endcapture
+-%}{%- liquid
+        if is_layout_inline
+          assign block_size = section.blocks.size | minus: 1
+          assign aos_order = animation_order | plus: block_size
+        endif
+
+        render 'countdown-timer', expiration_date: expiration_date, end_message: end_message, leading_zero: true, animation_anchor: animation_anchor, animation_order: aos_order, bg_color: block_bg_color, bg_opacity: block_bg_opacity
+      -%}
+    {%- endcapture -%}
+  {%- endif -%}
+
+  {%- if block.type == 'button' -%}
+    {%- liquid
+      comment
+        theme-check-disable VariableName
+      endcomment
+      assign button_1_link = block.settings.button_1_link
+      assign button_1_text = block.settings.button_1_text
+      assign button_2_text = block.settings.button_2_text
+    -%}
+
+    {%- capture entire_section_link -%}
+      {%- if button_1_link != blank and button_1_text == blank and button_2_text == blank -%}
+        {%- assign hover_scale = ' hover-scale' -%}
+
+        <a href="{{ button_1_link }}"
+          class="countdown__link"
+          {% if has_timer %}
+            aria-labelledby="mainHeading--{{ section_id }} countdownLink--{{ section_id }}"
+          {% else %}
+            aria-labelledby="mainHeading--{{ section_id }}"
+          {% endif %}
+        ></a>
+      {%- endif -%}
+    {%- endcapture -%}
+  {%- endif -%}
+{%- endfor -%}
+
+<section
+  id="{{ section_id }}"
+  class="countdown{{ modifiers }} section-padding {{ color_scheme }}"
+  data-section-id="{{ section.id }}"
+  data-section-type="countdown"
+  {% unless has_image %}
+    data-prevent-transparent-header
+  {% endunless %}
+>
+  <div class="{{ section_width }}">
+    <span id="mainHeading--{{ section_id }}" class="visually-hidden">
+      {{ main_heading }}
+    </span>
+
+    {%- if has_timer -%}
+      <span id="countdownLink--{{ section_id }}" class="visually-hidden">
+        {{ 'countdown.ends' | t }}
+        {{ expiration_date | date: '%A, %B %e, %Y at %H:%M %p %Z' }}
+      </span>
+    {%- endif -%}
+
+    <div class="countdown__inner item--center {{ hover_scale }}">
+      {%- if overlay_type == 'opacity' -%}
+        <div class="overlay"></div>
+      {%- endif -%}
+
+      {%- if entire_section_link != blank -%}
+        {{ entire_section_link }}
+      {%- endif -%}
+
+      <div class="countdown__image-container">
+        {% if enable_zoom_animation %}
+          <parallax-element data-parallax-animation="zoom-on-scroll"></parallax-element>
+        {% endif %}
+        {%- if has_image -%}
+          {%- render 'image-fill',
+            is_background: true,
+            image_desktop: image_desktop,
+            image_mobile: image_mobile,
+            sizes: '100vw',
+            classes: 'countdown__image'
+          -%}
+        {%- endif -%}
+      </div>
+
+      <div class="countdown__text-container">
+        <div class="countdown__content">
+          {%- if section.blocks.size > 0 -%}
+            {%- for block in section.blocks -%}
+              {%- liquid
+                assign text = block.settings.text
+                assign text_size = block.settings.size | times: 0.01
+                assign text_size_mobile = text_size
+                assign unique = block.id
+
+                if text_size > 1.5
+                  assign text_size_mobile = text_size | times: 0.85
+                endif
+                if text_size > 2
+                  assign text_size_mobile = text_size | times: 0.7
+                endif
+                if text_size > 2.5
+                  assign text_size_mobile = text_size | times: 0.55
+                endif
+              -%}
+
+              {%- case block.type -%}
+                {%- when 'timer' -%}
+                  {%- liquid
+                    assign unit_size = block.settings.unit_size | times: 0.01
+                    assign digit_size = block.settings.digit_size | times: 0.01
+                    assign digit_size_mobile = digit_size | times: 0.7
+                    assign unit_size_mobile = unit_size | times: 0.8
+
+                    if forloop.index == section.blocks.size
+                      assign timer_last = true
+                    endif
+                  -%}
+
+                  {%- if timer_markup != blank -%}
+                    {%- style -%}
+                      {{ section_selector_id }} .countdown-timer__digit { --adjust-heading: calc(var(--FONT-ADJUST-HEADING) * {{ digit_size_mobile }}); }
+                      {{ section_selector_id }} .countdown-timer__unit { --adjust-unit: calc(var(--FONT-ADJUST-SUBHEADING) * {{ unit_size_mobile }}); }
+                      @media screen and (min-width: 1024px) {
+                        {{ section_selector_id }} .countdown-timer__digit { --adjust-heading: calc(var(--FONT-ADJUST-HEADING) * {{ digit_size }}); }
+                        {{ section_selector_id }} .countdown-timer__unit { --adjust-unit: calc(var(--FONT-ADJUST-SUBHEADING) * {{ unit_size }}); }
+                      }
+                    {%- endstyle -%}
+
+                    {%- if is_layout_stacked -%}
+                      <div
+                        class="countdown__block countdown__block--timer{% if large_digits %} countdown__block--timer-large{% endif %}"
+                        {{ block.shopify_attributes }}
+                      >
+                        {{ timer_markup }}
+                      </div>
+                      {% if animations_enabled %}
+                        {%- assign animation_order = animation_order | plus: 4 -%}
+                      {% endif %}
+                    {%- endif -%}
+                  {%- endif -%}
+
+                {%- when 'video' -%}
+                  {%- liquid
+                    assign video_text = block.settings.video_text
+                    assign video_link = block.settings.video_link
+                  -%}
+                  <div class="countdown__block countdown__block--video main-buttons main-buttons--video">
+                    {%- render 'video-popup', video_link: video_link, unique: unique -%}
+
+                    <video-popup
+                      class="main-buttons__item"
+                      {% if animations_enabled %}
+                        data-aos="hero"
+                        data-aos-anchor="{{ animation_anchor }}"
+                        data-aos-order="{{ animation_order }}"
+                      {% endif %}
+                      {{ block.shopify_attributes }}
+                    >
+                      <a
+                        class="countdown__btn video-text-link"
+                        href="{{ video_link | default: '#!' }}"
+                        {% unless video_link == blank %}
+                          data-video-play="{%- render 'photoswipe-video-html' item_link: video_link , item_link_type: video_type, item_link_id: video_id, item_id: video_parent_id -%}"
+                        {% endunless %}
+                      >
+                        {%- render 'icon-play' -%}
+
+                        {%- if video_text != blank -%}
+                          <span>{{ video_text }}</span>
+                        {%- endif -%}
+                      </a>
+                    </video-popup>
+                  </div>
+
+                {%- when 'subheading' -%}
+                  {%- liquid
+                    assign block_id = 'countdownSubheading--' | append: unique
+                    assign block_selector_id = '#' | append: block_id
+                  -%}
+
+                  {%- style -%}
+                    {{ block_selector_id }} {
+                      --adjust-body: calc(var(--FONT-ADJUST-SUBHEADING) * {{ text_size_mobile }});
+                    }
+                    @media screen and (min-width: 1024px) {
+                      {{ block_selector_id }} {
+                        --adjust-body: calc(var(--FONT-ADJUST-SUBHEADING) * {{ text_size }});
+                      }
+                    }
+                  {%- endstyle -%}
+
+                  {%- if text != blank -%}
+                    <div
+                      id="{{ block_id }}"
+                      class="countdown__block countdown__block--subheading subheading-text"
+                      {% if animations_enabled %}
+                        data-aos="hero"
+                        data-aos-anchor="{{ animation_anchor }}"
+                        data-aos-order="{{ animation_order }}"
+                        {%- assign animation_order = animation_order | plus: 1 -%}
+                      {% endif %}
+                      {{ block.shopify_attributes }}
+                    >
+                      {{ text }}
+                    </div>
+                  {%- endif -%}
+
+                {%- when 'heading' -%}
+                  {%- liquid
+                    assign title = block.settings.text
+                    assign heading_highlight_type = block.settings.heading_highlight_type
+                    assign highlight_color = block.settings.highlight_color
+                    assign highlight_text_color = block.settings.highlight_text_color
+                    assign block_id = 'countdownHeading--' | append: unique
+                    assign block_selector_id = '#' | append: block_id
+                  -%}{% comment %}
+  Enhanced text decorations options - Liquid variables
+
+  Dependencies:
+    - Title liquid object from settings: `assign title = section.settings.title`
+    - Highlight type from settings: `assign heading_highlight_type = section.settings.heading_highlight_type`
+    - Highlight color from settings: `assign highlight_color = section.settings.highlight_color or assign highlight_color = block.settings.highlight_color`
+    - SVG icons:
+      - icon-squiggle.svg (assets)
+      - icon-circle.liquid (snippet)
+{% endcomment %}
+
+{%- liquid
+  comment
+   Highlighted words count
+  endcomment
+  assign title_temp = title | split: '<em>'
+  assign em_arr = ''
+  if title_temp.size > 1
+    for text_part in title_temp offset: 1
+      assign em_text = text_part | split: '</em>' | first
+      assign em_arr = em_arr | append: '#separator#' | append: em_text
+    endfor
+  endif
+  assign em_arr = em_arr | split: '#separator#'
+  assign words_count_arr = ''
+  assign letters_count_arr = ''
+  if em_arr.size > 0
+    for words in em_arr offset: 1
+      assign word = words | split: ' '
+      assign words_count_arr = words_count_arr | append: word.size | append: ', '
+      assign letters_count_arr = letters_count_arr | append: words.size | append: ', '
+    endfor
+  endif
+
+  assign words_count_arr = words_count_arr | replace_last: ', ', '' | split: ', '
+  assign letters_count_arr = letters_count_arr | replace_last: ', ', '' | split: ', '
+
+  comment
+   Main highlight types logic
+  endcomment
+  assign icon_url = ''
+  assign icon_color = 'var(--heading)'
+
+  if highlight_color != 'rgba(0,0,0,0)' and highlight_color != ''
+    assign icon_color = highlight_color
+  endif
+
+  capture text_highlight_icon
+    assign has_text_highlight = false
+
+    if title contains '<em>'
+      case heading_highlight_type
+        when 'squiggle'
+          assign icon_url = 'icon-squiggle.svg' | asset_url
+        when 'circle' or 'circle-hand-drawn' or 'underline-hand-drawn'
+          echo '<span class="text-highlight__icon" data-highlight-holder>'
+
+            when 'circle'
+              render 'icon-circle'
+            when 'circle-hand-drawn'
+              render 'icon-circle-hand-drawn'
+            when 'underline-hand-drawn'
+              render 'icon-underline-hand-drawn'
+
+          echo '</span>'
+        when 'highlight' or 'squiggle'
+          echo '<span class="text-highlight__icon text-highlight__icon--pseudo" data-highlight-holder></span>'
+        when 'stroke' or 'circle' or 'circle-hand-drawn' or 'squiggle' or 'highlight' or 'highlight-color' or 'underline' or 'underline-hand-drawn' or 'alternate-font'
+          assign has_text_highlight = true
+      endcase
+    endif
+  endcapture
+
+  capture icon_bg
+    if icon_url != ''
+      echo 'url( "' | append: icon_url | append: '" )'
+    else
+      echo 'none'
+    endif
+  endcapture
+  capture icon_styles
+    assign icon_bg = icon_bg | replace: '"', "'"
+    echo 'style="--icon-url: ' | append: icon_bg | append: ';' | append: '--icon-color: ' | append: icon_color | append: ';"'
+  endcapture
+
+  assign text_highlight_wrapper_class = 'text-highlight-wrapper' | append: ' text-highlight-wrapper--' | append: heading_highlight_type
+  capture text_highlight_start
+    echo '<text-highlight class="text-highlight" ' | append: icon_styles | append: ' data-highlight-type="' | append: heading_highlight_type | append: '">'
+    case heading_highlight_type
+      when 'stroke' or 'highlight-color' or 'underline' or 'alternate-font'
+        echo '<span class="text-highlight__string" data-highlight-holder>'
+    endcase
+  endcapture
+  capture text_highlight_end
+    echo text_highlight_icon
+    case heading_highlight_type
+      when 'stroke' or 'highlight-color' or 'underline' or 'alternate-font'
+        echo '</span>'
+    endcase
+    echo '</text-highlight>'
+  endcapture
+
+  if title != blank and title contains '<em>'
+    case heading_highlight_type
+      when 'squiggle' or 'circle' or 'circle-hand-drawn' or 'stroke' or 'highlight' or 'highlight-color' or 'underline' or 'underline-hand-drawn' or 'alternate-font'
+        assign title = title | replace: '<em>', text_highlight_start | replace: '</em>', text_highlight_end
+
+      when 'circle' or 'circle-hand-drawn'
+        comment
+          Update icon's holder class based on the italicised words count
+        endcomment
+        assign title = title | split: 'class="text-highlight"'
+        assign title_mod = ''
+        for title_part in title offset: 1
+          assign current_part = title_part
+
+          if title_part contains 'text-highlight__icon'
+            capture highlight_icon_classes
+              echo 'text-highlight__icon'
+              assign current_count = words_count_arr[forloop.index0] | times: 1
+              assign letters_count = letters_count_arr[forloop.index0] | times: 1
+              if current_count == 1
+                echo ' text-highlight__icon--single-word'
+              endif
+              if letters_count < 6
+                echo ' text-highlight__icon--short'
+                echo ' text-highlight__icon--l' | append: letters_count
+              endif
+              if letters_count > 15
+                echo ' text-highlight__icon--long'
+              endif
+            endcapture
+
+            assign current_part = title_part | replace: 'text-highlight__icon', highlight_icon_classes
+          endif
+
+          unless forloop.last
+            assign title_mod = title_mod | append: current_part | append: 'class="text-highlight"'
+          else
+            assign title_mod = title_mod | append: current_part
+          endunless
+        endfor
+        assign title_first_part = title | first | append: 'class="text-highlight"'
+        assign title_mod = title_mod | prepend: title_first_part
+        assign title = title_mod
+    endcase
+  endif
+-%}{%- style -%}
+                    {{ block_selector_id }} {
+                      --adjust-heading: calc(var(--FONT-ADJUST-HEADING) * {{ text_size_mobile }});
+
+                      {%- if heading_highlight_type != 'highlight' %}
+                        --highlight-color: var(--text);
+                      {%- endif -%}
+
+                      {%- if highlight_color != 'rgba(0,0,0,0)' and highlight_color != '' %}
+                        --highlight-color: {{ highlight_color }};
+                      {%- endif -%}
+
+                      {%- if highlight_text_color != 'rgba(0,0,0,0)' and highlight_text_color != '' %}
+                        --highlight-text-color: {{ highlight_text_color }};
+                      {%- endif %}
+                    }
+                    @media screen and (min-width: 1024px) {
+                      {{ block_selector_id }} {
+                        --adjust-heading: calc(var(--FONT-ADJUST-HEADING) * {{ text_size }});
+                      }
+                    }
+                  {%- endstyle -%}
+
+                  {%- if title != blank -%}
+                    {%- capture title_attributes -%}
+                      id="{{ block_id }}" class="countdown__block countdown__block--heading h2{% if has_text_highlight %} {{ text_highlight_wrapper_class }}{% endif %}"
+                      {% if animations_enabled %}
+                        data-aos="hero"
+                        data-aos-anchor="{{ animation_anchor }}"
+                        data-aos-order="{{ animation_order }}"
+                        {%- assign animation_order = animation_order | plus: 1 -%}
+                      {% endif %}
+                      {{ block.shopify_attributes }}
+                    {%- endcapture -%}
+
+                    {% render 'title-text-reveal-and-highlights',
+                      title: title,
+                      title_attributes: title_attributes,
+                      has_text_highlight: has_text_highlight
+                    %}
+
+                    {%- if settings.show_spacer_lines and forloop.last == false -%}
+                      <hr
+                        {% if animations_enabled %}
+                          data-aos="hero"
+                          data-aos-order="{{ animation_order }}"
+                          data-aos-anchor="{{ animation_anchor }}"
+                          {%- assign animation_order = animation_order | plus: 1 -%}
+                        {% endif %}
+                      >
+                    {%- endif -%}
+                  {%- endif -%}
+
+                {%- when 'text' -%}
+                  {%- liquid
+                    assign block_id = 'countdownText--' | append: unique
+                    assign block_selector_id = '#' | append: block_id
+                  -%}
+
+                  {%- style -%}
+                    {{ block_selector_id }} {
+                      --adjust-body: calc(var(--FONT-ADJUST-BODY) * {{ text_size_mobile }});
+                    }
+                    @media screen and (min-width: 1024px) {
+                      {{ block_selector_id }} {
+                        --adjust-body: calc(var(--FONT-ADJUST-BODY) * {{ text_size }});
+                      }
+                    }
+                  {%- endstyle -%}
+
+                  {%- if text != blank -%}
+                    <div
+                      id="{{ block_id }}"
+                      class="countdown__block countdown__block--text"
+                      {% if animations_enabled %}
+                        data-aos="hero"
+                        data-aos-anchor="{{ animation_anchor }}"
+                        data-aos-order="{{ animation_order }}"
+                        {%- assign animation_order = animation_order | plus: 1 -%}
+                      {% endif %}
+                      {{ block.shopify_attributes }}
+                    >
+                      {{ text }}
+                    </div>
+                  {%- endif -%}
+
+                {%- when 'button' -%}
+                  {%- liquid
+                    assign block_id = 'countdownButton--' | append: unique
+                    assign button_1_link = block.settings.button_1_link
+                    assign button_1_text = block.settings.button_1_text
+                    assign button_1_style = block.settings.button_1_style
+                    assign button_1_color = block.settings.button_1_color
+                    assign button_1_size = block.settings.button_1_size
+
+                    assign button_2_link = block.settings.button_2_link
+                    assign button_2_text = block.settings.button_2_text
+                    assign button_2_style = block.settings.button_2_style
+                    assign button_2_color = block.settings.button_2_color
+                    assign button_2_size = block.settings.button_2_size
+
+                    assign button_1_advanced_class = 'btn--advanced'
+                    if button_1_style != 'btn--text'
+                      assign button_1_advanced_class = button_1_advanced_class | append: ' btn--advanced-width-height'
+                    endif
+                    assign button_2_advanced_class = 'btn--advanced'
+                    if button_2_style != 'btn--text'
+                      assign button_2_advanced_class = button_2_advanced_class | append: ' btn--advanced-width-height'
+                    endif
+                  -%}
+
+                  {%- if button_1_text != blank or button_2_text != blank -%}
+                    <div class="countdown__block countdown__block--button main-buttons">
+                      {%- if button_1_text != blank -%}
+                        <div
+                          class="main-buttons__item"
+                          {% if animations_enabled %}
+                            data-aos="hero"
+                            data-aos-anchor="{{ animation_anchor }}"
+                            data-aos-order="{{ animation_order }}"
+                            {%- assign animation_order = animation_order | plus: 1 -%}
+                          {% endif %}
+                        >
+                          <a
+                            href="{{ button_1_link }}"
+                            class="countdown__btn btn {{ button_1_style }} {{ button_1_size }} {{ button_1_color }} {{ button_1_advanced_class }}"
+                            {% if has_timer %}
+                              aria-labelledby="countdownButton1Text--{{ block_id }} countdownLink--{{ section_id }}"
+                            {% else %}
+                              aria-labelledby="countdownButton1Text--{{ block_id }}"
+                            {% endif %}
+                          >
+                            <hover-button></hover-button>
+                            {{- button_1_text | escape -}}
+                          </a>
+
+                          <span
+                            id="countdownButton1Text--{{ block_id }}"
+                            class="visually-hidden"
+                          >
+                            {{- button_1_text | escape }}.
+                          </span>
+                        </div>
+                      {%- endif -%}
+
+                      {%- if button_2_text != blank -%}
+                        <div
+                          class="main-buttons__item"
+                          {% if animations_enabled %}
+                            data-aos="hero"
+                            data-aos-anchor="{{ animation_anchor }}"
+                            data-aos-order="{{ animation_order }}"
+                            {%- assign animation_order = animation_order | plus: 1 -%}
+                          {% endif %}
+                        >
+                          <a
+                            href="{{ button_2_link }}"
+                            class="countdown__btn btn {{ button_2_style }} {{ button_2_size }} {{ button_2_color }} {{ button_2_advanced_class }}"
+                            {% if has_timer %}
+                              aria-labelledby="countdownButton2Text--{{ block_id }} countdownLink--{{ section_id }}"
+                            {% else %}
+                              aria-labelledby="countdownButton2Text--{{ block_id }}"
+                            {% endif %}
+                          >
+                            <hover-button></hover-button>
+                            {{- button_2_text | escape -}}
+                          </a>
+
+                          <span
+                            id="countdownButton2Text--{{ block_id }}"
+                            class="visually-hidden"
+                          >
+                            {{- button_2_text | escape }}.
+                          </span>
+                        </div>
+                      {%- endif -%}
+                    </div>
+                  {%- endif -%}
+              {%- endcase -%}
+            {%- endfor -%}
+          {%- else -%}
+            {%- render 'no-blocks' -%}
+          {%- endif -%}
+        </div>
+
+        {%- if timer_markup != blank and is_layout_inline -%}
+          <div class="countdown__aside{% if large_digits %} countdown__aside--timer-large{% endif %}{% if timer_last %} countdown__aside--timer-last{% endif %}">
+            {{ timer_markup }}
+          </div>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Countdown",
+  "class": "supports-transparent-header",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "layout_style",
+      "label": "Style",
+      "default": "inline",
+      "options": [
+        {"label": "Inline", "value": "inline"},
+        {"label": "Stacked", "value": "stacked"}
+      ]
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "visible_if": "{{ section.settings.layout_style == 'inline' }}",
+      "label": "Mobile text alignment",
+      "default": "center",
+      "options": [
+        {"label": "Left", "value": "left"},
+        {"label": "Center", "value": "center"}
+      ]
+    },
+    {
+      "type": "select",
+      "id": "height",
+      "label": "Height",
+      "default": "150",
+      "options": [
+        {"label": "450px", "value": "450"},
+        {"label": "400px", "value": "400"},
+        {"label": "350px", "value": "350"},
+        {"label": "300px", "value": "300"},
+        {"label": "250px", "value": "250"},
+        {"label": "200px", "value": "200"},
+        {"label": "150px", "value": "150"}
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_mobile_height",
+      "label": "Enable mobile height",
+      "default": false
+    },
+    {
+      "type": "select",
+      "id": "mobile_height",
+      "label": "Mobile height",
+      "default": "400",
+      "options": [
+        {"label": "450px", "value": "450"},
+        {"label": "400px", "value": "400"},
+        {"label": "350px", "value": "350"},
+        {"label": "300px", "value": "300"},
+        {"label": "250px", "value": "250"},
+        {"label": "200px", "value": "200"},
+        {"label": "150px", "value": "150"}
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Image"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Image",
+      "info": "2048px width recommended"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_mobile",
+      "label": "Mobile image",
+      "info": "Optional"
+    },
+    {
+      "type": "select",
+      "id": "overlay_type",
+      "label": "Overlay type",
+      "default": "disabled",
+      "options": [
+        {"value": "disabled", "label": "Disabled"},
+        {"value": "opacity", "label": "Opacity overlay"}
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_zoom_animation",
+      "label": "Enable zoom animation on scroll",
+      "default": true
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-2"
+    },
+    {
+      "type": "header",
+      "content": "Text"
+    },
+    {
+      "type": "select",
+      "id": "text_width",
+      "label": "Width",
+      "default": "normal",
+      "options": [
+        {"label": "Narrow", "value": "narrow"},
+        {"label": "Normal", "value": "normal"}
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Section"
+    },
+    {
+      "type": "select",
+      "id": "width",
+      "label": "Width",
+      "default": "wrapper--full-padded",
+      "options": [
+        {"value": "wrapper--full", "label": "Full width"},
+        {"value": "wrapper--full-padded", "label": "Full width padded"},
+        {"value": "wrapper", "label": "Page width"}
+      ]
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "label": "Padding top",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "label": "Padding bottom",
+      "default": 0
+    }
+  ],
+  "blocks": [
+    {
+      "type": "subheading",
+      "name": "Subheading",
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text",
+          "default": "<p>Countdown is on</p>"
+        },
+        {
+          "type": "range",
+          "id": "size",
+          "label": "Size",
+          "min": 50,
+          "max": 300,
+          "default": 75,
+          "step": 5,
+          "unit": "%"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "name": "Heading",
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text",
+          "default": "<p>Shop Before It Ends</p>",
+          "info": "Highlight one or two key words in your heading by italicizing them, then choose the highlight option below"
+        },
+        {
+          "type": "range",
+          "id": "size",
+          "label": "Size",
+          "min": 50,
+          "max": 300,
+          "default": 120,
+          "step": 5,
+          "unit": "%"
+        },
+        {
+          "type": "header",
+          "content": "Highlight"
+        },
+        {
+          "type": "select",
+          "id": "heading_highlight_type",
+          "label": "Type",
+          "default": "underline-hand-drawn",
+          "info": "The font choice for the \"Alternate font\" type can be configured in the theme typography settings.",
+          "options": [
+            {"value": "italics", "label": "Italics (no decoration)"},
+            {"value": "highlight", "label": "Highlight"},
+            {"value": "highlight-color", "label": "Text color"},
+            {"value": "underline", "label": "Underline (digital)"},
+            {"value": "underline-hand-drawn", "label": "Underline (hand-drawn)"},
+            {"value": "squiggle", "label": "Squiggle"},
+            {"value": "circle", "label": "Circle (digital)"},
+            {"value": "circle-hand-drawn", "label": "Circle (hand-drawn)"},
+            {"value": "stroke", "label": "Stroke (outlined text)"},
+            {"value": "alternate-font", "label": "Alternate font"}
+          ]
+        },
+        {
+          "type": "color",
+          "id": "highlight_color",
+          "label": "Highlight color",
+          "default": "#000",
+          "alpha": true
+        },
+        {
+          "type": "color",
+          "id": "highlight_text_color",
+          "label": "Text color",
+          "alpha": true
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "Text",
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text",
+          "default": "<p>Share information about your limited offer or temporary promotion.</p>"
+        },
+        {
+          "type": "range",
+          "id": "size",
+          "label": "Size",
+          "min": 50,
+          "max": 300,
+          "default": 100,
+          "step": 5,
+          "unit": "%"
+        }
+      ]
+    },
+    {
+      "type": "timer",
+      "name": "Timer",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "end_date",
+          "label": "Countdown end date",
+          "placeholder": "2025-12-31",
+          "default": "2025-12-31",
+          "info": "Use format \"YYYY-MM-DD\". End date is based on the [store primary timezone](/admin/settings/general)."
+        },
+        {
+          "type": "text",
+          "id": "end_time",
+          "label": "End time",
+          "default": "11:59",
+          "placeholder": "11:59",
+          "info": "Use 12-hour time convention in format \"HH:MM\""
+        },
+        {
+          "type": "radio",
+          "id": "period",
+          "label": "AM/PM",
+          "options": [
+            {"value": "am", "label": "AM"},
+            {"value": "pm", "label": "PM"}
+          ],
+          "default": "am"
+        },
+        {
+          "type": "richtext",
+          "id": "end_message",
+          "label": "End of timer message",
+          "info": "Section will become hidden once end date has passed unless text is entered above."
+        },
+        {
+          "type": "range",
+          "id": "digit_size",
+          "label": "Digits size",
+          "min": 70,
+          "max": 200,
+          "default": 140,
+          "step": 5,
+          "unit": "%"
+        },
+        {
+          "type": "range",
+          "id": "unit_size",
+          "label": "Text size",
+          "min": 100,
+          "max": 200,
+          "default": 140,
+          "step": 5,
+          "unit": "%"
+        },
+        {
+          "type": "header",
+          "content": "Colors"
+        },
+        {
+          "type": "color",
+          "id": "bg_color",
+          "label": "Background color",
+          "alpha": true
+        },
+        {
+          "type": "range",
+          "id": "bg_opacity",
+          "label": "Background opacity",
+          "min": 0,
+          "max": 100,
+          "step": 5,
+          "unit": "%",
+          "default": 100
+        }
+      ]
+    },
+    {
+      "type": "button",
+      "name": "Buttons",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "header",
+          "content": "Button 1"
+        },
+        {
+          "type": "text",
+          "id": "button_1_text",
+          "label": "Text",
+          "info": "Leave blank to link entire image",
+          "default": "Shop the sale"
+        },
+        {
+          "type": "url",
+          "id": "button_1_link",
+          "label": "Link",
+          "default": "/collections/all"
+        },
+        {
+          "type": "select",
+          "id": "button_1_color",
+          "label": "Button color",
+          "default": "btn--white",
+          "options": [
+            {"label": "Primary", "value": "btn--primary"},
+            {"label": "Secondary", "value": "btn--secondary"},
+            {"label": "White", "value": "btn--white"},
+            {"label": "Black", "value": "btn--black"}
+          ]
+        },
+        {
+          "type": "select",
+          "id": "button_1_style",
+          "label": "Button style",
+          "default": "btn--solid-border",
+          "options": [
+            {"label": "Solid", "value": "btn--solid"},
+            {"label": "Outline", "value": "btn--outline"},
+            {"label": "Solid with border", "value": "btn--solid-border"},
+            {"label": "Soft", "value": "btn--soft"},
+            {"label": "Text", "value": "btn--text"}
+          ]
+        },
+        {
+          "type": "select",
+          "id": "button_1_size",
+          "label": "Size",
+          "default": "btn--medium",
+          "options": [
+            {"label": "Small", "value": "btn--small"},
+            {"label": "Medium", "value": "btn--medium"},
+            {"label": "Large", "value": "btn--large"}
+          ]
+        },
+        {
+          "type": "header",
+          "content": "Button 2"
+        },
+        {
+          "type": "text",
+          "id": "button_2_text",
+          "label": "Text"
+        },
+        {
+          "type": "url",
+          "id": "button_2_link",
+          "label": "Link"
+        },
+        {
+          "type": "select",
+          "id": "button_2_color",
+          "label": "Second button color",
+          "default": "btn--black",
+          "options": [
+            {"label": "Primary", "value": "btn--primary"},
+            {"label": "Secondary", "value": "btn--secondary"},
+            {"label": "White", "value": "btn--white"},
+            {"label": "Black", "value": "btn--black"}
+          ]
+        },
+        {
+          "type": "select",
+          "id": "button_2_style",
+          "label": "Second button style",
+          "default": "btn--solid",
+          "options": [
+            {"label": "Solid", "value": "btn--solid"},
+            {"label": "Outline", "value": "btn--outline"},
+            {"label": "Solid with border", "value": "btn--solid-border"},
+            {"label": "Soft", "value": "btn--soft"},
+            {"label": "Text", "value": "btn--text"}
+          ]
+        },
+        {
+          "type": "select",
+          "id": "button_2_size",
+          "label": "Second button size",
+          "default": "btn--medium",
+          "options": [
+            {"label": "Small", "value": "btn--small"},
+            {"label": "Medium", "value": "btn--medium"},
+            {"label": "Large", "value": "btn--large"}
+          ]
+        }
+      ]
+    },
+    {
+      "type": "video",
+      "name": "Video button",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "header",
+          "content": "Video Button"
+        },
+        {
+          "type": "text",
+          "id": "video_text",
+          "label": "Text"
+        },
+        {
+          "type": "text",
+          "id": "video_link",
+          "label": "Video popup link",
+          "info": "Video links from YouTube, Vimeo or MP4 video link from [files](/admin/settings/files?media_type=VIDEO)"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Countdown",
+      "category": "Text",
+      "blocks": [
+        {
+          "type": "subheading"
+        },
+        {
+          "type": "heading"
+        },
+        {
+          "type": "timer"
+        },
+        {
+          "type": "button"
+        }
+      ]
+    }
+  ],
+  "disabled_on": {
+    "groups": ["header", "aside"]
+  }
+}
+{% endschema %}

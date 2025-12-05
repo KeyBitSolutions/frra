@@ -1,0 +1,25 @@
+/*================ "Recommended posts" ================*/
+.recommended-posts {
+  background: var(--bg);
+}
+.recommended-posts .section__heading {
+  margin-bottom: var(--grid-gutter);
+}
+.recommended-posts .blog__post--two-col {
+  --grid: repeat(4, minmax(0, 1fr));
+}
+@media only screen and (min-width: 768px) {
+  .recommended-posts .blog__post-item {
+    grid-column: span 2;
+  }
+  .recommended-posts .blog__post-item:only-of-type {
+    grid-column-start: 2;
+    grid-column-end: 4;
+  }
+}
+.recommended-posts .blog__post-excerpt-link {
+  margin-bottom: 10px;
+}
+.recommended-posts .blog__post-excerpt-link .rte {
+  margin-bottom: 0;
+}

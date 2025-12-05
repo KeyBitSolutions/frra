@@ -1,0 +1,94 @@
+{% comment %}
+  Renders a product price
+
+  Accepts:
+  - product: {Object} Product object.
+  - namespace: {String} Alters the price's classes, based on its container (Optional)
+
+  Usage:
+  {% render 'product-price', product: product %}
+{% endcomment %}
+
+{%- liquid
+  assign current_variant = product.selected_or_first_available_variant
+  assign namespace = namespace | default: ''
+
+  if namespace == ''
+    assign price_class = 'product-grid-item__price-new'
+    assign unit_class = 'product__unit-price'
+  else
+    assign price_class = namespace | append: '__price-new'
+    assign unit_class = namespace | append: '__unit-price'
+  endif
+
+  assign product_price_value = product.price
+  assign product_price_min_value = product.price_min
+  assign product_compare_at_price = product.compare_at_price
+  assign product_unit_price_min_value = ''
+
+  assign on_sale = false
+  if product_compare_at_price > product_price_value
+    assign on_sale = true
+  endif
+
+  if product.price_varies
+    assign product_unit_price_min_value = current_variant.unit_price
+  endif
+
+  if product_price_value == 0 and product.price_varies == false
+    assign product_price = 'products.product.free' | t
+    assign product_price_min = 'products.product.free' | t
+  elsif settings.currency_code_enable
+    assign product_price = product_price_value | money_with_currency
+    assign product_price_min = product_price_min_value | money_with_currency
+  else
+    assign product_price = product_price_value | money
+    assign product_price_min = product_price_min_value | money
+  endif
+-%}
+
+{%- if product.price_varies -%}
+  {{- 'products.general.from_text_html' | t: price: product_price_min -}}
+{%- else -%}
+  {%- if on_sale -%}
+    <span class="{{ price_class }}">{{ product_price }}</span>
+
+    <s>
+      {%- if settings.currency_code_enable -%}
+        {{- product_compare_at_price | money_with_currency -}}
+      {%- else -%}
+        {{- product_compare_at_price | money -}}
+      {%- endif -%}
+    </s>
+  {%- else -%}
+    {{- product_price -}}
+  {%- endif -%}
+{%- endif -%}
+
+{%- if current_variant.unit_price_measurement or product.price_varies and product_unit_price_min_value != '' -%}
+  {%- capture separator_and_unit -%}
+    <span aria-hidden="true">/</span><span class="visually-hidden">{{ 'general.accessibility.unit_price_separator' | t }}&nbsp;</span>
+
+    {% if current_variant.unit_price_measurement.reference_value != 1 %}
+      {{ current_variant.unit_price_measurement.reference_value }}
+    {% endif %}
+
+    {{ current_variant.unit_price_measurement.reference_unit }}
+  {%- endcapture -%}
+
+  {%- capture unit_price -%}
+    {% if product.price_varies %}
+      {%- if product_unit_price_min_value != blank -%}
+        {{ product_unit_price_min_value | money }}
+        {{ separator_and_unit }}
+      {%- endif -%}
+    {% else %}
+      {{ current_variant.unit_price | money }}
+      {{ separator_and_unit }}
+    {% endif %}
+  {%- endcapture -%}
+
+  {%- if unit_price != blank -%}
+    <span class="{{ unit_class }}{% if current_variant.unit_price == 0 %} hidden{% endif %}">{{ unit_price }}</span>
+  {%- endif -%}
+{%- endif -%}

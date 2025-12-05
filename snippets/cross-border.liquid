@@ -1,0 +1,161 @@
+{%- liquid
+  assign show_locale = false
+  assign show_country = false
+  assign show_country_selector = show_country_selector | default: false
+  assign show_locale_selector = show_locale_selector | default: false
+  assign show_country_name = show_country_name | default: false
+  assign show_country_flag = show_country_flag | default: false
+  assign show_locale_code = show_locale_code | default: false
+  assign localization_form_id = 'LocalizationForm-' | append: section.id
+
+  if show_locale_selector and localization.available_languages.size > 1
+    assign show_locale = true
+  endif
+
+  if show_country_selector and localization.available_countries.size > 1
+    assign show_country = true
+  endif
+
+  capture form_class
+    echo 'localization-form'
+    if show_country_flag
+      echo ' localization-form--country-flag'
+    endif
+  endcapture
+-%}
+
+{%- if show_locale or show_country -%}
+  {%- form 'localization', class: form_class, id: localization_form_id -%}
+    {%- if show_country -%}
+      <div>
+        <h2 class="visually-hidden" id="country-heading-{{ section.id }}">{{ 'footer.country' | t }}</h2>
+
+        <popout-select class="select-popout select-popout--country">
+          <button
+            type="button"
+            class="select-popout__toggle"
+            aria-expanded="false"
+            aria-controls="country-list"
+            aria-describedby="country-heading"
+            data-popout-toggle
+          >
+            {%- if show_country_flag -%}
+              {{
+                localization.country
+                | image_url: width: 40
+                | image_tag: loading: 'lazy', class: 'select-popout__flag'
+              }}
+            {%- endif -%}
+            {%- if show_country_name -%}
+              {{ localization.country.name }}
+            {%- endif -%}
+
+            {%- capture currency_html -%}
+              {{- localization.country.currency.iso_code -}}{{- localization.country.currency.symbol -}}
+            {%- endcapture -%}
+
+            {%- if show_country_name -%}
+              (
+              {{- currency_html -}}
+              )
+            {%- else -%}
+              {{- currency_html -}}
+            {%- endif -%}
+
+            {%- render 'icon-select' -%}
+          </button>
+
+          <div id="country-list-{{ section.id }}" class="select-popout__list" data-popout-list>
+            <ul class="select-popout__list__scroll" data-scroll-lock-scrollable>
+              {%- for country in localization.available_countries -%}
+                <li class="select-popout__item{% if country.iso_code == localization.country.iso_code %} select-popout__item--current{% endif %}">
+                  <a
+                    class="select-popout__option"
+                    href="#"
+                    {% if country.iso_code == localization.country.iso_code %}
+                      aria-current="true"
+                    {% endif %}
+                    data-value="{{ country.iso_code }}"
+                    data-popout-option
+                  >
+                    {%- if show_country_flag -%}
+                      {{ country | image_url: width: 40 | image_tag: loading: 'lazy', class: 'select-popout__flag' }}
+                    {%- endif -%}
+                    <span>
+                      {{- country.name }} ({{ country.currency.iso_code -}}
+                      {{- country.currency.symbol }})
+                    </span>
+                  </a>
+                </li>
+              {%- endfor -%}
+            </ul>
+          </div>
+
+          <input
+            type="hidden"
+            name="country_code"
+            id="CountrySelector-{{ section.id }}"
+            value="{{ localization.country.iso_code }}"
+            data-popout-input
+          >
+        </popout-select>
+      </div>
+    {%- endif -%}
+
+    {%- if show_locale -%}
+      <div>
+        <h2 class="visually-hidden" id="lang-heading-{{ section.id }}">
+          {{ 'footer.language' | t }}
+        </h2>
+
+        <popout-select class="select-popout select-popout--lang">
+          <button
+            type="button"
+            class="select-popout__toggle"
+            aria-expanded="false"
+            aria-controls="lang-list"
+            aria-describedby="lang-heading"
+            data-popout-toggle
+          >
+            {%- if show_locale_code -%}
+              {{ localization.language.iso_code | upcase }}
+            {%- else -%}
+              {{ localization.language.endonym_name | capitalize }}
+            {%- endif -%}
+            {%- render 'icon-select' -%}
+          </button>
+
+          <div id="lang-list-{{ section.id }}" class="select-popout__list" data-popout-list>
+            <ul class="select-popout__list__scroll" data-scroll-lock-scrollable>
+              {%- for language in localization.available_languages -%}
+                <li class="select-popout__item{% if language.iso_code == localization.language.iso_code %} select-popout__item--current{% endif %}">
+                  <a
+                    href="#"
+                    hreflang="{{ language.iso_code }}"
+                    lang="{{ language.iso_code }}"
+                    class="select-popout__option"
+                    {% if language.iso_code == localization.language.iso_code %}
+                      aria-current="true"
+                    {% endif %}
+                    data-value="{{ language.iso_code }}"
+                    data-popout-option
+                  >
+                    <span>{{ language.endonym_name | capitalize }}</span>
+                  </a>
+                </li>
+              {%- endfor -%}
+            </ul>
+          </div>
+
+          <input
+            type="hidden"
+            name="locale_code"
+            id="LocaleSelector-{{ section.id }}"
+            value="{{ localization.language.iso_code }}"
+            data-popout-input
+          >
+        </popout-select>
+      </div>
+    {%- endif -%}
+  {%- endform -%}
+{%- endif -%}

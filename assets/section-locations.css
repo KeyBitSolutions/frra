@@ -1,0 +1,95 @@
+/*================ "Locations" ================*/
+.locations {
+  background: var(--bg);
+}
+.locations .flickity-button {
+  position: relative;
+  margin-bottom: calc(var(--gutter) / 2);
+}
+@media only screen and (min-width: 768px) {
+  .locations .flickity-button {
+    margin-top: 50px;
+    margin-bottom: 0;
+  }
+}
+.locations .flickity-prev-next-button {
+  transform: none;
+  transform-origin: center;
+  opacity: 1;
+  visibility: visible;
+}
+.locations .flickity-prev-next-button.previous {
+  left: auto;
+  margin-right: var(--grid-gutter);
+}
+.locations .flickity-prev-next-button.next {
+  right: auto;
+}
+.locations:hover .flickity-enabled > .flickity-prev-next-button:not(:disabled) {
+  transform: none;
+}
+.locations:hover .flickity-enabled:hover > .flickity-prev-next-button:not(:disabled):hover {
+  transform: scale(1.12);
+}
+.locations .flickity-slider .location__image {
+  width: 100%;
+}
+.locations .flickity-slider .location__store {
+  width: 100%;
+  opacity: 0 !important;
+  transition: opacity 0.5s, z-index 0.5s, transform 0s 0.5s;
+}
+.locations .flickity-slider .location__store.is-selected {
+  opacity: 1 !important;
+  transition: opacity 1s, z-index 1s, transform 1s;
+}
+
+@media only screen and (min-width: 768px) {
+  .locations__wrapper {
+    display: grid;
+    align-items: center;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.locations__info {
+  padding-right: 60px;
+}
+
+.locations__info .section__header {
+  margin: 0 0 30px;
+}
+
+.locations__info-heading:last-child {
+  margin: 0;
+  padding-bottom: 10px;
+}
+
+.locations__info-subheading {
+  margin: 0 0 16px;
+}
+
+.location__store {
+  width: 100%;
+}
+@media only screen and (max-width: 1023px) {
+  .location__store {
+    padding-bottom: calc(var(--gutter) / 2);
+  }
+}
+.location__store p {
+  margin: 0;
+}
+
+.location__address {
+  text-transform: none;
+}
+
+.locations__gallery {
+  position: relative;
+}
+
+.body--rounded-corners .location__image {
+  border-radius: var(--radius);
+  overflow: hidden;
+}

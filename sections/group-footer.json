@@ -1,0 +1,106 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "type": "footer",
+  "name": "Footer group",
+  "sections": {
+    "footer": {
+      "type": "footer",
+      "blocks": {
+        "logo": {
+          "type": "logo",
+          "settings": {
+            "alignment": "text-left",
+            "logo_width": 100,
+            "show_shop_name": false,
+            "column_width": "20"
+          }
+        },
+        "divider": {
+          "type": "divider",
+          "settings": {
+            "show_border_line": false,
+            "column_width": "20"
+          }
+        },
+        "link": {
+          "type": "link",
+          "settings": {
+            "alignment": "text-left",
+            "menu": "footer-2",
+            "title": "Help",
+            "column_width": "15"
+          }
+        },
+        "link-0": {
+          "type": "link",
+          "settings": {
+            "alignment": "text-left",
+            "menu": "footer-3",
+            "title": "Company",
+            "column_width": "15"
+          }
+        },
+        "newsletter": {
+          "type": "newsletter",
+          "settings": {
+            "alignment": "text-left",
+            "title": "Sign up for offers and get 10% off",
+            "uppercase_heading": true,
+            "heading_size": 160,
+            "text": "<p>Join our newsletter to receive the latest updates and get 10% off your FIRST order.</p>",
+            "button_text": "",
+            "button_color": "btn--white",
+            "button_style": "btn--solid",
+            "column_width": "30"
+          }
+        },
+        "logo_full": {
+          "type": "logo_full",
+          "settings": {
+            "alignment": "text-center",
+            "logo_width": 100,
+            "padding_top": 0
+          }
+        }
+      },
+      "block_order": [
+        "logo",
+        "divider",
+        "link",
+        "link-0",
+        "newsletter",
+        "logo_full"
+      ],
+      "settings": {
+        "show_footer_wave": false,
+        "enable_footer_parallax": true,
+        "increase_border_radius": true,
+        "bottom_bar_alignment": "text-left",
+        "show_social_links": true,
+        "enable_follow_on_shop": true,
+        "show_payment_icons": true,
+        "enable_greyscale": true,
+        "bottom_menu": "",
+        "color_text": "#ffffff",
+        "color_border": "#ffffff",
+        "show_locale_selector": true,
+        "show_country_selector": true,
+        "show_country_flag": false,
+        "width": "wrapper--full-padded",
+        "padding_top": 20,
+        "padding_bottom": 10
+      }
+    }
+  },
+  "order": [
+    "footer"
+  ]
+}

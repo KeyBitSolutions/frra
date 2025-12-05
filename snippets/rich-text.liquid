@@ -1,0 +1,132 @@
+{%- style -%}
+  #BrickBlock--{{ block_id }} .rich-text__heading { --adjust-heading: calc(var(--FONT-ADJUST-HEADING) * {{ heading_size }}) }
+  #BrickBlock--{{ block_id }} .rich-text__text { --adjust-body: calc(var(--FONT-ADJUST-BODY) * {{ text_size }}) }
+{%- endstyle -%}
+
+{%- liquid
+  assign animations_enabled = settings.animations_enabled
+  assign animation_delay = 150
+
+  assign button_advanced_class = 'btn--advanced'
+  if button_style != 'btn--text'
+    assign button_advanced_class = button_advanced_class | append: ' btn--advanced-width-height'
+  endif
+  assign button_2_advanced_class = 'btn--advanced'
+  if button_2_style != 'btn--text'
+    assign button_2_advanced_class = button_2_advanced_class | append: ' btn--advanced-width-height'
+  endif
+-%}
+
+{%- capture content -%}
+  {%- if top_image != blank -%}
+    <div class="rich-text__top-image"
+      {% if animations_enabled %}
+        data-aos="fade-up"
+        data-aos-anchor="{{ animation_anchor }}"
+        data-aos-delay="{{ animation_delay }}"
+      {% endif %}>
+      {%- liquid
+        assign animation_delay = animation_delay | plus: 150
+        assign image_alt = top_image.alt | escape
+        assign retina_size = top_image_width | times: 2
+        assign image_widths = top_image_width | append: ', ' | append: retina_size
+        assign sizes = 'min((100vw - 60px - 40px), ' | append: top_image_width | append: 'px' | append: ')'
+
+        capture styles
+          echo 'width: ' | append: top_image_width | append: 'px;'
+        endcapture
+      -%}
+
+      {%- render 'image',
+        image: top_image,
+        widths: image_widths,
+        sizes: sizes,
+        alt: image_alt,
+        classes: 'rich-text__top-image-img',
+        cover: false,
+        styles: styles -%}
+    </div>
+  {%- endif -%}
+
+  {%- if subheading != blank -%}
+    <div class="subheading-text main-subheading"
+      {% if animations_enabled %}
+        data-aos="fade-up"
+        data-aos-anchor="{{ animation_anchor }}"
+        data-aos-delay="{{ animation_delay }}"
+        {%- assign animation_delay = animation_delay | plus: 150 -%}
+      {% endif %}>{{ subheading }}</div>
+  {%- endif -%}
+
+  {%- if heading != blank -%}
+    <h3 class="rich-text__heading h2"
+      {% if animations_enabled %}
+        data-aos="fade-up"
+        data-aos-anchor="{{ animation_anchor }}"
+        data-aos-delay="{{ animation_delay }}"
+        {%- assign animation_delay = animation_delay | plus: 150 -%}
+      {% endif %}>{{ heading }}</h3>
+
+    {%- if settings.show_spacer_lines -%}
+      <hr
+        {% if animations_enabled %}
+          data-aos="fade-up"
+          data-aos-delay="{{ animation_delay }}"
+          data-aos-anchor="{{ animation_anchor }}"
+        {% endif %}>
+      {%- assign animation_delay = animation_delay | plus: 150 -%}
+    {%- endif -%}
+  {%- endif -%}
+
+  {%- if text != blank -%}
+    <div class="rich-text__text"
+      {% if animations_enabled %}
+        data-aos="fade-up"
+        data-aos-anchor="{{ animation_anchor }}"
+        data-aos-delay="{{ animation_delay }}"
+        {%- assign animation_delay = animation_delay | plus: 150 -%}
+      {% endif %}>{{ text }}</div>
+  {%- endif -%}
+
+  {%- if button_text != blank or button_2_text != blank -%}
+    <div class="rich-text__buttons main-buttons">
+      {%- if button_text != blank -%}
+        <div class="main-buttons__item"
+          {% if animations_enabled %}
+            data-aos="fade-up"
+            data-aos-anchor="{{ animation_anchor }}"
+            data-aos-delay="{{ animation_delay }}"
+            {%- assign animation_delay = animation_delay | plus: 150 -%}
+          {% endif %}>
+          <a class="btn {{ button_style }} {{ button_size }} {{ button_color }} {{ button_advanced_class }}" href="{{ button_link }}">
+            <hover-button></hover-button>
+            {{- button_text -}}
+          </a>
+        </div>
+      {%- endif -%}
+
+      {%- if button_2_text != blank -%}
+        <div class="main-buttons__item"
+          {% if animations_enabled %}
+            data-aos="fade-up"
+            data-aos-anchor="{{ animation_anchor }}"
+            data-aos-delay="{{ animation_delay }}"
+            {%- assign animation_delay = animation_delay | plus: 150 -%}
+          {% endif %}>
+          <a class="btn {{ button_2_style }} {{ button_2_size }} {{ button_2_color }} {{ button_2_advanced_class }}" href="{{ button_2_link }}">
+            <hover-button></hover-button>
+            {{- button_2_text -}}
+          </a>
+        </div>
+      {%- endif -%}
+    </div>
+  {%- endif -%}
+{%- endcapture -%}
+
+<div class="rich-text text-{{ text_position }}{%- render 'button-fallback-classes', primary_color: button_color, secondary_color: button_2_color, section_bg_color: block_bg_color -%}">
+  <div class="{{ section_width }}">
+    <div class="rich-text__container">
+      {{- content -}}
+    </div>
+  </div>
+</div>

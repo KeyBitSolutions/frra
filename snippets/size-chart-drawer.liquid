@@ -1,0 +1,170 @@
+{%- comment -%}
+  Size Chart Drawer
+
+  Required parameters:
+    - product: {Object} Product object
+    - unique: {String} Unique ID
+    - section_type: {String} Section type (e.g., 'quickview')
+{%- endcomment -%}
+
+{%- liquid
+  assign type_style = settings.type_style
+  assign tab_heading_size = settings.tab_heading_size | times: 0.01
+
+  capture type_adjustment
+    case type_style
+      when 'font-heading'
+        echo 'var(--adjust-heading)'
+      when 'font-body'
+        echo 'var(--adjust-body)'
+      when 'subheading-text'
+        echo 'var(--adjust-accent)'
+    endcase
+  endcapture
+
+  capture drawer_classes
+    echo 'popup-chart drawer drawer--right'
+    if section_type == 'quickview'
+      echo ' popup-chart--quickview'
+    else
+      echo ' cv-h'
+    endif
+  endcapture
+
+  capture drawer_close_icon
+    if section_type == 'quickview'
+      render 'icon-chevron-right'
+    else
+      render 'icon-close'
+    endif
+  endcapture
+
+  assign tags_string = product.tags | join: ','
+  assign size_separator = '_size_'
+  assign specific_pages = ''
+  if tags_string contains size_separator
+    for tag in product.tags
+      if tag contains size_separator
+        assign page_handle = tag | split: size_separator | last | split: ',' | first
+        assign specific_pages = specific_pages | append: page_handle | append: ','
+      endif
+    endfor
+  endif
+  assign specific_pages_arr = specific_pages | split: ','
+
+  assign product_size_chart = product.metafields.theme.size_chart.value
+  assign info_page = settings.info_page
+  if product_size_chart != blank
+    assign info_page = product_size_chart
+  elsif info_page != blank
+    assign info_page = pages[info_page]
+  endif
+
+  assign show_tabs_nav = false
+  assign tabs_navigation = ''
+  assign tabs = ''
+  assign has_current = false
+  assign index = 0
+  assign pages_count = 0
+  assign empty_size_guide = true
+-%}
+
+{%- for page_handle in specific_pages_arr -%}
+  {%- assign page_size_chart = pages[page_handle] -%}
+
+  {%- if page_size_chart.title != blank -%}
+    {%- capture tabs_navigation -%}
+      {{ tabs_navigation }}
+      <li class="tabs__link" data-tabs-link="{{ forloop.index0 }}" tabindex="0">{{ page_size_chart.title }}</li>
+    {%- endcapture -%}
+
+    {%- capture tabs -%}
+      {{ tabs }}
+      <div class="tab{% unless has_current %} current{% endunless %}" data-tab="{{ forloop.index0 }}">
+        {%- if page_size_chart.content != blank -%}
+          {{ page_size_chart.content }}
+        {%- else -%}
+          {{ 'homepage.onboarding.no_page_content' | t }}
+        {%- endif -%}
+      </div>
+    {%- endcapture -%}
+
+    {%- assign has_current = true -%}
+    {%- assign pages_count = pages_count | plus: 1 -%}
+  {%- endif -%}
+{%- endfor -%}
+
+{%- if info_page != blank -%}
+  {%- assign index = specific_pages_arr.size -%}
+
+  {%- capture tabs_navigation -%}
+    {{ tabs_navigation }}
+    {%- if info_page.title != blank -%}
+      <li class="tabs__link" data-tabs-link="{{ index }}" data-lock-scroll tabindex="0">{{ info_page.title }}</li>
+    {%- endif -%}
+  {%- endcapture -%}
+
+  {%- capture tabs -%}
+    {{ tabs }}
+    <div class="tab{% unless has_current %} current{% endunless %}" data-tab="{{ index }}">
+      {%- if info_page.content != blank -%}
+        {{ info_page.content }}
+      {%- else -%}
+        {{ 'homepage.onboarding.no_page_content' | t }}
+      {%- endif -%}
+    </div>
+  {%- endcapture -%}
+
+  {%- assign has_current = true -%}
+  {%- assign pages_count = pages_count | plus: 1 -%}
+{%- endif -%}
+
+{%- liquid
+  if tabs != blank
+    assign empty_size_guide = false
+  endif
+  if pages_count > 1 and tabs_navigation != blank
+    assign show_tabs_nav = true
+  endif
+-%}
+
+{%- unless empty_size_guide -%}
+  <drawer-element class="{{ drawer_classes }}" id="size-chart--{{ unique }}" aria-hidden="true" role="dialog">
+    <button type="button" class="drawer__close-button" aria-controls="size-chart--{{ unique }}">
+      <drawer-toggle></drawer-toggle>
+      <span class="visually-hidden">{{ 'general.accessibility.close_drawer' | t }}</span>
+      {{- drawer_close_icon -}}
+    </button>
+
+    <div class="popup-chart__inner" data-scroll>
+      <div class="popup-chart__content">
+        <tabs-component class="rte tabs" data-tabs-holder>
+          {%- if show_tabs_nav -%}
+            <div class="tabs__head">
+              <style>
+                #size-chart--{{ unique }} .tabs__nav { --text-size: calc({{ type_adjustment }} * {{ tab_heading_size }}); }
+              </style>
+              <custom-scrollbar class="tabs-scrollbar">
+                <div class="tabs-scrollbar__holder" data-custom-scrollbar-holder>
+                  <ul class="tabs__nav {{ type_style }}" data-custom-scrollbar-items>
+                    {{ tabs_navigation }}
+                  </ul>
+
+                  <div class="custom-scrollbar" data-custom-scrollbar>
+                    <div class="custom-scrollbar__thumb" data-custom-scrollbar-thumb></div>
+                  </div>
+                </div>
+              </custom-scrollbar>
+            </div>
+          {%- endif -%}
+
+          {%- if tabs != '' -%}
+            <div class="tabs__contents" data-tabs-contents tabindex="0">
+              {{ tabs }}
+            </div>
+          {%- endif -%}
+        </tabs-component>
+      </div>
+    </div>
+  </drawer-element>
+{%- endunless -%}

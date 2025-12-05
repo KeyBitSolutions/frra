@@ -1,0 +1,134 @@
+{%- comment -%}
+  Renders product form with buy buttons
+
+  Accepts:
+  - product: {Object} product (required)
+
+  Usage:
+  {% render 'buy-buttons', product: product, product_form_id: product_form_id, unique: unique, is_quick_view: is_quick_view %}
+{%- endcomment -%}
+
+{%- liquid
+  assign current_variant = product.selected_or_first_available_variant
+  assign show_newsletter = settings.show_newsletter
+  assign atc_button_color = settings.atc_button_color
+  assign atc_button_style = settings.atc_button_style
+  assign atc_button_size = settings.atc_button_size
+  assign buynow_btn_color = settings.buynow_btn_color
+  assign buynow_btn_style = settings.buynow_btn_style
+  assign buynow_button_size = settings.buynow_button_size
+
+  assign sold_out_text = 'products.product.sold_out' | t
+
+  comment
+    Only show newsletter text if show_newsletter is enabled AND not in quick view
+  endcomment
+  if show_newsletter and is_quick_view == false
+    assign newsletter_text = 'general.newsletter_form.newsletter_product_availability' | t
+    assign sold_out_text = sold_out_text | append: ' - ' | append: newsletter_text
+  endif
+-%}
+
+{%- form 'product',
+  product,
+  data-product-form: '',
+  id: product_form_id,
+  data-recipient-errors: gift_card_recipient_feature_active,
+  data-max-inventory-reached: max_inventory_reached,
+  data-error-message-position: error_message_position,
+  data-variant-title: current_variant_title
+-%}
+  {% comment %} The input with name="id" submits to cart {% endcomment %}
+  <input type="hidden" name="id" value="{{ current_variant.id }}" data-product-select>
+
+  {%- unless show_quantity -%}
+    <input type="hidden" name="quantity" value="1">
+  {%- endunless -%}
+  <div class="product__submit__holder{% if show_payment_button %} product__submit__holder--spb{% endif %}{% if show_newsletter %} product__submit__holder--notification{% endif %}">
+    <div class="product__submit__buttons">
+      <div
+        class="product__submit__item"
+        {% if animations_enabled %}
+          data-aos="hero"
+          data-aos-anchor="{{ animation_anchor }}"
+          data-aos-order="{{ animation_order }}"
+          {%- assign animation_order = animation_order | plus: 1 -%}
+        {% endif %}
+      >
+        <button
+          type="submit"
+          name="add"
+          id="AddToCart--{{ unique }}"
+          class="btn {{ atc_button_color }} {{ atc_button_style }} {{ atc_button_size }} btn--advanced btn--submit product__submit__add"
+          data-add-to-cart
+          {% if show_newsletter %}
+            data-notification-popup
+          {% endif %}
+        >
+          <hover-button></hover-button>
+          <span
+            id="AddToCartText-{{ unique }}"
+            data-add-to-cart-text
+            {% if settings.atc_show_product_price %}
+              data-price-wrapper data-atc-button
+            {% endif %}
+          >
+            {%- if current_variant.available and product.tags contains '_preorder' -%}
+              {{- 'products.product.preorder' | t -}}
+            {%- elsif current_variant.available -%}
+              {{- 'products.product.add_to_cart' | t -}}
+            {%- else -%}
+              {{- sold_out_text -}}
+            {%- endif -%}
+
+            {%- if settings.atc_show_product_price and current_variant.available -%}
+              <span data-product-price class="product__price--regular">
+                {%- liquid
+                  if current_variant.price == 0
+                    echo 'products.product.free' | t
+                  elsif currency_code_enable
+                    echo current_variant.price | money_with_currency
+                  else
+                    echo current_variant.price | money
+                  endif
+                -%}
+              </span>
+
+              {% comment %}Only show compare price if it's greater than the selling price{% endcomment %}
+              {% if current_variant.compare_at_price > current_variant.price %}
+                <s data-compare-price class="product__price--compare">
+                  {%- liquid
+                    if currency_code_enable
+                      echo current_variant.compare_at_price | money_with_currency
+                    else
+                      echo current_variant.compare_at_price | money
+                    endif
+                  -%}
+                </s>
+              {% endif %}
+            {%- endif -%}
+          </span>
+
+          <em class="loader loader--line"><em class="loader-indeterminate"></em></em>
+        </button>
+      </div>
+
+      {%- if show_payment_button -%}
+        <div
+          class="product__submit__item{% if sold_out %} hidden{% endif %} {{ buynow_btn_color }} {{ buynow_btn_style }} {{ buynow_button_size }} btn--advanced"
+          data-buy-it-now
+          {% if animations_enabled %}
+            data-aos="hero"
+            data-aos-anchor="{{ animation_anchor }}"
+            data-aos-order="{{ animation_order }}"
+            {%- assign animation_order = animation_order | plus: 1 -%}
+          {% endif %}
+        >
+          {{ form | payment_button }}
+        </div>
+      {%- endif -%}
+    </div>
+
+    <div data-cart-errors-container role="alert" class="product__form__errors"></div>
+  </div>
+{%- endform -%}

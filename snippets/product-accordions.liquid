@@ -1,0 +1,93 @@
+{%- liquid
+  assign enable_full_width = block_settings.enable_full_width
+  assign show_description = block_settings.show_description
+  assign show_read_more = block_settings.show_read_more
+  assign show_accordion_divider = block_settings.show_accordion_divider
+  assign heading = block_settings.accordion_heading
+  assign heading_style = block_settings.heading_style
+  assign bg_color = section.settings.bg_color
+  assign tabs_bg_color = block_settings.tabs_bg_color
+  assign text = block_settings.accordion_text
+  assign page = block_settings.accordion_page
+  assign open_by_default = block_settings.open_by_default
+
+  if show_description
+    assign content = product.description | default: text
+  else
+    assign content = page.content | default: text
+  endif
+
+  assign border_opacity = 0
+  if show_accordion_divider
+    assign border_opacity = 1
+  endif
+
+  assign has_bg_color = false
+  if tabs_bg_color.alpha != 0.0 and tabs_bg_color != ''
+    if bg_color.alpha != 0.0 and bg_color != '' and tabs_bg_color != bg_color
+      assign has_bg_color = true
+      assign border_opacity = 0
+    elsif bg_color.alpha == 0.0 or bg_color == '' and tabs_bg_color != bg_color
+      assign has_bg_color = true
+      assign border_opacity = 0
+    endif
+  endif
+
+  assign border_width = 1
+  if block_settings.line_thickness == 'bold'
+    assign border_width = 2
+  endif
+-%}
+
+{%- capture style -%}
+  --border-opacity: {{ border_opacity }};
+  --border-width: {{ border_width }}px;
+
+  {% if has_bg_color -%}
+    --bg-item: {{ tabs_bg_color }};
+    --bg-ellipsis: {{ tabs_bg_color }};
+    --padding-sides: var(--gutter-mobile);
+    --display-pseudo: block;
+  {%- else -%}
+    --bg-item: transparent;
+    --bg-ellipsis: var(--bg);
+    --padding-sides: 0;
+    --display-pseudo: none;
+    --radius: 0;
+  {%- endif %}
+{%- endcapture -%}
+
+{%- if show_description or heading != '' and content != '' -%}
+  <div
+    class="product__accordion"
+    data-collapsible
+    style="{{ style }}"
+  >
+    <button
+      class="product__accordion__title {{ heading_style }}{% if open_by_default %} is-expanded{% endif %}"
+      aria-controls="ProductAccordion--page-{{ heading | handle }}--{{ section.id }}--{{ block_id }}"
+      data-collapsible-trigger
+      aria-expanded="{% if open_by_default %}true{% else %}false{% endif %}"
+    >
+      {{- heading -}}
+      {%- render 'icon-toggle-plus' -%}
+      {%- render 'icon-toggle-minus' -%}
+    </button>
+    <div
+      class="product__accordion__content{% if open_by_default %} is-expanded{% endif %}"
+      id="ProductAccordion--page-{{ heading | handle }}--{{ section.id }}--{{ block_id }}"
+      data-collapsible-container
+      {% if open_by_default %}
+        style="height: auto;"
+      {% endif %}
+    >
+      <div class="product__accordion__inner rte" data-collapsible-content>
+        {%- render 'toggle-ellipsis',
+          content: content,
+          enable_full_width: enable_full_width,
+          show_read_more: show_read_more
+        -%}
+      </div>
+    </div>
+  </div>
+{%- endif -%}

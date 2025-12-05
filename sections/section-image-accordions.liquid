@@ -1,0 +1,642 @@
+{% comment %} /sections/image-accordion.liquid {% endcomment %}
+
+{%- liquid
+  assign accordion_height = section.settings.accordion_height
+  assign mobile_section_height = ''
+  if section.settings.enable_mobile_height
+    assign mobile_section_height = ' ' | append: section.settings.mobile_section_height
+  endif
+  assign animations_enabled = settings.animations_enabled
+  assign animation_anchor = '#ImageAccordions--' | append: section.id
+  assign animation_delay = 150
+  assign blocks_size = section.blocks.size
+  assign heading_size = section.settings.heading_size | times: 0.01
+  assign section_width = section.settings.width
+  assign color_scheme = 'color-' | append: section.settings.color_scheme
+  assign selected_color_scheme = section.settings.color_scheme | strip
+  assign scheme_bg_color = settings.color_schemes[selected_color_scheme].settings.section_bg
+  assign scheme_bg_gradient = settings.color_schemes[selected_color_scheme].settings.section_bg_gradient
+
+  assign cover = false
+  if section_width == 'wrapper--full'
+    assign cover = true
+  endif
+
+  comment
+    Images sizes
+  endcomment
+  capture container_width_percentage
+    case blocks_size
+      when 1
+        echo 1
+      when 2
+        echo 0.833
+      when 3
+        echo 0.714
+      when 4
+        echo 0.625
+    endcase
+  endcapture
+  # Desktop widths
+  assign img_width_lg = 'calc(100vw * ' | append: container_width_percentage | append: ')'
+  # Mobile widths
+  assign img_width_sm = 'calc(100vw - 20px)'
+
+  assign sizes = '(min-width: 768px) ' | append: img_width_lg | append: ', ' | append: img_width_sm
+-%}
+
+<link
+  href="{{ 'section-image-accordions.css' | asset_url }}"
+  rel="preload"
+  as="style"
+  onload="this.onload=null;this.rel='stylesheet'"
+>
+
+<script src="{{ 'image-accordions.js' | asset_url }}" defer></script>
+
+{% if request.design_mode %}
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.imageAccordionsBlockSelectHandlerAttached) return;
+      window.imageAccordionsBlockSelectHandlerAttached = true;
+
+      document.addEventListener('shopify:block:select', (event) => {
+        // Show image accordion on block select
+        const target = event.target;
+        const imageAccordionsComponent = target.closest('image-accordions');
+        if (!imageAccordionsComponent) return;
+
+        if (typeof imageAccordionsComponent.controller !== 'undefined') {
+          imageAccordionsComponent.controller.abort();
+        }
+
+        imageAccordionsComponent.parentNode.classList.remove('to-animate', 'is-animating');
+
+        if (typeof imageAccordionsComponent.accordionExpand == 'function') {
+          imageAccordionsComponent.accordionExpand(target);
+        }
+
+        if (!window.theme.isMobile()) return;
+        target.parentNode.scrollTo({
+          top: 0,
+          left: target.offsetLeft,
+          behavior: 'smooth',
+        });
+      });
+    });
+  </script>
+{% endif %}
+
+{%- style -%}
+  #ImageAccordions--{{ section.id }} {
+    --PT: {{ section.settings.padding_top }}px;
+    --PB: {{ section.settings.padding_bottom }}px;
+
+    {%- if scheme_bg_gradient != '' -%}
+      --bg: {{ scheme_bg_color }};
+    {%- endif %}
+  }
+  #ImageAccordions--{{ section.id }} .main-heading {
+    --adjust-heading: calc(var(--FONT-ADJUST-HEADING) * {{ heading_size }});
+  }
+  @media screen and (max-width: 479px) {
+    #ImageAccordions--{{ section.id }} .main-heading { --adjust-heading: calc(var(--FONT-ADJUST-HEADING) * {{ heading_size | at_most: 1.5 }}); }
+  }
+{%- endstyle -%}
+
+<section
+  id="ImageAccordions--{{ section.id }}"
+  class="section-padding section-image-accordions{% if animations_enabled %} to-animate{% endif %} {{ color_scheme }}"
+  {% unless cover %}
+    data-prevent-transparent-header
+  {% endunless %}
+  data-section-id="{{ section.id }}"
+  data-section-type="image-accordions"
+  {% if animations_enabled %}
+    data-aos="fade"
+    data-aos-anchor="{{ animation_anchor }}"
+    data-aos-delay="{{ animation_delay }}"
+  {% endif %}
+>
+  <image-accordions>
+    <div class="{{ section_width }}">
+      {%- if section.blocks.size > 0 -%}
+        <div class="image-accordions image-accordions--{{ blocks_size }} {{ accordion_height }}{{ mobile_section_height }}{% unless cover %} image-accordions--spacing{% endunless %}">
+          {%- for block in section.blocks -%}
+            {%- liquid
+              assign image_desktop = block.settings.image
+              assign image_mobile = block.settings.image_mobile
+              assign title = block.settings.title
+              assign text = block.settings.text
+              assign text_position = block.settings.text_position
+              assign text_width = block.settings.text_width
+              assign overlay_type = block.settings.overlay_type
+              assign opacity_overlay = false
+              assign text_underlay = false
+
+              if overlay_type == 'opacity'
+                assign opacity_overlay = true
+              elsif overlay_type == 'text'
+                assign text_underlay = true
+              endif
+
+              comment
+                theme-check-disable VariableName
+              endcomment
+              assign button_1_text = block.settings.button_1_text
+              assign button_1_link = block.settings.button_1_link
+              assign button_1_style = block.settings.button_1_style
+              assign button_1_color = block.settings.button_1_color
+              assign button_1_size = block.settings.button_1_size
+              assign button_2_text = block.settings.button_2_text
+              assign button_2_link = block.settings.button_2_link
+              assign button_2_color = block.settings.button_2_color
+              assign button_2_style = block.settings.button_2_style
+              assign button_2_size = block.settings.button_2_size
+              assign animation_order = 1
+
+              if button_1_link != blank and button_1_text == blank and button_2_text == blank
+                assign image_link = true
+              endif
+
+              assign button_1_advanced_class = 'btn--advanced'
+              if button_1_style != 'btn--text'
+                assign button_1_advanced_class = button_1_advanced_class | append: ' btn--advanced-width-height'
+              endif
+              assign button_2_advanced_class = 'btn--advanced'
+              if button_2_style != 'btn--text'
+                assign button_2_advanced_class = button_2_advanced_class | append: ' btn--advanced-width-height'
+              endif
+
+              assign img_in_class = false
+              if image_desktop == null and image_mobile == null
+                assign img_in_class = true
+              endif
+            -%}
+
+            <div
+              class="image-accordion image-accordion--{{ block.id }} item--{{ text_position }}{% unless animations_enabled %} image-accordion--no-animation{% endunless %}{% if forloop.last %} is-active{% endif %}{% if img_in_class %} img-in{% endif %}"
+              data-accordion-item
+              {{ block.shopify_attributes }}
+            >
+              <div class="image-accordion__inner">
+                {%- if image_link -%}
+                  <a href="{{ button_1_link }}" class="image-accordion__link" data-accordion-button>
+                {%- endif -%}
+
+                {%- if opacity_overlay -%}
+                  <div class="overlay"></div>
+                {%- endif -%}
+
+                {%- liquid
+                  capture placeholder_svg
+                    echo 'lifestyle-'
+                    cycle 1, 2
+                  endcapture
+                  render 'image-fill', is_background: true, image_desktop: image_desktop, image_mobile: image_mobile, sizes: sizes, classes: 'image-accordion__image__container', placeholder_svg: placeholder_svg
+                -%}
+
+                {%- unless title == blank and text == blank and button_1_text == blank and button_2_text == blank -%}
+                  <div
+                    class="image-accordion__text {% if text_underlay %} backdrop--radial{% endif %}"
+                    {% if animations_enabled %}
+                      data-aos="when-active-animate-up"
+                      data-aos-anchor="{{ animation_anchor }}"
+                      data-aos-order="{{ animation_order }}"
+                      {%- assign animation_order = animation_order | plus: 1 -%}
+                    {% endif %}
+                  >
+                    <div class="slide__text__wrapper slide__text__wrapper--{{ text_width }}">
+                      {%- if title != blank -%}
+                        <h2 class="main-heading">
+                          {%- liquid
+                            if animations_enabled
+                              assign title_lines = title | escape | newline_to_br | split: '<br />'
+                              for line in title_lines
+                                echo '<span class="text-reveal__cropper"><span data-aos="when-active-animate-up" data-aos-anchor="' | append: animation_anchor | append: '" data-aos-order="' | append: animation_order | append: '">'
+                                echo line
+                                echo '</span></span>'
+
+                                unless forloop.last
+                                  assign animation_order = animation_order | plus: 1
+                                endunless
+                              endfor
+
+                              assign animation_order = animation_order | plus: 1
+                            else
+                              echo title | escape
+                            endif
+                          -%}
+                        </h2>
+                      {%- endif -%}
+
+                      {%- if text != blank -%}
+                        <h2 class="image-accordion__text__content main-text">
+                          {%- liquid
+                            if animations_enabled
+                              assign text_lines = text | escape | newline_to_br | split: '<br />'
+                              for line in text_lines
+                                echo '<span class="text-reveal__cropper"><span data-aos="when-active-animate-up" data-aos-order="' | append: animation_order | append: '">'
+                                echo line
+                                echo '</span></span>'
+
+                                unless forloop.last
+                                  assign animation_order = animation_order | plus: 1
+                                endunless
+                              endfor
+
+                              assign animation_order = animation_order | plus: 1
+                            else
+                              echo text | escape | newline_to_br
+                            endif
+                          -%}
+                        </h2>
+                      {%- endif -%}
+
+                      {%- if button_1_text != blank or button_2_text != blank -%}
+                        <div class="image-accordion__text__buttons main-buttons">
+                          {%- if button_1_text != blank -%}
+                            <div
+                              class="main-buttons__item"
+                              {% if animations_enabled %}
+                                data-aos="when-active-animate-up"
+                                data-aos-anchor="{{ animation_anchor }}"
+                                data-aos-order="{{ animation_order }}"
+                                {%- assign animation_order = animation_order | plus: 1 -%}
+                              {% endif %}
+                            >
+                              {%- if button_1_link != blank -%}
+                                <a
+                                  class="slide__btn btn {{ button_1_style }} {{ button_1_size }} {{ button_1_color }} {{ button_1_advanced_class }}"
+                                  href="{{ button_1_link | default: '#!' }}"
+                                  data-accordion-button
+                                >
+                                  <hover-button></hover-button>
+                                  {{- button_1_text -}}
+                                </a>
+                              {%- else -%}
+                                <span class="slide__btn btn {{ button_1_style }} {{ button_1_size }} {{ button_1_color }} {{ button_1_advanced_class }}">
+                                  <hover-button></hover-button>
+                                  {{- button_1_text -}}
+                                </span>
+                              {%- endif -%}
+                            </div>
+                          {%- endif -%}
+
+                          {%- if button_2_text != blank -%}
+                            <div
+                              class="main-buttons__item"
+                              {% if animations_enabled %}
+                                data-aos="when-active-animate-up"
+                                data-aos-anchor="{{ animation_anchor }}"
+                                data-aos-order="{{ animation_order }}"
+                              {% endif %}
+                            >
+                              {%- if button_2_link != blank -%}
+                                <a
+                                  class="slide__btn btn {{ button_2_style }} {{ button_2_size }} {{ button_2_color }} {{ button_2_advanced_class }}"
+                                  href="{{ button_2_link | default: '#!' }}"
+                                  data-accordion-button
+                                >
+                                  <hover-button></hover-button>
+                                  {{- button_2_text -}}
+                                </a>
+                              {%- else -%}
+                                <span class="slide__btn btn {{ button_2_style }} {{ button_2_size }} {{ button_2_color }} {{ button_2_advanced_class }}">
+                                  <hover-button></hover-button>
+                                  {{- button_2_text -}}
+                                </span>
+                              {%- endif -%}
+                            </div>
+                          {%- endif -%}
+                        </div>
+                      {%- endif -%}
+                    </div>
+                  </div>
+                {%- endunless -%}
+
+                {%- if image_link -%}
+                  </a>
+                {%- endif -%}
+              </div>
+            </div>
+          {%- endfor -%}
+        </div>
+      {%- else -%}
+        {%- render 'no-blocks' -%}
+      {%- endif -%}
+    </div>
+  </image-accordions>
+</section>
+
+{% schema %}
+{
+  "name": "Image accordions",
+  "max_blocks": 4,
+  "class": "supports-transparent-header",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "accordion_height",
+      "label": "Height",
+      "default": "six-fifty-height",
+      "options": [
+        {"value": "full-height", "label": "Full screen"},
+        {"value": "three-quarters-height", "label": "Three quarters of screen"},
+        {"value": "two-thirds-height", "label": "Two thirds of screen"},
+        {"value": "one-half-height", "label": "One half of screen"},
+        {"value": "one-third-height", "label": "One third of screen"},
+        {"value": "one-fifth-height", "label": "One fifth of screen"},
+        {"value": "seven-fifty-height", "label": "750px"},
+        {"value": "six-fifty-height", "label": "650px"},
+        {"value": "five-fifty-height ", "label": "550px"},
+        {"value": "four-fifty-height", "label": "450px"}
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_mobile_height",
+      "label": "Enable mobile height",
+      "default": false
+    },
+    {
+      "type": "select",
+      "id": "mobile_section_height",
+      "label": "Mobile height",
+      "default": "five-fifty-height-mobile",
+      "options": [
+        {"value": "full-height-mobile", "label": "Full screen"},
+        {"value": "three-quarters-height-mobile", "label": "Three quarters of screen"},
+        {"value": "two-thirds-height-mobile", "label": "Two thirds of screen"},
+        {"value": "one-half-height-mobile", "label": "One half of screen"},
+        {"value": "one-third-height-mobile", "label": "One third of screen"},
+        {"value": "one-fifth-height-mobile", "label": "One fifth of screen"},
+        {"value": "seven-fifty-height-mobile", "label": "750px"},
+        {"value": "six-fifty-height-mobile", "label": "650px"},
+        {"value": "five-fifty-height-mobile", "label": "550px"},
+        {"value": "four-fifty-height-mobile", "label": "450px"}
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Heading"
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "label": "Size",
+      "default": 100,
+      "min": 75,
+      "max": 150,
+      "step": 5,
+      "unit": "%"
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-3"
+    },
+    {
+      "type": "header",
+      "content": "Section spacing"
+    },
+    {
+      "type": "select",
+      "id": "width",
+      "label": "Width",
+      "default": "wrapper--full",
+      "options": [
+        {"value": "wrapper--full", "label": "Full width"},
+        {"value": "wrapper--full-padded", "label": "Full width padded"},
+        {"value": "wrapper", "label": "Page width"}
+      ]
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "label": "Padding top",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "label": "Padding bottom",
+      "default": 0
+    }
+  ],
+  "blocks": [
+    {
+      "type": "image",
+      "name": "Image",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image",
+          "info": "2048px width recommended"
+        },
+        {
+          "type": "image_picker",
+          "id": "image_mobile",
+          "label": "Mobile image",
+          "info": "Optional"
+        },
+        {
+          "type": "select",
+          "id": "overlay_type",
+          "label": "Overlay type",
+          "default": "disabled",
+          "options": [
+            {"value": "disabled", "label": "Disabled"},
+            {"value": "opacity", "label": "Opacity overlay"},
+            {"value": "text", "label": "Text underlay"}
+          ]
+        },
+        {
+          "type": "header",
+          "content": "Text"
+        },
+        {
+          "type": "select",
+          "id": "text_width",
+          "label": "Width",
+          "default": "wide",
+          "options": [
+            {"label": "Narrow", "value": "narrow"},
+            {"label": "Normal", "value": "normal"},
+            {"label": "Wide", "value": "wide"}
+          ]
+        },
+        {
+          "type": "select",
+          "id": "text_position",
+          "label": "Position",
+          "default": "left",
+          "options": [
+            {"value": "left", "label": "Left"},
+            {"value": "center", "label": "Center"},
+            {"value": "right", "label": "Right"},
+            {"value": "bottom-left", "label": "Bottom left"},
+            {"value": "bottom-right", "label": "Bottom right"},
+            {"value": "top-left", "label": "Top left"},
+            {"value": "top-right", "label": "Top right"}
+          ]
+        },
+        {
+          "type": "textarea",
+          "id": "title",
+          "label": "Heading",
+          "default": "Welcome to Palo Alto"
+        },
+        {
+          "type": "textarea",
+          "id": "text",
+          "label": "Text",
+          "default": "This text helps you provide some more detail to the title above."
+        },
+        {
+          "type": "header",
+          "content": "Button 1"
+        },
+        {
+          "type": "text",
+          "id": "button_1_text",
+          "label": "Text",
+          "info": "Leave blank to link entire image"
+        },
+        {
+          "type": "url",
+          "id": "button_1_link",
+          "label": "Link"
+        },
+        {
+          "type": "select",
+          "id": "button_1_color",
+          "label": "Button color",
+          "default": "btn--white",
+          "options": [
+            {"label": "Primary", "value": "btn--primary"},
+            {"label": "Secondary", "value": "btn--secondary"},
+            {"label": "White", "value": "btn--white"},
+            {"label": "Black", "value": "btn--black"}
+          ]
+        },
+        {
+          "type": "select",
+          "id": "button_1_style",
+          "label": "Button style",
+          "default": "btn--solid-border",
+          "options": [
+            {"label": "Solid", "value": "btn--solid"},
+            {"label": "Outline", "value": "btn--outline"},
+            {"label": "Solid with border", "value": "btn--solid-border"},
+            {"label": "Soft", "value": "btn--soft"},
+            {"label": "Text", "value": "btn--text"}
+          ]
+        },
+        {
+          "type": "select",
+          "id": "button_1_size",
+          "label": "Size",
+          "default": "btn--medium",
+          "options": [
+            {"label": "Small", "value": "btn--small"},
+            {"label": "Medium", "value": "btn--medium"},
+            {"label": "Large", "value": "btn--large"}
+          ]
+        },
+        {
+          "type": "header",
+          "content": "Button 2"
+        },
+        {
+          "type": "text",
+          "id": "button_2_text",
+          "label": "Text"
+        },
+        {
+          "type": "url",
+          "id": "button_2_link",
+          "label": "Link"
+        },
+        {
+          "type": "select",
+          "id": "button_2_color",
+          "label": "Button color",
+          "default": "btn--black",
+          "options": [
+            {"label": "Primary", "value": "btn--primary"},
+            {"label": "Secondary", "value": "btn--secondary"},
+            {"label": "White", "value": "btn--white"},
+            {"label": "Black", "value": "btn--black"}
+          ]
+        },
+        {
+          "type": "select",
+          "id": "button_2_style",
+          "label": "Button style",
+          "default": "btn--solid",
+          "options": [
+            {"label": "Solid", "value": "btn--solid"},
+            {"label": "Outline", "value": "btn--outline"},
+            {"label": "Solid with border", "value": "btn--solid-border"},
+            {"label": "Soft", "value": "btn--soft"},
+            {"label": "Text", "value": "btn--text"}
+          ]
+        },
+        {
+          "type": "select",
+          "id": "button_2_size",
+          "label": "Size",
+          "default": "btn--medium",
+          "options": [
+            {"label": "Small", "value": "btn--small"},
+            {"label": "Medium", "value": "btn--medium"},
+            {"label": "Large", "value": "btn--large"}
+          ]
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Image accordions",
+      "category": "Storytelling",
+      "blocks": [
+        {
+          "type": "image"
+        },
+        {
+          "type": "image"
+        },
+        {
+          "type": "image"
+        },
+        {
+          "type": "image"
+        }
+      ]
+    }
+  ],
+  "disabled_on": {
+    "groups": ["header", "aside", "footer"]
+  }
+}
+{% endschema %}

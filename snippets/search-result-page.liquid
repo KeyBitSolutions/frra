@@ -1,0 +1,54 @@
+{%- comment -%} /snippets/search-result-page.liquid {%- endcomment -%}
+
+{%- liquid
+  assign item_title = item.title | strip_html | escape
+  assign desktop_width = desktop_width | default: ''
+  assign mobile_width = mobile_width | default: ''
+  assign classes = classes | prepend: ' ' | default: ''
+  assign id = id | default: ''
+  assign type = type | default: ''
+  assign animations_enabled = settings.animations_enabled
+  assign intersection_ratio = intersection_ratio | default: '0.3'
+  assign animation_anchor = animation_anchor | default: section.id
+  assign animation_delay = animation_delay | default: 150
+  assign aos_order = aos_order | default: 1
+
+  capture item_classes
+    echo 'search-result-page'
+    case type
+      when 'all-types'
+        echo ' search-result-page--all-types'
+      when 'results-pages'
+        echo ' search-result-page--results-pages'
+    endcase
+    echo classes
+  endcapture
+
+  capture animations_attr
+    if animations_enabled
+      case type
+        when 'all-types'
+          echo ' data-aos="fade-left"'
+          echo ' data-aos-delay="' | append: animation_delay | append: '" '
+          echo ' data-aos-intersection="' | append: intersection_ratio | append: '"'
+        else
+          echo ' data-aos="hero"'
+          echo ' data-aos-order="' | append: aos_order | append: '" '
+      endcase
+      echo ' data-aos-anchor="' | append: animation_anchor | append: '"'
+    endif
+  endcapture
+-%}
+
+<a href="{{ item.url }}"
+  {% if id != '' %}id="{{ id }}"{% endif %}
+  class="{{ item_classes }}"
+  title="{{ item_title }}"
+  aria-label="{{ item_title }}"
+  {{ animations_attr }}>
+  <div class="search-result-page__title h3">
+    <span>
+      {{- item_title -}}
+    </span>
+  </div>
+</a>

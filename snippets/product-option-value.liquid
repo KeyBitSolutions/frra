@@ -1,0 +1,152 @@
+{% comment %}
+  Renders product option values with availability information for high-variant products
+
+  Accepts:
+  - product: {Object} Product object
+  - option: {Object} Current product option
+  - value: {String} Current option value
+  - forloop: {Object} The forloop object for the current option value
+  - input_id: {String} The ID for the input element
+  - product_form_id: {String} The ID for the product form
+  - current_option_position: {Int} The index of the option
+  - is_swatch_option: {Boolean} Whether this is a swatch option
+  - is_native_swatch_option: {Boolean} Whether this is a native swatch option
+  - has_variant_option_image: {Boolean} Whether this option has variant images
+
+  Usage:
+  {% render 'product-option-value',
+    product: product,
+    option: option,
+    value: value,
+    forloop: forloop,
+    input_id: input_id,
+    product_form_id: product_form_id,
+    is_swatch_option: is_swatch_option,
+    is_native_swatch_option: is_native_swatch_option,
+    has_variant_option_image: has_variant_option_image
+  %}
+{% endcomment %}
+
+{%- liquid
+  # Check if the option value is available in the context of currently selected options
+  assign is_available = value.available
+
+  # Check if the option value is selected
+  assign is_selected = value.selected
+-%}
+
+{%- capture options_markup -%}
+  {% comment %} radio button {% endcomment %}
+  <span class="radio__button{% unless is_available %} sold-out{% endunless %}"{% if has_variant_option_image %} data-variant-option-image{% endif %}>
+    <input
+      type="radio"
+      class="radio__input"
+      data-single-option-selector
+      data-index="{{ current_option_position }}"
+      name="options[{{ option.name | escape_once }}]"
+      value="{{ value | escape_once }}"
+      id="{{ input_id }}"
+      {% if is_selected %}checked{% endif %}
+      data-product-url="{{ value.product_url }}"
+      data-option-value-id="{{ value.id }}"
+      form="{{ product_form_id }}"
+    >
+
+    <label for="{{ input_id }}" class="radio__label">
+      {%- if has_variant_option_image -%}
+        <span class="option-image">
+          {%- assign variant_option_image_translation = 'products.product.variant_option_image' | t -%}
+          {%- assign option_name = option.name | handle -%}
+          {%- assign variant_option_image_handle = variant_option_image_translation | handle -%}
+
+          {%- if option_name == variant_option_image_handle -%}
+            {%- liquid
+              assign product_option_value = value | product_option_value: product, option
+              assign variant_option_image = product_option_value.variant.featured_media.preview_image
+            -%}
+
+            {% if variant_option_image %}
+              {%- capture srcset -%}
+                {%- render 'image-srcset', image: variant_option_image, widths: '60, 90, 120, 150, 180' -%}
+              {%- endcapture -%}
+
+              {{ variant_option_image | image_url: height: 60 | image_tag: srcset: srcset, sizes: '180px' }}
+            {%- else -%}
+              {{- 'product-1' | placeholder_svg_tag: 'placeholder-svg-filled' -}}
+            {% endif %}
+          {%- endif -%}
+        </span>
+      {%- endif -%}
+
+      <span class="option-title">{{ value | escape_once }}</span>
+    </label>
+  </span>
+{%- endcapture -%}
+
+{%- if is_swatch_option or is_native_swatch_option -%}
+  {%- liquid
+    assign current_option_variants = product | map: 'variants' | where: current_option_position, value
+    assign current_option_variants_id = current_option_variants | map: 'id' | join: ','
+
+    unless show_variant_image and color_swatch_variant_image
+      if is_native_swatch_option
+        if value.swatch.image
+          assign image_url = value.swatch.image | image_url: width: 96
+          assign swatch_value = 'url(' | append: image_url | append: ')'
+        elsif value.swatch.color
+          assign swatch_value = 'rgb(' | append: value.swatch.color.rgb | append: ')'
+        else
+          assign swatch_value = null
+        endif
+      else
+        assign swatch_value = value | handle
+      endif
+
+      capture swatch_style
+        if is_swatch_option
+          echo '--swatch: var(--' | append: swatch_value | append: ');'
+        elsif is_native_swatch_option
+          echo '--swatch: ' | append: swatch_value
+        endif
+      endcapture
+    endunless
+  -%}
+
+  {%- if show_variant_image and color_swatch_variant_image -%}
+    {{ options_markup }}
+  {%- else -%}
+    <tooltip-component
+      class="swatches swatch__button swatch__button--{{ settings.color_swatches_product_style }}{% unless is_available %} sold-out{% endunless %}"
+      data-swatches-button
+    >
+      <input
+        type="radio"
+        class="swatch__input"
+        data-single-option-selector
+        data-index="{{ current_option_position }}"
+        name="options[{{ option.name | escape_once }}]"
+        value="{{ value | escape_once }}"
+        id="{{ input_id }}"
+        {% if is_selected %}
+          checked
+        {% endif %}
+        data-product-url="{{ value.product_url }}"
+        data-option-value-id="{{ value.id }}"
+        form="{{ product_form_id }}"
+      >
+      <label
+        for="{{ input_id }}"
+        class="swatch__label"
+        data-swatch="{{ value | escape_once }}"
+        data-tooltip="{{ value | escape_once }}"
+        data-swatch-variant="{{ current_option_variants_id }}"
+        style="{{ swatch_style }}"
+      >
+        <span class="visually-hidden">{{ value | escape_once }}</span>
+        <span class="icon icon-check"></span>
+      </label>
+    </tooltip-component>
+  {%- endif -%}
+{%- else -%}
+  {{ options_markup }}
+{%- endif -%}

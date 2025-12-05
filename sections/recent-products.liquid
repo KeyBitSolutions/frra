@@ -1,0 +1,228 @@
+{%- liquid
+  assign limit = section.settings.product_recently_limit
+  assign product_recently_minimum = section.settings.product_recently_minimum
+  assign title = section.settings.title
+  assign color_scheme = 'color-' | append: section.settings.color_scheme
+  assign selected_color_scheme = section.settings.color_scheme | strip
+  assign scheme_bg_color = settings.color_schemes[selected_color_scheme].settings.section_bg
+  assign scheme_bg_gradient = settings.color_schemes[selected_color_scheme].settings.section_bg_gradient
+
+  assign section_width = section.settings.width
+  assign columns_mobile = section.settings.columns_mobile | plus: 0
+
+  assign animations_enabled = settings.animations_enabled
+  assign columns = settings.products_per_row_on_desktop
+
+  assign section_id = 'recentProducts--' | append: section.id
+  assign selector_id = '#' | append: section_id
+  assign animation_anchor = selector_id
+  assign animation_delay = 150
+
+  assign enable_carousel = false
+  if section.settings.layout == 'carousel'
+    assign enable_carousel = true
+  endif
+
+  assign container_class = 'grid__container'
+  assign layout_class = 'grid grid--mobile'
+
+  if enable_carousel
+    assign container_class = 'carousel__container'
+    assign layout_class = 'carousel carousel--inactive carousel--mobile'
+  endif
+
+  assign scheme_bg_color_brightness = scheme_bg_color | color_brightness | round
+  if scheme_bg_color_brightness < 153
+    assign color_scheme = color_scheme | append: ' palette--dark'
+  else
+    assign color_scheme = color_scheme | append: ' palette--light'
+  endif
+-%}
+
+{{ 'section-related-products.css' | asset_url | stylesheet_tag }}
+
+<script src="{{ 'related-products.js' | asset_url }}" defer="defer"></script>
+
+{%- style -%}
+  {{ selector_id }} {
+    --PT: {{ section.settings.padding_top }}px;
+    --PB: {{ section.settings.padding_bottom }}px;
+
+    {% if scheme_bg_gradient != '' -%}
+      --bg: {{ scheme_bg_color }};
+    {%- endif %}
+  }
+
+  @media screen and (max-width: 767px) {
+    {{ selector_id }} .grid--mobile,
+    {{ selector_id }} .carousel--mobile {
+      grid-template-columns: repeat({{ columns_mobile }}, minmax(0, 1fr));
+    }
+  }
+
+  {% if columns_mobile > 1 -%}
+    @media screen and (max-width: 767px) {
+      {{ selector_id }} .carousel--mobile { --item-width-mobile: calc(90% / {{ columns_mobile }} - var(--grid-gutter)); }
+    }
+  {%- endif %}
+{%- endstyle -%}
+
+<related-products
+  class="recent-products section-padding js-only hidden {{ color_scheme }}"
+  id="{{ section_id }}"
+  data-section-id="{{ section.id }}"
+  data-product-id="{{ product.id }}"
+  data-section-type="recent-products"
+>
+  <div class="recently-viewed-wrapper {{ section_width }}" data-recently-viewed-wrapper>
+    {%- if title != blank -%}
+      <div class="section__header">
+        <h2
+          class="section__heading h3"
+          {% if animations_enabled %}
+            data-aos="fade-up"
+            data-aos-delay="{{ animation_delay }}"
+            data-aos-anchor="{{ animation_anchor }}"
+            {%- assign animation_delay = animation_delay | plus: 150 -%}
+          {% endif %}
+        >
+          {{- title -}}
+        </h2>
+
+        {%- if settings.show_spacer_lines -%}
+          <hr
+            class="section__heading-line"
+            {% if animations_enabled %}
+              data-aos="fade-up"
+              data-aos-delay="{{ animation_delay }}"
+              data-aos-anchor="{{ animation_anchor }}"
+              {%- assign animation_delay = animation_delay | plus: 150 -%}
+            {% endif %}
+          >
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+
+    {%- render 'products-recently-viewed',
+      product: product,
+      enable_carousel: enable_carousel,
+      container_class: container_class,
+      layout_class: layout_class,
+      section_width: section_width,
+      columns: columns,
+      columns_mobile: columns_mobile,
+      limit: limit,
+      product_recently_minimum: product_recently_minimum
+    -%}
+  </div>
+</related-products>
+
+{% schema %}
+{
+  "name": "Recently viewed products",
+  "settings": [
+    {
+      "type": "range",
+      "id": "product_recently_limit",
+      "min": 1,
+      "max": 8,
+      "step": 1,
+      "label": "Product limit",
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "product_recently_minimum",
+      "min": 1,
+      "max": 6,
+      "step": 1,
+      "label": "Display threshold",
+      "info": "Hide section until a minimum of products can be shown.",
+      "default": 4
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "Recently viewed"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "Layout",
+      "default": "grid",
+      "options": [
+        {"label": "Grid", "value": "grid"},
+        {"label": "Carousel", "value": "carousel"}
+      ]
+    },
+    {
+      "type": "select",
+      "id": "columns_mobile",
+      "label": "Products per row on mobile",
+      "default": "1",
+      "options": [
+        {"label": "1", "value": "1"},
+        {"label": "2", "value": "2"}
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "Section spacing"
+    },
+    {
+      "type": "select",
+      "id": "width",
+      "label": "Width",
+      "default": "wrapper--full-padded",
+      "options": [
+        {"value": "wrapper--full-padded", "label": "Full width padded"},
+        {"value": "wrapper", "label": "Page width"}
+      ]
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "label": "Padding top",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "label": "Padding bottom",
+      "default": 60
+    }
+  ],
+  "presets": [
+    {
+      "name": "Recently viewed products",
+      "category": "Products"
+    }
+  ],
+  "disabled_on": {
+    "groups": ["header", "aside", "footer"]
+  }
+}
+{% endschema %}

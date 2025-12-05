@@ -1,0 +1,69 @@
+{%- comment -%}
+  This template is used for the notification popup when a variant is sold out.
+  It is loaded via AJAX when clicking the notification button.
+{%- endcomment -%}
+
+<div class="product-notification" data-notification>
+  <h2 class="product-notification__title">{{ product.title }}</h2>
+
+  {%- unless product.selected_or_first_available_variant.title == 'Default Title' -%}
+    <p class="product-notification__subtitle">{{ product.selected_or_first_available_variant.title }}</p>
+  {%- endunless -%}
+
+  {%- capture notification_form -%}NotificationForm--api-notification--{{ product.selected_or_first_available_variant.id }}{%- endcapture -%}
+  {%- form 'contact', id: notification_form, data-notification-form: '' -%}
+    <div class="product-notification__message">
+      <p>{{ 'general.newsletter_form.notification_success' | t }}</p>
+    </div>
+
+    {%- if form.errors -%}
+      {{- form.errors | default_errors -}}
+    {%- endif -%}
+
+    <div class="product-notification__form">
+      <label for="Email--{{ section.id }}">{{ 'general.newsletter_form.email_label' | t }}</label>
+
+      {%- assign product_notification_for = 'general.newsletter_form.product_notification_for' | t -%}
+      <label for="NotificationFormProduct" class="visually-hidden">{{ product_notification_for }}</label>
+      <input
+        type="hidden"
+        id="NotificationFormProduct"
+        name="contact[{{ product_notification_for | handle }}]"
+        autocapitalize="words"
+        value="{{ product.title }} - {{ product.selected_or_first_available_variant.title }}"
+      >
+
+      <div class="input-group input-group--inline">
+        <div class="input-group__item">
+          <input
+            type="email"
+            placeholder="{{ 'general.newsletter_form.email' | t }}"
+            name="contact[email]"
+            id="Email--{{ section.id }}"
+            class="input-group__field input-group__field--email"
+            aria-label="{{ 'general.newsletter_form.email' | t }}"
+            autocorrect="off"
+            autocapitalize="off"
+            required
+            data-popup-input
+          >
+        </div>
+        <div class="input-group__item--btn">
+          <button
+            type="submit"
+            name="subscribe"
+            id="SubscribeSubmit--{{ section.id }}"
+            class="btn btn--primary btn--solid btn--advanced btn--advanced-width-height"
+          >
+            <hover-button></hover-button>
+            <span data-notification-button-text>{{ 'general.newsletter_form.notify' | t }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  {%- endform -%}
+
+  <button title="{{ 'general.accessibility.close' | t }} (Esc)" class="product-notification__close" data-popup-close>
+    {%- render 'icon-close' -%}
+  </button>
+</div>

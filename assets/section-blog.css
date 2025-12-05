@@ -1,0 +1,22 @@
+/*================ "Blog posts" ================*/
+.featured-blog {
+  --image-height: 70%;
+  background: var(--bg);
+}
+.featured-blog .rte {
+  margin-bottom: 10px;
+}
+.featured-blog.section-padding {
+  padding-bottom: max(var(--grid-gutter), var(--padding-bottom));
+}
+
+@media only screen and (max-width: 767px) {
+  .featured-blog__container {
+    margin: 0 calc(var(--gutter-mobile) * -1);
+  }
+}
+
+.featured-blog__button {
+  margin: var(--gutter) 0 0;
+  text-align: center;
+}

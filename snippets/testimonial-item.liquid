@@ -1,0 +1,153 @@
+{%- liquid
+  assign block_id = block.id
+  assign star_rating = block.settings.star_rating
+  assign heading = block.settings.heading
+  assign text_size = block.settings.text_size | times: 0.01
+  assign content_size = block.settings.content_size | times: 0.01
+  assign subheading = block.settings.subheading
+  assign text = block.settings.text
+  assign customer_name = block.settings.customer_name
+  assign image = block.settings.image
+  assign image_width = block.settings.image_width
+  assign percent = star_rating | divided_by: 5.0 | times: 100
+  assign enable_border = block.settings.enable_border
+-%}
+
+{%- unless customer_name == blank and text == blank and heading == blank and subheading == blank -%}
+  <div
+    class="testimonial__item testimonial__item--{{ block_id }}{% if enable_border %} testimonial__item--border{% endif %}"
+    data-item
+    {{ block.shopify_attributes }}
+  >
+    {%- style -%}
+      #brick-section--{{ section.id }} .testimonial__item--{{ block_id }} .testimonial__text { --adjust-body: calc(var(--FONT-ADJUST-BODY) * {{ text_size }}); }
+      {{ selector_id }} .testimonial__item--{{ block_id }} .testimonial__heading { --adjust-body: calc(var(--FONT-ADJUST-BODY) * {{ text_size }}); }
+      {% unless content_size == 0 %}
+        {{ selector_id }} .testimonial__item--{{ block_id }} .testimonial__text { --adjust-body: calc(var(--FONT-ADJUST-BODY) * {{ content_size }}); }
+      {% endunless %}
+
+      {%- if block_bg.alpha != 0.0 and block_bg != blank -%}
+        {{ selector_id }} .testimonial__item--{{ block_id }} .testimonial__item__inner { background: {{ block_bg }}; }
+      {%- endif -%}
+    {%- endstyle -%}
+
+    <div
+      class="testimonial__item__inner"
+      {% if animations_enabled and enable_border or block_bg.alpha != 0.0 and block_bg != '' %}
+        data-aos="fade-up"
+        data-aos-anchor="{{ animation_anchor }}"
+        data-aos-delay="{{ animation_delay }}"
+        {%- assign animation_delay = animation_delay | plus: 150 -%}
+      {% endif %}
+    >
+      <div class="testimonial__item__content">
+        {%- unless star_rating == 0 -%}
+          <div
+            class="testimonial__stars"
+            {% if animations_enabled %}
+              data-aos="fade-up"
+              data-aos-anchor="{{ animation_anchor }}"
+              data-aos-delay="{{ animation_delay }}"
+              {%- assign animation_delay = animation_delay | plus: 150 -%}
+            {% endif %}
+          >
+            <span class="rating__star" aria-hidden="true" style="--percent: {{ 100 | minus: percent }}%">
+              <span class="rating__star__empty">
+                {%- for i in (1..5) -%}<svg width="25px" height="25px" viewBox="0 0 25 25" class="icon icon-star icon-star--empty"><polygon fill-rule="nonzero" points="16.2212909 8.77064179 12.5128412 0.870224269 8.80343056 8.77064179 0.512841234 10.0374085 6.51243703 16.1862739 5.09643337 24.8702243 12.5128412 20.7696377 19.9292491 24.8702243 18.5122845 16.1862739 24.5128412 10.0374085"></polygon></svg>{%- endfor -%}
+              </span>
+
+              <span class="rating__star__full">
+                {%- for i in (1..5) -%}<svg width="25px" height="25px" viewBox="0 0 25 25" class="icon icon-star icon-star--full"><polygon fill-rule="nonzero" points="16.2212909 8.77064179 12.5128412 0.870224269 8.80343056 8.77064179 0.512841234 10.0374085 6.51243703 16.1862739 5.09643337 24.8702243 12.5128412 20.7696377 19.9292491 24.8702243 18.5122845 16.1862739 24.5128412 10.0374085"></polygon></svg>{%- endfor -%}
+              </span>
+            </span>
+          </div>
+        {%- endunless -%}
+
+        {%- if heading != blank -%}
+          <div
+            class="testimonial__heading"
+            {% if animations_enabled %}
+              data-aos="fade-up"
+              data-aos-anchor="{{ animation_anchor }}"
+              data-aos-delay="{{ animation_delay }}"
+              {%- assign animation_delay = animation_delay | plus: 150 -%}
+            {% endif %}
+          >
+            {{ heading }}
+          </div>
+        {%- endif -%}
+
+        {%- if text != blank -%}
+          <div
+            class="testimonial__text"
+            {% if animations_enabled %}
+              data-aos="fade-up"
+              data-aos-anchor="{{ animation_anchor }}"
+              data-aos-delay="{{ animation_delay }}"
+              {%- assign animation_delay = animation_delay | plus: 150 -%}
+            {% endif %}
+          >
+            {{ text }}
+          </div>
+        {%- endif -%}
+
+        {%- if customer_name != blank or subheading != blank or image != blank -%}
+          <div class="testimonial__user">
+            {%- if image != blank -%}
+              <div
+                class="testimonial__user__image"
+                {% if animations_enabled %}
+                  data-aos="fade-up"
+                  data-aos-anchor="{{ animation_anchor }}"
+                  data-aos-delay="{{ animation_delay }}"
+                {% endif %}
+              >
+                {%- liquid
+                  assign animation_delay = animation_delay | plus: 150
+                  assign image_alt = image.alt | escape
+                  assign retina_size = image_width | times: 2
+                  assign image_widths = image_width | append: ', ' | append: retina_size
+                  assign sizes = 'min((100vw - 60px - 40px), ' | append: image_width | append: 'px' | append: ')'
+
+                  capture styles
+                    echo 'width: ' | append: image_width | append: 'px;'
+                    echo 'height: ' | append: image_width | append: 'px;'
+                  endcapture
+
+                  render 'image', image: image, width: retina_size, height: retina_size, widths: image_widths, sizes: sizes, cover: false, alt: image_alt, styles: styles, classes: 'testimonial__user__image__img'
+                -%}
+              </div>
+            {%- endif -%}
+
+            {%- if customer_name != blank -%}
+              <div
+                class="testimonial__user__name"
+                {% if animations_enabled %}
+                  data-aos="fade-up"
+                  data-aos-anchor="{{ animation_anchor }}"
+                  data-aos-delay="{{ animation_delay }}"
+                  {%- assign animation_delay = animation_delay | plus: 150 -%}
+                {% endif %}
+              >
+                {{ customer_name | escape }}
+              </div>
+            {%- endif -%}
+
+            {%- if subheading != blank -%}
+              <div
+                class="testimonial__subheading"
+                {% if animations_enabled %}
+                  data-aos="fade-up"
+                  data-aos-anchor="{{ animation_anchor }}"
+                  data-aos-delay="{{ animation_delay }}"
+                {% endif %}
+              >
+                {{ subheading }}
+              </div>
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+{%- endunless -%}

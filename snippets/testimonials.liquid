@@ -1,0 +1,207 @@
+{%- comment -%}
+  Renders testimonials content in "Testimonials" and "Testimonials with images" sections
+
+  Accepts:
+  - section_id: {String} ID to specify where the section is rendered from
+
+  Usage:
+  {% render 'testimonials', section_id: 'Testimonials--' %}
+{%- endcomment -%}
+
+{%- liquid
+  assign title = section.settings.title
+  assign subheading = section.settings.subheading
+  assign section_width = section.settings.width
+  assign total_blocks = section.blocks.size
+  assign color_scheme = 'color-' | append: section.settings.color_scheme
+  assign heading_size = section.settings.heading_size | times: 0.01
+  assign heading_size_mobile = heading_size
+  assign subheading_size = section.settings.subheading_size | times: 0.01
+  assign text_alignment = section.settings.text_alignment
+  assign section_id = section_id | default: 'Testimonials--' | append: section.id
+  assign selector_id = '#' | append: section_id
+  assign animation_anchor = selector_id
+  assign animations_enabled = settings.animations_enabled
+  assign animation_delay = 150
+  assign block_bg = section.settings.testimonial_block_color
+  assign star_color = section.settings.star_color
+  assign has_border = false
+
+  if heading_size > 1.5
+    assign heading_size_mobile = heading_size | times: 0.85
+  endif
+
+  for block in section.blocks
+    if block.settings.enable_border == true
+      assign has_border = true
+      break
+    endif
+  endfor
+-%}
+
+{%- if request.design_mode -%}
+  <style>
+    {{ 'section-testimonials.css' | inline_asset_content }}
+  </style>
+{%- else -%}
+  <link
+    href="{{ 'section-testimonials.css' | asset_url }}"
+    rel="preload"
+    as="style"
+    onload="this.onload=null;this.rel='stylesheet'"
+  >
+{%- endif -%}
+
+<script src="{{ 'testimonials.js' | asset_url }}" defer="defer"></script>
+
+{%- if request.design_mode -%}
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.testimonialsBlockSelectHandlerAttached) return;
+      window.testimonialsBlockSelectHandlerAttached = true;
+
+      document.addEventListener('shopify:block:select', (event) => {
+        const target = event.target;
+        const slider = target.closest('testimonials-slider');
+
+        if (!slider) return;
+
+        const flkty = (window.theme.Flickity && window.theme.Flickity.data(slider)) || null;
+        if (flkty !== null && flkty.isActive) {
+          const index = parseInt([...target.parentNode.children].indexOf(target));
+          const slidesPerPage = parseInt(flkty.slides[0].cells.length);
+          const groupIndex = Math.floor(index / slidesPerPage);
+
+          if (!event.detail.load) {
+            flkty.select(groupIndex);
+            return;
+          }
+          // Transitionend event if new block is added
+          const onTransitionEnd = () => {
+            requestAnimationFrame(() => {
+              flkty.select(groupIndex);
+            });
+            flkty.element.removeEventListener('transitionend', onTransitionEnd);
+          };
+          flkty.element.addEventListener('transitionend', onTransitionEnd);
+        }
+      });
+    });
+  </script>
+{%- endif -%}
+
+{%- style -%}
+  [data-section-id="{{ section.id }}"] {
+    --PT: {{ section.settings.padding_top }}px;
+    --PB: {{ section.settings.padding_bottom }}px;
+  }
+
+  {% if star_color.alpha != 0.0 and star_color != '' -%}
+    [data-section-id="{{ section.id }}"] .testimonial__stars { color: {{ star_color }}; }
+  {%- endif %}
+
+  [data-section-id="{{ section.id }}"] .section__header .testimonial__heading { --adjust-heading: calc(var(--FONT-ADJUST-HEADING) * {{ heading_size }}); }
+  [data-section-id="{{ section.id }}"] .section__header .testimonial__subheading { --adjust-body: calc(var(--FONT-ADJUST-SUBHEADING) * {{ subheading_size }}); }
+
+  @media screen and (max-width: 480px) {
+    [data-section-id="{{ section.id }}"] .section__header .testimonial__heading { --adjust-heading: calc(var(--FONT-ADJUST-HEADING) * {{ heading_size_mobile }}); }
+  }
+{%- endstyle -%}
+
+<section
+  id="{{ section_id }}"
+  data-section-id="{{ section.id }}"
+  data-section-type="testimonials"
+  class="section-padding testimonials-section has-quotes {{ color_scheme }}"
+>
+  <div class="{{ section_width }}">
+    {%- if title != blank or subheading != blank -%}
+      <div class="section__header {{ text_alignment }}">
+        {%- if subheading != blank -%}
+          <h4
+            class="testimonial__subheading subheading-text"
+            {% if animations_enabled %}
+              data-aos="fade-up"
+              data-aos-anchor="{{ animation_anchor }}"
+              data-aos-delay="{{ animation_delay }}"
+              {%- assign animation_delay = animation_delay | plus: 150 -%}
+            {% endif %}
+          >
+            {{ subheading }}
+          </h4>
+        {%- endif -%}
+
+        {%- if title != blank -%}
+          <h2
+            class="testimonial__heading section__heading h2"
+            {% if animations_enabled %}
+              data-aos="fade-up"
+              data-aos-anchor="{{ animation_anchor }}"
+              data-aos-delay="{{ animation_delay }}"
+            {% endif %}
+          >
+            {{ title | escape }}
+          </h2>
+        {%- endif -%}
+
+        {%- if settings.show_spacer_lines -%}
+          <hr
+            class="section__heading-line"
+            {% if animations_enabled %}
+              data-aos="fade-up"
+              data-aos-anchor="{{ animation_anchor }}"
+              data-aos-delay="{{ animation_delay }}"
+              {%- assign animation_delay = animation_delay | plus: 150 -%}
+            {% endif %}
+          >
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+
+    <div class="testimonials__wrapper">
+      <testimonials-slider
+        class="testimonials__slider testimonials__slider--blocks-{{ total_blocks }} testimonials__slider--{{ text_alignment }}{% if has_border %} testimonials__slider--border{% endif %}"
+        data-slider-alignment="{% if text_alignment == 'text-center' %}center{% else %}left{% endif %}"
+        role="group"
+      >
+        {%- if total_blocks > 0 -%}
+          {%- for block in section.blocks -%}
+            {%- assign animation_delay = animation_delay | plus: 150 -%}
+
+            {%- case block.type -%}
+              {%- when 'testimonial' -%}
+                {%- render 'testimonial-item',
+                  block: block,
+                  selector_id: selector_id,
+                  block_bg: block_bg,
+                  animations_enabled: animations_enabled,
+                  animation_anchor: animation_anchor,
+                  animation_delay: animation_delay
+                -%}
+
+              {%- when 'text' -%}
+                {%- render 'testimonial-text',
+                  block: block,
+                  selector_id: selector_id,
+                  animations_enabled: animations_enabled,
+                  animation_anchor: animation_anchor,
+                  animation_delay: animation_delay
+                -%}
+
+              {%- when 'image' -%}
+                {%- render 'testimonial-image',
+                  block: block,
+                  selector_id: selector_id,
+                  animations_enabled: animations_enabled,
+                  animation_anchor: animation_anchor,
+                  animation_delay: animation_delay
+                -%}
+            {%- endcase -%}
+          {%- endfor -%}
+        {%- else -%}
+          {%- render 'no-blocks' -%}
+        {%- endif -%}
+      </testimonials-slider>
+    </div>
+  </div>
+</section>

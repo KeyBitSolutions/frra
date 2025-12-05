@@ -1,0 +1,163 @@
+/*================ "Spotlight" ================*/
+.spotlight {
+  transition: background 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.aos-initialized .spotlight [data-aos-order="1"] {
+  animation-delay: 100ms;
+}
+.aos-initialized .spotlight [data-aos-order="2"] {
+  animation-delay: 242.5ms;
+}
+.aos-initialized .spotlight [data-aos-order="3"] {
+  animation-delay: 370ms;
+}
+.aos-initialized .spotlight [data-aos-order="4"] {
+  animation-delay: 482.5ms;
+}
+.aos-initialized .spotlight [data-aos-order="5"] {
+  animation-delay: 580ms;
+}
+.aos-initialized .spotlight [data-aos-order="6"] {
+  animation-delay: 662.5ms;
+}
+.aos-initialized .spotlight [data-aos-order="7"] {
+  animation-delay: 730ms;
+}
+.aos-initialized .spotlight [data-aos-order="8"] {
+  animation-delay: 782.5ms;
+}
+.aos-initialized .spotlight [data-aos-order="9"] {
+  animation-delay: 820ms;
+}
+.aos-initialized .spotlight [data-aos-order="10"] {
+  animation-delay: 842.5ms;
+}
+.spotlight .brick-blocks--reverse .brick-block:first-child {
+  margin-top: 0;
+}
+@media only screen and (max-width: 767px) {
+  .spotlight .brick-blocks--reverse .brick-block:last-child {
+    order: 0;
+    margin-top: var(--gutter-mobile);
+  }
+}
+@media only screen and (min-width: 768px) {
+  .spotlight .brick-blocks--reverse .brick-block:last-child {
+    order: -1;
+    margin-left: 0;
+    margin-right: var(--grid-gutter);
+  }
+}
+@media only screen and (max-width: 767px) {
+  .spotlight .brick-blocks--reverse-mobile .brick-block:first-child {
+    margin-bottom: 0;
+  }
+}
+@media only screen and (max-width: 767px) {
+  .spotlight .brick-blocks--reverse-mobile .brick-block:last-child {
+    order: -1;
+    margin-top: 0;
+    margin-bottom: var(--gutter-mobile);
+  }
+}
+
+.spotlight__text {
+  width: 100%;
+}
+@media only screen and (min-width: 1440px) {
+  .spotlight__text {
+    width: 75%;
+    margin: 0 auto;
+  }
+}
+
+.spotlight__header .section__heading {
+  --heading-margin: var(--inner);
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.spotlight__links {
+  margin-top: var(--inner);
+}
+
+.spotlight__collection-title {
+  text-transform: uppercase;
+}
+
+.spotlight__images {
+  position: relative;
+  aspect-ratio: var(--aspect-ratio, 1);
+  width: auto;
+  height: 100%;
+}
+.body--rounded-corners .spotlight__images {
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+@media only screen and (max-width: 767px) {
+  .spotlight__images {
+    width: 100%;
+  }
+}
+
+.spotlight__image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.spotlight__image.is-visible {
+  opacity: 1;
+  visibility: visible;
+}
+@media only screen and (max-width: 767px) {
+  .spotlight__image {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+}
+
+@media only screen and (max-width: 767px) {
+  .spotlight__button {
+    grid-row-start: 1;
+    grid-column-start: 1;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: var(--inner);
+  }
+  .spotlight__button .btn {
+    width: auto;
+  }
+}
+
+@media only screen and (max-width: 767px) {
+  .spotlight__image-img {
+    grid-row-start: 1;
+    grid-column-start: 1;
+  }
+}
+
+.spotlight__collection-link {
+  --main-color: var(--text-alpha-50);
+  --hover-color: var(--text);
+  background-image: linear-gradient(to right, var(--hover-color) 0% 50%, var(--main-color) 50% 100%);
+  background-size: 200% 100%;
+  background-position: 100% 0;
+  background-repeat: no-repeat;
+  -webkit-background-clip: text;
+          background-clip: text;
+  -webkit-text-fill-color: transparent;
+  transition: background-position 0.3s cubic-bezier(0.39, 0.575, 0.565, 1);
+  display: inline-block;
+  transition: background-position 0.3s cubic-bezier(0.39, 0.575, 0.565, 1), transform 0.3s cubic-bezier(0.39, 0.575, 0.565, 1);
+}
+.spotlight__collection-link:hover, .spotlight__collection-link.is-selected {
+  background-position: 0 0;
+  transform: translateX(1rem);
+}

@@ -1,0 +1,536 @@
+{%- render 'announcement', section_type: 'announcement-bar' -%}
+
+{% schema %}
+{
+  "name": "Announcement bar",
+  "class": "announcement-bar-static",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "width",
+      "label": "Width",
+      "default": "wrapper--full",
+      "info": "Full-width is recommended if transparent header is enabled",
+      "options": [
+        {"value": "wrapper--full", "label": "Full width"},
+        {"value": "wrapper--full-padded", "label": "Full width padded"},
+        {"value": "wrapper", "label": "Page width"}
+      ]
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "Layout",
+      "default": "marquee",
+      "options": [
+        {
+          "value": "slider",
+          "label": "Slider"
+        },
+        {
+          "value": "marquee",
+          "label": "Marquee"
+        }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "show_top_border",
+      "label": "Show top border",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_bottom_border",
+      "label": "Show bottom border",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "padding",
+      "label": "Padding",
+      "default": 10,
+      "min": 5,
+      "max": 50,
+      "step": 5,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "Slider"
+    },
+    {
+      "type": "range",
+      "id": "slider_speed",
+      "label": "Autoplay speed",
+      "unit": "sec",
+      "min": 5,
+      "max": 20,
+      "step": 1,
+      "default": 7
+    },
+    {
+      "type": "checkbox",
+      "id": "show_arrows",
+      "label": "Show arrows",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Marquee"
+    },
+    {
+      "type": "range",
+      "id": "marquee_speed",
+      "label": "Autoplay speed",
+      "unit": "%",
+      "min": 50,
+      "max": 300,
+      "step": 25,
+      "default": 100
+    },
+    {
+      "type": "select",
+      "id": "direction",
+      "label": "Text direction",
+      "default": "ticker-ltr",
+      "options": [
+        {"value": "ticker-ltr", "label": "Left to right"},
+        {"value": "ticker-rtl", "label": "Right to left"}
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Text"
+    },
+    {
+      "type": "checkbox",
+      "id": "text_caps",
+      "label": "Uppercase text",
+      "default": false
+    },
+    {
+      "type": "font_picker",
+      "id": "type_font",
+      "label": "Font",
+      "default": "space_mono_n4"
+    },
+    {
+      "type": "range",
+      "id": "text_size",
+      "label": "Size",
+      "default": 100,
+      "min": 50,
+      "max": 500,
+      "step": 5,
+      "unit": "%"
+    },
+    {
+      "type": "range",
+      "id": "letter_spacing",
+      "label": "Letter spacing",
+      "default": 0,
+      "min": -25,
+      "max": 200,
+      "unit": "%",
+      "step": 25
+    },
+    {
+      "type": "range",
+      "id": "message_spacing",
+      "label": "Space between messages",
+      "info": "Marquee only",
+      "default": 25,
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-2"
+    },
+    {
+      "type": "color",
+      "id": "color",
+      "label": "Text",
+      "alpha": true
+    },
+    {
+      "type": "color",
+      "id": "border_color",
+      "label": "Border",
+      "alpha": true
+    },
+    {
+      "type": "header",
+      "content": "Image"
+    },
+    {
+      "type": "image_picker",
+      "id": "bg_image",
+      "label": "Background image"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "text",
+      "name": "Text",
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text",
+          "default": "<p>New customers save 10% with code WELCOME10</p>",
+          "info": "Highlight one or two key words in your heading by italicizing them, then choose the highlight option below"
+        },
+        {
+          "type": "color",
+          "id": "text_color",
+          "label": "Color",
+          "alpha": true
+        },
+        {
+          "type": "header",
+          "content": "Highlight"
+        },
+        {
+          "type": "select",
+          "id": "heading_highlight_type",
+          "label": "Type",
+          "default": "underline-hand-drawn",
+          "info": "The font choice for the \"Alternate font\" type can be configured in the theme typography settings.",
+          "options": [
+            {"value": "italics", "label": "Italics (no decoration)"},
+            {"value": "highlight", "label": "Highlight"},
+            {"value": "highlight-color", "label": "Text color"},
+            {"value": "underline", "label": "Underline (digital)"},
+            {"value": "underline-hand-drawn", "label": "Underline (hand-drawn)"},
+            {"value": "squiggle", "label": "Squiggle"},
+            {"value": "circle", "label": "Circle (digital)"},
+            {"value": "circle-hand-drawn", "label": "Circle (hand-drawn)"},
+            {"value": "stroke", "label": "Stroke (outlined text)"},
+            {"value": "alternate-font", "label": "Alternate font"}
+          ]
+        },
+        {
+          "type": "color",
+          "id": "highlight_color",
+          "label": "Highlight color",
+          "default": "#000",
+          "alpha": true
+        },
+        {
+          "type": "color",
+          "id": "highlight_text_color",
+          "label": "Text color",
+          "alpha": true
+        },
+        {
+          "type": "header",
+          "content": "Icon"
+        },
+        {
+          "type": "select",
+          "id": "icon_name",
+          "label": "Icon",
+          "default": "none",
+          "options": [
+            {"value": "none", "label": "None"},
+            {"value": "archive", "label": "Archive", "group": "Generic"},
+            {"value": "award", "label": "Award", "group": "Generic"},
+            {"value": "bee", "label": "Bee", "group": "Generic"},
+            {"value": "bell", "label": "Bell", "group": "Generic"},
+            {"value": "calendar", "label": "Calendar", "group": "Generic"},
+            {"value": "camera", "label": "Camera", "group": "Generic"},
+            {"value": "check", "label": "Check", "group": "Generic"},
+            {"value": "clipboard", "label": "Clipboard", "group": "Generic"},
+            {"value": "clock", "label": "Clock", "group": "Generic"},
+            {"value": "compass", "label": "Compass", "group": "Generic"},
+            {"value": "dollar-sign", "label": "Dollar sign", "group": "Generic"},
+            {"value": "download", "label": "Download", "group": "Generic"},
+            {"value": "flower", "label": "Flower", "group": "Generic"},
+            {"value": "gem", "label": "Gem", "group": "Generic"},
+            {"value": "heart", "label": "Heart", "group": "Generic"},
+            {"value": "key", "label": "Key", "group": "Generic"},
+            {"value": "leaf", "label": "Leaf", "group": "Generic"},
+            {"value": "lock", "label": "Lock", "group": "Generic"},
+            {"value": "mail", "label": "Mail", "group": "Generic"},
+            {"value": "map-pin", "label": "Map", "group": "Generic"},
+            {"value": "message", "label": "Message", "group": "Generic"},
+            {"value": "music", "label": "Music", "group": "Generic"},
+            {"value": "pencils", "label": "Pencils", "group": "Generic"},
+            {"value": "phone", "label": "Phone", "group": "Generic"},
+            {"value": "scientific", "label": "Scientific", "group": "Generic"},
+            {"value": "shield", "label": "Shield", "group": "Generic"},
+            {"value": "smile", "label": "Smile", "group": "Generic"},
+            {"value": "star", "label": "Star", "group": "Generic"},
+            {"value": "tree", "label": "Tree", "group": "Generic"},
+            {"value": "truck", "label": "Truck", "group": "Generic"},
+            {"value": "credit-card", "label": "Credit card", "group": "Commerce"},
+            {"value": "fair-trade", "label": "Fair trade", "group": "Commerce"},
+            {"value": "package", "label": "Package", "group": "Commerce"},
+            {"value": "storefront", "label": "Storefront", "group": "Commerce"},
+            {"value": "support", "label": "Support", "group": "Commerce"},
+            {"value": "eco-friendly", "label": "Eco friendly", "group": "Environment"},
+            {"value": "recycle", "label": "Recycle", "group": "Environment"},
+            {"value": "recycle-circle", "label": "Recycle circle", "group": "Environment"},
+            {"value": "reuseable", "label": "Reuseable", "group": "Environment"},
+            {"value": "cotton", "label": "Cotton", "group": "Fashion"},
+            {"value": "ethically-made", "label": "Ethically made", "group": "Fashion"},
+            {"value": "plant-based", "label": "Plant based", "group": "Fashion"},
+            {"value": "dishwasher-safe", "label": "Dishwasher safe", "group": "Food and Drink"},
+            {"value": "frozen", "label": "Frozen", "group": "Food and Drink"},
+            {"value": "non-gmo", "label": "Non GMO", "group": "Food and Drink"},
+            {"value": "organic", "label": "Organic", "group": "Food and Drink"},
+            {"value": "oven-safe", "label": "Oven safe", "group": "Food and Drink"},
+            {"value": "vegan", "label": "Vegan", "group": "Food and Drink"},
+            {"value": "vegetarian", "label": "Vegetarian", "group": "Food and Drink"},
+            {"value": "cruelty-free", "label": "Cruelty free", "group": "Health/Beauty"},
+            {"value": "fragrance-free", "label": "Fragrance free", "group": "Health/Beauty"},
+            {"value": "paw-heart", "label": "Paw heart", "group": "Health/Beauty"},
+            {"value": "phthalate-free", "label": "Phthalate free", "group": "Health/Beauty"},
+            {"value": "sulfate-free", "label": "Sulfate free", "group": "Health/Beauty"},
+            {"value": "use-by", "label": "Use by", "group": "Health/Beauty"}
+          ]
+        },
+        {
+          "type": "color",
+          "id": "icon_color",
+          "label": "Color",
+          "alpha": true
+        },
+        {
+          "type": "image_picker",
+          "id": "icon_image",
+          "label": "Image",
+          "info": "If image set it will override the icon"
+        },
+        {
+          "type": "range",
+          "id": "icon_width",
+          "label": "Width",
+          "min": 20,
+          "max": 60,
+          "step": 1,
+          "unit": "px",
+          "default": 20
+        },
+        {
+          "type": "header",
+          "content": "Target page"
+        },
+        {
+          "id": "target_url_enabled",
+          "type": "checkbox",
+          "label": "Limit to specific page",
+          "info": "To target the home page, use \"/\" in the URL field"
+        },
+        {
+          "id": "target_url",
+          "type": "url",
+          "label": "Targeted page"
+        },
+        {
+          "type": "header",
+          "content": "Target referrer"
+        },
+        {
+          "id": "target_referrer_enabled",
+          "type": "checkbox",
+          "label": "Limit to specific referrer path"
+        },
+        {
+          "id": "target_referrer",
+          "type": "text",
+          "label": "Targeted referrer"
+        },
+        {
+          "type": "header",
+          "content": "Target device"
+        },
+        {
+          "id": "target_device_enabled",
+          "type": "checkbox",
+          "label": "Limit to desktop or mobile"
+        },
+        {
+          "type": "select",
+          "id": "target_device",
+          "label": "Device ",
+          "default": "mobile",
+          "options": [
+            {"value": "mobile", "label": "Only show on mobile"},
+            {"value": "desktop", "label": "Only show on desktop"}
+          ]
+        }
+      ]
+    },
+    {
+      "type": "message",
+      "name": "Free shipping message",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "textarea",
+          "id": "message",
+          "label": "Message",
+          "info": "Use ||amount|| to display progress towards free shipping.",
+          "default": "Spend ||amount|| more for FREE shipping."
+        },
+        {
+          "type": "paragraph",
+          "content": "Navigate to \"Theme settings -> Cart -> Free shipping message\" to set the amount."
+        },
+        {
+          "type": "header",
+          "content": "Target page"
+        },
+        {
+          "id": "target_url_enabled",
+          "type": "checkbox",
+          "label": "Limit to specific page",
+          "info": "To target the home page, use \"/\" in the URL field"
+        },
+        {
+          "id": "target_url",
+          "type": "url",
+          "label": "Targeted page"
+        },
+        {
+          "type": "header",
+          "content": "Target referrer"
+        },
+        {
+          "id": "target_referrer_enabled",
+          "type": "checkbox",
+          "label": "Limit to specific referrer path"
+        },
+        {
+          "id": "target_referrer",
+          "type": "text",
+          "label": "Targeted referrer"
+        },
+        {
+          "type": "header",
+          "content": "Target device"
+        },
+        {
+          "id": "target_device_enabled",
+          "type": "checkbox",
+          "label": "Limit to desktop or mobile"
+        },
+        {
+          "type": "select",
+          "id": "target_device",
+          "label": "Device ",
+          "default": "mobile",
+          "options": [
+            {"value": "mobile", "label": "Only show on mobile"},
+            {"value": "desktop", "label": "Only show on desktop"}
+          ]
+        }
+      ]
+    },
+    {
+      "type": "custom",
+      "name": "Custom HTML",
+      "settings": [
+        {
+          "type": "html",
+          "id": "text",
+          "label": "Text",
+          "default": "<p>Custom HTML</p>"
+        },
+        {
+          "type": "header",
+          "content": "Target page"
+        },
+        {
+          "id": "target_url_enabled",
+          "type": "checkbox",
+          "label": "Limit to specific page",
+          "info": "To target the home page, use \"/\" in the URL field"
+        },
+        {
+          "id": "target_url",
+          "type": "url",
+          "label": "Targeted page"
+        },
+        {
+          "type": "header",
+          "content": "Target referrer"
+        },
+        {
+          "id": "target_referrer_enabled",
+          "type": "checkbox",
+          "label": "Limit to specific referrer path"
+        },
+        {
+          "id": "target_referrer",
+          "type": "text",
+          "label": "Targeted referrer"
+        },
+        {
+          "type": "header",
+          "content": "Target device"
+        },
+        {
+          "id": "target_device_enabled",
+          "type": "checkbox",
+          "label": "Limit to desktop or mobile"
+        },
+        {
+          "type": "select",
+          "id": "target_device",
+          "label": "Device ",
+          "default": "mobile",
+          "options": [
+            {"value": "mobile", "label": "Only show on mobile"},
+            {"value": "desktop", "label": "Only show on desktop"}
+          ]
+        }
+      ]
+    },
+    {
+      "type": "image",
+      "name": "Image",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link"
+        },
+        {
+          "type": "range",
+          "id": "image_width",
+          "label": "Width",
+          "unit": "px",
+          "min": 20,
+          "max": 180,
+          "step": 10,
+          "default": 100
+        }
+      ]
+    }
+  ],
+  "enabled_on": {
+    "groups": ["header"]
+  }
+}
+{% endschema %}

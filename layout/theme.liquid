@@ -1,0 +1,61 @@
+<!doctype html>
+<html class="no-touch page-loading" lang="{{ request.locale.iso_code }}">
+  <head>
+    {%- render 'head' -%}
+
+    {{ content_for_header }}
+  </head>{%- capture body_classes -%}
+template-{{ template | replace: '.', ' ' | truncatewords: 1, '' | handle }}
+{% if customer %} customer-logged-in{% endif %}
+{% if settings.show_rounded_corners %} body--rounded-corners{% endif %}
+{% if settings.animations_enabled %} aos-initialized{% endif %}
+
+{%- assign selected_color_scheme = settings.color_scheme | strip -%}
+{%- assign scheme_bg_color = settings.color_schemes[selected_color_scheme].settings.section_bg -%}
+{%- assign scheme_bg_color_brightness = scheme_bg_color | color_brightness | round -%}
+{% if scheme_bg_color_brightness < 153 %} palette--dark{% else %} palette--light{% endif %}
+  no-outline
+{%- endcapture -%}
+{%- assign body_classes = body_classes | strip_newlines | strip -%}<body id="{{ page_title | handle }}" class="{{ body_classes }}">
+    {%- render 'loading' -%}
+
+    <a class="in-page-link skip-link" data-skip-content href="#MainContent">
+      {{- 'general.accessibility.skip_to_content' | t -}}
+    </a>
+
+    {% sections 'group-header' %}
+    {% sections 'group-overlay' %}
+
+    <main id="MainContent" class="main-content" data-main>
+      {{ content_for_layout }}
+    </main>
+
+    {% sections 'group-footer' %}
+
+    {%- comment -%} Photoswipe containers {%- endcomment -%}
+    {%- render 'zoom-pswp', template_index: 0 -%}
+    {%- render 'zoom-pswp', template_index: 1 -%}
+
+    {%- if settings.show_scroll_to_top -%}
+      <button
+        type="button"
+        class="btn btn--primary btn--solid btn--scroll-top"
+        data-scroll-top-button
+        aria-label="{{ 'general.accessibility.scroll_to_top' | t }}"
+      >
+        <hover-button></hover-button>
+        {% render 'icon-select' %}
+      </button>
+    {%- endif -%}
+
+    {%- comment -%}
+      In order to use your custom javascript file at assets/custom.js
+      just cut this next line and paste it outside this comment:
+      <script src="{{ 'custom.js' | asset_url }}" defer="defer"></script>
+    {%- endcomment -%}
+
+    <!-- Paste marketing code or third party scripts below this comment line ============== -->
+
+    <!-- And above this comment line ================================================== -->
+  </body>
+</html>

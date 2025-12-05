@@ -1,0 +1,778 @@
+<!-- /sections/section-products-with-image.liquid -->
+{%- liquid
+  assign collection = collections[section.settings.collection] | default: false
+  assign collection_products = collection.products
+  assign product_list = section.settings.product_list
+  assign products = product_list | default: collection_products
+  assign products_count = products.count | default: products.size
+  assign title = section.settings.title
+  assign heading_size = section.settings.heading_size | times: 0.01
+  assign heading_size_mobile = heading_size
+  assign heading_highlight_type = section.settings.heading_highlight_type
+  assign highlight_color = section.settings.highlight_color
+  assign highlight_text_color = section.settings.highlight_text_color
+  assign text = section.settings.text
+  assign text_size = section.settings.text_size | times: 0.01
+  assign text_position = section.settings.text_position
+  assign button_text = section.settings.button_text
+  assign button_link = section.settings.button_link | default: collection.url
+  assign button_style = section.settings.button_style
+  assign button_color = section.settings.button_color
+  assign button_size = section.settings.button_size
+  assign columns = section.settings.products_per_row_on_desktop | plus: 0
+  assign columns_mobile = section.settings.columns_mobile | plus: 0
+  assign products_limit = section.settings.products_limit
+  assign layout = section.settings.products_layout
+  assign section_width = section.settings.width
+  assign color_scheme = 'color-' | append: section.settings.color_scheme
+  assign selected_color_scheme = section.settings.color_scheme | strip
+  assign scheme_bg_color = settings.color_schemes[selected_color_scheme].settings.section_bg
+  assign scheme_bg_gradient = settings.color_schemes[selected_color_scheme].settings.section_bg_gradient
+  assign enable_slider_mobile = section.settings.enable_slider_mobile
+  assign show_text_background = section.settings.show_text_background
+  assign bg_color = section.settings.bg_color
+  assign text_color = section.settings.text_color
+
+  assign image_desktop = section.settings.image
+  assign image_mobile = section.settings.mobile_image
+  assign overlay_type = section.settings.overlay_type
+
+  assign id = 'FeaturedCollection--' | append: section.id
+  assign selector_id = '#' | append: id
+  assign animation_anchor = selector_id
+  assign animations_enabled = settings.animations_enabled
+  assign animation_delay = 150
+
+  assign columns_mobile_class = 'featured-collection--mobile-single-column'
+
+  if columns_mobile > 1
+    assign columns_mobile_class = 'featured-collection--mobile-two-columns'
+  endif
+
+  assign mobile_class = ' grid--mobile'
+  if enable_slider_mobile
+    assign mobile_class = ' carousel--mobile'
+  endif
+
+  if heading_size > 2.5
+    assign heading_size_mobile = 2.5
+  endif
+
+  assign scheme_bg_color_brightness = scheme_bg_color | color_brightness | round
+  if scheme_bg_color_brightness < 153
+    assign color_scheme = color_scheme | append: ' palette--dark'
+  else
+    assign color_scheme = color_scheme | append: ' palette--light'
+  endif
+
+  capture section_classes
+    echo 'section-padding featured-collection featured-collection--split'
+    echo ' ' | append: color_scheme
+    echo ' ' | append: columns_mobile_class
+    echo ' collection-items collection-items--' | append: columns
+    render 'button-fallback-classes', primary_color: button_color
+  endcapture
+
+  assign add_collection_link = true
+  if title contains '</a>'
+    assign add_collection_link = false
+  endif
+
+  assign button_advanced_class = 'btn--advanced'
+  if button_style != 'btn--text'
+    assign button_advanced_class = button_advanced_class | append: ' btn--advanced-width-height btn--advanced-adaptive-width'
+  endif
+-%}{% comment %}
+  Enhanced text decorations options - Liquid variables
+
+  Dependencies:
+    - Title liquid object from settings: `assign title = section.settings.title`
+    - Highlight type from settings: `assign heading_highlight_type = section.settings.heading_highlight_type`
+    - Highlight color from settings: `assign highlight_color = section.settings.highlight_color or assign highlight_color = block.settings.highlight_color`
+    - SVG icons:
+      - icon-squiggle.svg (assets)
+      - icon-circle.liquid (snippet)
+{% endcomment %}
+
+{%- liquid
+  comment
+   Highlighted words count
+  endcomment
+  assign title_temp = title | split: '<em>'
+  assign em_arr = ''
+  if title_temp.size > 1
+    for text_part in title_temp offset: 1
+      assign em_text = text_part | split: '</em>' | first
+      assign em_arr = em_arr | append: '#separator#' | append: em_text
+    endfor
+  endif
+  assign em_arr = em_arr | split: '#separator#'
+  assign words_count_arr = ''
+  assign letters_count_arr = ''
+  if em_arr.size > 0
+    for words in em_arr offset: 1
+      assign word = words | split: ' '
+      assign words_count_arr = words_count_arr | append: word.size | append: ', '
+      assign letters_count_arr = letters_count_arr | append: words.size | append: ', '
+    endfor
+  endif
+
+  assign words_count_arr = words_count_arr | replace_last: ', ', '' | split: ', '
+  assign letters_count_arr = letters_count_arr | replace_last: ', ', '' | split: ', '
+
+  comment
+   Main highlight types logic
+  endcomment
+  assign icon_url = ''
+  assign icon_color = 'var(--heading)'
+
+  if highlight_color != 'rgba(0,0,0,0)' and highlight_color != ''
+    assign icon_color = highlight_color
+  endif
+
+  capture text_highlight_icon
+    assign has_text_highlight = false
+
+    if title contains '<em>'
+      case heading_highlight_type
+        when 'squiggle'
+          assign icon_url = 'icon-squiggle.svg' | asset_url
+        when 'circle' or 'circle-hand-drawn' or 'underline-hand-drawn'
+          echo '<span class="text-highlight__icon" data-highlight-holder>'
+
+            when 'circle'
+              render 'icon-circle'
+            when 'circle-hand-drawn'
+              render 'icon-circle-hand-drawn'
+            when 'underline-hand-drawn'
+              render 'icon-underline-hand-drawn'
+
+          echo '</span>'
+        when 'highlight' or 'squiggle'
+          echo '<span class="text-highlight__icon text-highlight__icon--pseudo" data-highlight-holder></span>'
+        when 'stroke' or 'circle' or 'circle-hand-drawn' or 'squiggle' or 'highlight' or 'highlight-color' or 'underline' or 'underline-hand-drawn' or 'alternate-font'
+          assign has_text_highlight = true
+      endcase
+    endif
+  endcapture
+
+  capture icon_bg
+    if icon_url != ''
+      echo 'url( "' | append: icon_url | append: '" )'
+    else
+      echo 'none'
+    endif
+  endcapture
+  capture icon_styles
+    assign icon_bg = icon_bg | replace: '"', "'"
+    echo 'style="--icon-url: ' | append: icon_bg | append: ';' | append: '--icon-color: ' | append: icon_color | append: ';"'
+  endcapture
+
+  assign text_highlight_wrapper_class = 'text-highlight-wrapper' | append: ' text-highlight-wrapper--' | append: heading_highlight_type
+  capture text_highlight_start
+    echo '<text-highlight class="text-highlight" ' | append: icon_styles | append: ' data-highlight-type="' | append: heading_highlight_type | append: '">'
+    case heading_highlight_type
+      when 'stroke' or 'highlight-color' or 'underline' or 'alternate-font'
+        echo '<span class="text-highlight__string" data-highlight-holder>'
+    endcase
+  endcapture
+  capture text_highlight_end
+    echo text_highlight_icon
+    case heading_highlight_type
+      when 'stroke' or 'highlight-color' or 'underline' or 'alternate-font'
+        echo '</span>'
+    endcase
+    echo '</text-highlight>'
+  endcapture
+
+  if title != blank and title contains '<em>'
+    case heading_highlight_type
+      when 'squiggle' or 'circle' or 'circle-hand-drawn' or 'stroke' or 'highlight' or 'highlight-color' or 'underline' or 'underline-hand-drawn' or 'alternate-font'
+        assign title = title | replace: '<em>', text_highlight_start | replace: '</em>', text_highlight_end
+
+      when 'circle' or 'circle-hand-drawn'
+        comment
+          Update icon's holder class based on the italicised words count
+        endcomment
+        assign title = title | split: 'class="text-highlight"'
+        assign title_mod = ''
+        for title_part in title offset: 1
+          assign current_part = title_part
+
+          if title_part contains 'text-highlight__icon'
+            capture highlight_icon_classes
+              echo 'text-highlight__icon'
+              assign current_count = words_count_arr[forloop.index0] | times: 1
+              assign letters_count = letters_count_arr[forloop.index0] | times: 1
+              if current_count == 1
+                echo ' text-highlight__icon--single-word'
+              endif
+              if letters_count < 6
+                echo ' text-highlight__icon--short'
+                echo ' text-highlight__icon--l' | append: letters_count
+              endif
+              if letters_count > 15
+                echo ' text-highlight__icon--long'
+              endif
+            endcapture
+
+            assign current_part = title_part | replace: 'text-highlight__icon', highlight_icon_classes
+          endif
+
+          unless forloop.last
+            assign title_mod = title_mod | append: current_part | append: 'class="text-highlight"'
+          else
+            assign title_mod = title_mod | append: current_part
+          endunless
+        endfor
+        assign title_first_part = title | first | append: 'class="text-highlight"'
+        assign title_mod = title_mod | prepend: title_first_part
+        assign title = title_mod
+    endcase
+  endif
+-%}<link
+  href="{{ 'section-featured-collection.css' | asset_url }}"
+  rel="preload"
+  as="style"
+  onload="this.onload=null;this.rel='stylesheet'"
+>
+
+{%- style -%}
+  {{ selector_id }} {
+    --PT: {{ section.settings.padding_top }}px;
+    --PB: {{ section.settings.padding_bottom }}px;
+    --adjust-heading: calc(var(--FONT-ADJUST-HEADING) * {{ heading_size }});
+
+    {% if scheme_bg_gradient != '' -%}
+      --bg: {{ scheme_bg_color }};
+    {%- endif %}
+  }
+
+  {{ selector_id }} .featured-collection__content-body {
+    {% if show_text_background and bg_color.alpha != 0.0 and bg_color != blank -%}
+      --bg: {{ bg_color }};
+    {%- endif -%}
+
+    {%- if text_color.alpha != 0.0 and text_color != blank -%}
+      --text: {{ text_color }};
+      --heading: {{ text_color }};
+    {%- endif -%}
+  }
+
+  {{ selector_id }} .section__heading {
+    {% if heading_highlight_type != 'highlight' -%}
+      --highlight-color: var(--text);
+    {%- endif %}
+
+    {% if highlight_color != 'rgba(0,0,0,0)' and highlight_color != '' -%}
+      --highlight-color: {{ highlight_color }};
+    {%- endif %}
+
+    {% if highlight_text_color != 'rgba(0,0,0,0)' and highlight_text_color != '' -%}
+      --highlight-text-color: {{ highlight_text_color }};
+    {%- endif %}
+  }
+
+  {{ selector_id }} .section__text {
+    --adjust-body: calc(var(--FONT-ADJUST-BODY) * {{ text_size }});
+  }
+
+  @media screen and (min-width: 1024px) {
+    {{ selector_id }} {
+      --grid: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media screen and (min-width: 768px) and (max-width: 1023px) {
+    {{ selector_id }} {
+      --grid-tablet: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media screen and (max-width: 767px) {
+    {{ selector_id }} {
+      --grid-mobile: repeat({{ columns_mobile }}, minmax(0, 1fr));
+      --adjust-heading: calc(var(--FONT-ADJUST-HEADING) * {{ heading_size_mobile }});
+    }
+    {% if columns_mobile > 1 -%}
+      {{ selector_id }} .carousel--mobile { --item-width-mobile: calc(90% / {{ columns_mobile }} - var(--grid-gutter)); }
+    {%- endif %}
+  }
+{%- endstyle -%}
+
+{%- capture section_heading_content -%}
+  <div class="section__header featured-collection__content__wrapper">
+    <div class="featured-collection__content-body{% if show_text_background %} text-background{% endif %}">
+      {%- if title != blank -%}
+        {%- capture title_attributes -%}
+          class="section__heading h2{% if has_text_highlight %} {{ text_highlight_wrapper_class }}{% endif %}"
+          {% if animations_enabled %}
+            data-aos="fade-up"
+            data-aos-delay="{{ animation_delay }}"
+            data-aos-anchor="{{ animation_anchor }}"
+            {%- assign animation_delay = animation_delay | plus: 150 -%}
+          {% endif %}
+        {%- endcapture -%}
+
+        {%- if add_collection_link -%}
+          <a href="{{ collection.url | default: '#!' }}" {{ title_attributes }}>
+          {%- assign title_attributes = '' -%}
+        {%- endif -%}
+
+        {% render 'title-text-reveal-and-highlights',
+          title: title,
+          title_attributes: title_attributes,
+          has_text_highlight: has_text_highlight
+        %}
+
+        {%- if add_collection_link -%}
+          </a>
+        {%- endif -%}
+      {%- endif -%}
+
+      {%- if settings.show_spacer_lines -%}
+        <hr class="section__heading-line"
+          {% if animations_enabled %}
+            data-aos="fade-up"
+            data-aos-delay="{{ animation_delay }}"
+            data-aos-anchor="{{ animation_anchor }}"
+            {%- assign animation_delay = animation_delay | plus: 150 -%}
+          {% endif %}>
+      {%- endif -%}
+
+      {%- if text != blank -%}
+        <div class="section__text"
+          {% if animations_enabled %}
+            data-aos="fade-up"
+            data-aos-delay="{{ animation_delay }}"
+            data-aos-anchor="{{ animation_anchor }}"
+            {%- assign animation_delay = animation_delay | plus: 150 -%}
+          {% endif %}>
+          {{- text -}}
+        </div>
+      {%- endif -%}
+
+      {%- if button_link != blank and button_text != blank -%}
+        <div class="featured-collection__button"
+          {% if animations_enabled %}
+            data-aos="fade-up"
+            data-aos-delay="{{ animation_delay }}"
+            data-aos-anchor="{{ animation_anchor }}"
+            {%- assign animation_delay = animation_delay | plus: 150 -%}
+          {% endif %}>
+          <a class="btn {{ button_style }} {{ button_size }} {{ button_color }} {{ button_advanced_class }} btn--view-all" href="{{ button_link }}">
+            <hover-button></hover-button>
+            {{- button_text -}}
+          </a>
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+{%- endcapture -%}
+
+{%- capture section_heading -%}
+  <div class="featured-collection__content">
+    <div class="featured-collection__content-inner align--{{ text_position }}{% if button_link != blank or button_text != blank %} hover-scale{% endif %}">
+      {%- liquid
+        assign wrapper_width = '(100vw - 120px) * 0.5'
+
+        if section_width == 'wrapper'
+          assign wrapper_width = '(1440px - 120px) * 0.5'
+        endif
+
+        assign img_width_lg = 'calc(' | append: wrapper_width | append: ' - 40px)'
+        assign img_width_md = 'calc((100vw - 120px) * 0.5 - 40px)'
+        assign img_width_sm = 'calc(100vw - 40px)'
+        assign sizes = '(min-width: 1024px) ' | append: img_width_lg | append: ', (min-width: 768px) ' | append: img_width_md | append: ', ' | append: img_width_sm
+      -%}
+      {%- if button_link != blank and button_text == blank -%}
+        {%- unless title != blank -%}
+          {%- assign title = 'homepage.onboarding.products_with_image.title' | t -%}
+        {%- endunless -%}
+
+        <a class="featured-collection__content-link" href="{{ button_link }}">
+          <span class="visually-hidden">{{ title | strip_html | strip }}</span>
+        </a>
+      {%- endif -%}
+
+      {%- if overlay_type == 'opacity' -%}
+        <div class="overlay"></div>
+      {%- endif -%}
+
+      {%- render 'image-fill', is_background: true, image_desktop: image_desktop, image_mobile: image_mobile, sizes: sizes, classes: 'featured-collection__content-image', placeholder_svg: 'lifestyle-1' -%}
+      {{ section_heading_content }}
+    </div>
+  </div>
+{%- endcapture -%}
+
+{%- capture collection_items -%}
+  {% comment %} Check if there are any products in the collection {% endcomment %}
+  {%- if products_count > 0 -%}
+      {%- liquid
+        for product in products limit: products_limit
+          assign animation_delay = forloop.index0 | modulo: columns | times: 1
+          render 'product-grid-item', columns: columns, columns_mobile: columns_mobile, product: product, animation_delay: animation_delay, section_width: section_width
+        endfor
+      -%}
+  {%- else -%}
+    <div class="featured-collection--no-results align--{{ text_position }}">
+      <p>{{ 'collections.general.no_matches' | t }}</p>
+    </div>
+  {%- endif -%}
+{%- endcapture -%}
+
+{%- capture collection_onboarding -%}
+  {%- for i in (1..products_limit) -%}
+    {%- capture placeholder_index -%}{%- cycle 1, 2, 3, 5, 6 -%}{%- endcapture -%}
+    {%- assign animation_delay = forloop.index0 | modulo: columns | times: 1 -%}
+    {%- assign placeholder_index = placeholder_index | plus: 0 -%}
+    {%- render 'product-grid-item--onboarding',
+      columns: columns,
+      columns_mobile: columns_mobile,
+      placeholder_index: placeholder_index,
+      index: forloop.index0,
+      animation_delay: animation_delay
+    -%}
+  {%- endfor -%}
+{%- endcapture -%}
+
+{%- capture collection_container -%}
+  <div class="featured-collection__container grid__container">
+    <div class="grid{{ mobile_class }}{% if products_count == 0 %} featured-collection--empty{% endif %}">
+      {% if products %}
+        {{ collection_items }}
+      {%- else -%}
+        {{ collection_onboarding }}
+      {%- endif -%}
+    </div>
+  </div>
+{%- endcapture -%}
+
+<section
+  id="{{ id }}"
+  class="{{ section_classes }}"
+  data-section-id="{{ section.id }}"
+  data-section-type="featured-collection"
+  {% if animations_enabled %}
+    data-aos-watch-anchors
+    {% if enable_slider_mobile %}
+      data-aos-carousel-mobile
+    {% endif %}
+  {% endif %}
+>
+  <div class="{{ section_width }}">
+    <div class="featured-collection__inner{% if layout == 'split-right' %} featured-collection__inner--splitright{% endif %}">
+      {{ section_heading }}
+      {{ collection_container }}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Products with image",
+  "settings": [
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Collection"
+    },
+    {
+      "type": "product_list",
+      "id": "product_list",
+      "label": "Product list"
+    },
+    {
+      "type": "select",
+      "id": "products_layout",
+      "label": "Image position",
+      "default": "split-left",
+      "options": [
+        {"value": "split-left", "label": "Image left"},
+        {"value": "split-right", "label": "Image right"}
+      ]
+    },
+    {
+      "type": "range",
+      "id": "products_limit",
+      "label": "Products",
+      "default": 8,
+      "min": 1,
+      "max": 24,
+      "step": 1
+    },
+    {
+      "type": "select",
+      "id": "products_per_row_on_desktop",
+      "label": "Products per row on desktop",
+      "default": "2",
+      "options": [
+        {"label": "1", "value": "1"},
+        {"label": "2", "value": "2"}
+      ]
+    },
+    {
+      "type": "select",
+      "id": "columns_mobile",
+      "label": "Products per row on mobile",
+      "default": "2",
+      "options": [
+        {"label": "1", "value": "1"},
+        {"label": "2", "value": "2"}
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Background image"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Desktop image"
+    },
+    {
+      "type": "image_picker",
+      "id": "mobile_image",
+      "label": "Mobile image"
+    },
+    {
+      "type": "select",
+      "id": "overlay_type",
+      "label": "Overlay type",
+      "default": "disabled",
+      "options": [
+        {"value": "disabled", "label": "Disabled"},
+        {"value": "opacity", "label": "Opacity overlay"}
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Text"
+    },
+    {
+      "type": "select",
+      "id": "text_position",
+      "label": "Position",
+      "default": "middle-center",
+      "options": [
+        {"value": "top-left", "label": "Top left"},
+        {"value": "top-center", "label": "Top center"},
+        {"value": "top-right", "label": "Top right"},
+        {"value": "middle-left", "label": "Middle Left"},
+        {"value": "middle-center", "label": "Absolute Center"},
+        {"value": "middle-right", "label": "Middle Right"},
+        {"value": "bottom-left", "label": "Bottom left"},
+        {"value": "bottom-center", "label": "Bottom center"},
+        {"value": "bottom-right", "label": "Bottom right"}
+      ]
+    },
+    {
+      "type": "richtext",
+      "id": "title",
+      "label": "Heading",
+      "default": "<p>Best Sellers</p>",
+      "info": "Highlight one or two key words in your heading by italicizing them, then choose the highlight option below"
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "label": "Heading size",
+      "default": 100,
+      "min": 75,
+      "max": 350,
+      "step": 5,
+      "unit": "%"
+    },
+    {
+      "type": "header",
+      "content": "Highlight"
+    },
+    {
+      "type": "select",
+      "id": "heading_highlight_type",
+      "label": "Type",
+      "default": "underline-hand-drawn",
+      "info": "The font choice for the \"Alternate font\" type can be configured in the theme typography settings.",
+      "options": [
+        {"value": "italics", "label": "Italics (no decoration)"},
+        {"value": "highlight", "label": "Highlight"},
+        {"value": "highlight-color", "label": "Text color"},
+        {"value": "underline", "label": "Underline (digital)"},
+        {"value": "underline-hand-drawn", "label": "Underline (hand-drawn)"},
+        {"value": "squiggle", "label": "Squiggle"},
+        {"value": "circle", "label": "Circle (digital)"},
+        {"value": "circle-hand-drawn", "label": "Circle (hand-drawn)"},
+        {"value": "stroke", "label": "Stroke (outlined text)"},
+        {"value": "alternate-font", "label": "Alternate font"}
+      ]
+    },
+    {
+      "type": "color",
+      "id": "highlight_color",
+      "label": "Highlight color",
+      "default": "#000",
+      "alpha": true
+    },
+    {
+      "type": "color",
+      "id": "highlight_text_color",
+      "label": "Text color",
+      "alpha": true
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "Text",
+      "default": "<p>Use this text to share information about your collection with your customers.</p>"
+    },
+    {
+      "type": "range",
+      "id": "text_size",
+      "label": "Text size",
+      "default": 100,
+      "min": 75,
+      "max": 250,
+      "step": 5,
+      "unit": "%"
+    },
+    {
+      "type": "header",
+      "content": "Button"
+    },
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "Text",
+      "info": "Leave blank to link entire image",
+      "default": "Shop Now"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Link"
+    },
+    {
+      "type": "select",
+      "id": "button_color",
+      "label": "Button color",
+      "default": "btn--black",
+      "options": [
+        {"label": "Primary", "value": "btn--primary"},
+        {"label": "Secondary", "value": "btn--secondary"},
+        {"label": "White", "value": "btn--white"},
+        {"label": "Black", "value": "btn--black"}
+      ]
+    },
+    {
+      "type": "select",
+      "id": "button_style",
+      "label": "Button style",
+      "default": "btn--text",
+      "options": [
+        {"label": "Solid", "value": "btn--solid"},
+        {"label": "Outline", "value": "btn--outline"},
+        {"label": "Solid with border", "value": "btn--solid-border"},
+        {"label": "Soft", "value": "btn--soft"},
+        {"label": "Text", "value": "btn--text"}
+      ]
+    },
+    {
+      "type": "select",
+      "id": "button_size",
+      "label": "Size",
+      "default": "btn--medium",
+      "options": [
+        {"label": "Small", "value": "btn--small"},
+        {"label": "Medium", "value": "btn--medium"},
+        {"label": "Large", "value": "btn--large"}
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "paragraph",
+      "content": "Overrides color scheme. Set to Transparent to revert back to using color schemes."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_text_background",
+      "label": "Show text background",
+      "default": false
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background",
+      "alpha": true
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text",
+      "alpha": true
+    },
+    {
+      "type": "header",
+      "content": "Mobile layout"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_slider_mobile",
+      "label": "Enable slider",
+      "default": true,
+      "info": "Horizontal slider in mobile layout."
+    },
+    {
+      "type": "header",
+      "content": "Section spacing"
+    },
+    {
+      "type": "select",
+      "id": "width",
+      "label": "Width",
+      "default": "wrapper--full-padded",
+      "options": [
+        {"value": "wrapper", "label": "Page width"},
+        {"value": "wrapper--full-padded", "label": "Full width padded"}
+      ]
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "label": "Padding top",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "label": "Padding bottom",
+      "default": 60
+    }
+  ],
+  "presets": [
+    {
+      "name": "Products with image",
+      "category": "Products"
+    }
+  ],
+  "disabled_on": {
+    "groups": ["header", "aside"]
+  }
+}
+{% endschema %}

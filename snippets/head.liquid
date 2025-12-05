@@ -1,0 +1,322 @@
+<meta charset="utf-8">
+<meta
+    http-equiv="X-UA-Compatible"
+    content="IE=edge"
+>
+<meta
+    name="viewport"
+    content="width=device-width, height=device-height, initial-scale=1.0, minimum-scale=1.0"
+>
+<link
+    rel="canonical"
+    href="{{ canonical_url }}"
+>
+
+{%- unless settings.type_heading_font.system?
+    and settings.type_base_font.system?
+-%}
+    <link
+        rel="preconnect"
+        href="https://fonts.shopifycdn.com"
+        crossorigin
+    >
+{%- endunless -%}
+{%- unless settings.type_base_font.system? -%}
+    <link
+        rel="preload"
+        as="font"
+        href="{{ settings.type_base_font | font_url }}"
+        type="font/woff2"
+        crossorigin
+    >
+{%- endunless -%}
+{%- unless settings.type_heading_font.system? -%}
+    <link
+        rel="preload"
+        as="font"
+        href="{{ settings.type_heading_font | font_url }}"
+        type="font/woff2"
+        crossorigin
+    >
+{%- endunless -%}
+
+<link
+    rel="preload"
+    as="image"
+    href="{{ 'loading.svg' | asset_url }}"
+>
+{%- liquid
+    assign loading_appearance = settings.loading_appearance
+    assign image_width = settings.loading_image_width
+    assign image = settings.loading_image
+    assign loading_background = settings.loading_background
+    assign loading_svg_color = '#fff'
+    assign loading_background_brightness = loading_background | color_brightness | round
+    if loading_background_brightness > 153
+        assign loading_svg_color = '#000'
+    endif
+-%}
+
+{%- style -%}
+    {% if loading_background.alpha != 0.0 and loading_background != '' %}
+      :root {
+        --overlay-bg: {{ loading_background }};
+        --overlay-bg-svg: {{ loading_svg_color }};
+      }
+    {% endif %}
+
+    html:not(.page-loading) .loading-overlay { opacity: 0; visibility: hidden; pointer-events: none; animation: fadeOut 1s ease; transition: visibility 0s linear 1s; }
+
+    .loading-overlay { position: fixed; top: 0; left: 0; z-index: 99999; width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--overlay-bg, var(--COLOR-BLACK-WHITE)); }
+{%- endstyle -%}
+
+{%- unless loading_appearance == 'never' -%}
+    {%- if image != blank -%}
+        {%- assign image_height = image_width
+            | divided_by: image.aspect_ratio
+            | round
+        -%}
+        {%- capture preload_image_size -%}{{ image_width }}x{{ image_height }}{%- endcapture -%}
+        <link
+            rel="preload"
+            as="image"
+            href="{{ image | img_url: preload_image_size }}"
+            data-preload="{{ preload_image_size }}"
+        >
+    {%- endif -%}
+
+    {%- style -%}
+        .loader__image__holder { position: absolute; top: 0; left: 0; width: 100%; height: 100%; font-size: 0; display: none; align-items: center; justify-content: center; animation: pulse-loading 2s infinite ease-in-out; }
+        .loader__image__holder:has(.loader__image--fallback) { animation: none; }
+        .loading-image .loader__image__holder { display: flex; }
+        .loader__image { max-width: {{ image_width }}px; height: auto; object-fit: contain; }
+        .loading-image .loader__image--fallback { width: 150px; height: 150px; max-width: 150px; mask: var(--loading-svg) center center/contain no-repeat; background: var(--overlay-bg-svg, var(--COLOR-WHITE-BLACK)); }
+    {%- endstyle -%}
+
+    <script>
+        const loadingAppearance = {{ loading_appearance | json }};
+        const loaded = sessionStorage.getItem('loaded');
+
+        if (loadingAppearance === 'once') {
+          if (loaded === null) {
+            sessionStorage.setItem('loaded', true);
+            document.documentElement.classList.add('loading-image');
+          }
+        } else {
+          document.documentElement.classList.add('loading-image');
+        }
+    </script>
+{%- endunless -%}
+{%- if settings.favicon != blank -%}
+    <link
+        rel="shortcut icon"
+        href="{{ settings.favicon | img_url: '32x32' }}"
+        type="image/png"
+    >
+{%- endif -%}
+
+{% comment %} Title and description {% endcomment %}
+<title>
+    {{- page_title }}
+    {% if current_tags -%}
+        {%- assign meta_tags = current_tags | join: ', ' %} &ndash;
+        {{ 'general.meta.tags' | t: tags: meta_tags -}}
+    {%- endif %}
+    {% if current_page != 1 %}
+        &ndash; {{ 'general.meta.page' | t: page: current_page -}}
+    {%- endif %}
+    {% unless page_title contains shop.name %}
+        &ndash; {{ shop.name -}}
+    {% endunless -%}
+</title>
+
+{%- if page_description -%}
+    <meta
+        name="description"
+        content="{{ page_description | escape }}"
+    >
+{%- else -%}
+    <meta
+        name="description"
+        content="{{ shop.description | escape }}"
+    >
+{%- endif -%}
+
+{%- render 'social-meta-tags' -%}
+
+{%- render 'css-variables' -%}
+
+{%- comment -%} CSS {%- endcomment -%}
+{{- 'theme.css' | asset_url | stylesheet_tag: preload: true -}}
+{{- 'custom-index.css' | asset_url | stylesheet_tag: preload: true -}}
+
+<link
+    href="{{ 'dialogs.css' | asset_url }}"
+    rel="preload"
+    as="style"
+    onload="this.onload=null;this.rel='stylesheet'"
+>
+
+{%- if settings.color_swatches_type != 'disabled' -%}
+    <style>
+        {{ 'swatches.css' | inline_asset_content }}
+    </style>
+    {%- render 'swatch-color-list' -%}
+{%- endif %}
+
+{%- liquid
+    capture icon_close
+        render 'icon-close'
+    endcapture
+-%}
+
+<script
+    type="text/javascript"
+>
+    let root = '{{ routes.root_url }}';
+    if (root[root.length - 1] !== '/') {
+      root = `${root}/`;
+    }
+
+    window.theme = {
+      routes: {
+        root: root,
+        cart_url: {{ routes.cart_url | json }},
+        cart_add_url: {{ routes.cart_add_url | json }},
+        cart_change_url: {{ routes.cart_change_url | json }},
+        cart_update_url: {{ routes.cart_update_url | json }},
+        shop_url: {{ shop.url | json }},
+        searchUrl: '{{ routes.search_url }}',
+        predictiveSearchUrl: '{{ routes.predictive_search_url }}',
+        product_recommendations_url: {{ routes.product_recommendations_url | json }}
+      },
+      assets: {
+        photoswipe: '{{ "photoswipe.js" | asset_url }}',
+        no_image: "{{ image | img_url: '1024x' }}",
+        base: "{{ 'blank.svg' | asset_url | split: 'blank.svg' | first }}"
+      },
+      strings: {
+        add_to_cart: {{ "products.product.add_to_cart" | t | json }},
+        cart_acceptance_error: {{ "cart.general.accept_terms" | t | json }},
+        cart_empty: {{ "cart.general.empty" | t | json }},
+        cart_price: {{ "cart.label.price" | t | json }},
+        cart_quantity: {{ "cart.label.quantity" | t | json }},
+        cart_items_one: {{ "cart.label.items_with_count.one" | t | json }},
+        cart_items_many: {{ "cart.label.items_with_count.other" | t | json }},
+        cart_title: {{ "cart.general.title" | t | json }},
+        cart_total: {{ "cart.label.total" | t | json }},
+        discount_not_applicable: {{ "cart.general.discount_not_applicable" | t | json }},
+        shipping_discounts_at_checkout: {{ "cart.general.shipping_discounts_at_checkout" | t | json }},
+        discount_already_applied: {{ "cart.general.discount_already_applied" | t | json }},
+        continue_shopping: {{ "cart.general.continue_shopping" | t | json }},
+        free: {{ 'products.product.free' | t | json }},
+        limit_error: {{ "cart.general.limit_error" | t | json }},
+        preorder: {{ "products.product.preorder" | t | json }},
+        remove: {{ 'cart.general.remove' | t | json }},
+        sale_badge_text: {{ "products.product.sale" | t | json }},
+        saving_badge: {{ "products.product.save_badge_html" | t | json }},
+        saving_up_to_badge: {{ "products.product.save_badge_up_to_html" | t | json }},
+        sold_out: {{ "products.product.sold_out" | t | json }},
+        unavailable: {{ "products.product.unavailable" | t | json }},
+        unit_price_label: {{ "products.product.unit_price_label" | t | json }},
+        unit_price_separator: {{ "general.accessibility.unit_price_separator" | t | json }},
+        zero_qty_error: {{ "cart.general.zero_qty_error" | t | json }},
+        delete_confirm: {{ "customer.addresses.delete_confirm" | t | json }}
+      },
+      icons: {
+        close: '{{ icon_close | strip_newlines }}'
+      },
+      settings: {
+        animationsEnabled: {{ settings.animations_enabled | json }},
+        cartType: {{ settings.cart_type | json }},
+        enableAcceptTerms: {{ settings.enable_accept_terms | json }},
+        enableInfinityScroll: {{ settings.enable_infinity_scroll | json }},
+        enablePaymentButton: {{ settings.show_payment_button | json }},
+        gridImageSize: {{ settings.image_size | json }},
+        gridImageAspectRatio: {{ settings.image_aspect_ratio | json }},
+        mobileMenuBehaviour: {{ settings.mobile_menu_behaviour | json }},
+        productGridHover: {{ settings.product_grid_hover | json }},
+        savingBadgeType: {{ settings.saving_badge_type | json }},
+        showSaleBadge: {{ settings.show_sale_badge | json }},
+        showSoldBadge: {{ settings.show_sold_badge | json }},
+        showSavingBadge: {{ settings.show_saving_badge | json }},
+        quickBuy: {{ settings.quick_buy | json }},
+        suggestArticles: {{ settings.suggest_articles | json }},
+        suggestCollections: {{ settings.suggest_collections | json }},
+        suggestProducts: {{ settings.suggest_products | json }},
+        suggestPages: {{ settings.suggest_pages | json }},
+        suggestionsResultsLimit: {{ settings.suggestions_results_limit | json }},
+        currency_code_enable: {{ settings.currency_code_enable | json }},
+        hideInventoryCount: {{ settings.hide_inventory_count | json }},
+        colorSwatchesType: {{ settings.color_swatches_type | json }},
+        atcButtonShowPrice: {{ settings.atc_show_product_price | json }},
+        buynowButtonColor: {{ settings.buynow_btn_color | json }},
+        buynowButtonStyle: {{ settings.buynow_btn_style | json }},
+        buynowButtonSize: {{ settings.buynow_button_size | json }},
+        mobileMenuType: {{ settings.mobile_menu_type | json }},
+      },
+      sizes: {
+        mobile: 480,
+        small: 768,
+        large: 1024,
+        widescreen: 1440
+      },
+      moneyFormat: {{ shop.money_format | json }},
+      moneyWithCurrencyFormat: {{ shop.money_with_currency_format | json }},
+      subtotal: {{ cart.total_price | json }},
+      current_iso_code: {{ cart.currency.iso_code | json }},
+      info: {
+        name: 'Palo Alto',
+        version: '9.0.2',
+        role: '{{ theme.role }}'
+      },
+    };
+    window.PaloAlto = window.PaloAlto || {};
+    window.slate = window.slate || {};
+    window.isHeaderTransparent = false;
+    window.stickyHeaderHeight = 60;
+    window.lastWindowWidth = window.innerWidth || document.documentElement.clientWidth;
+</script>
+
+{%- if request.page_type contains 'customers/' -%}
+    <script
+        src="{{ 'shopify_common.js' | shopify_asset_url }}"
+        defer="defer"
+    ></script>
+{%- endif -%}
+
+<script
+    src="{{ 'vendor.js' | asset_url }}"
+    defer="defer"
+></script>
+<script
+    src="{{ 'theme.js' | asset_url }}"
+    defer="defer"
+></script>
+
+{%- if settings.quick_buy != 'none' -%}
+    <script
+        src="{{ 'product-info.js' | asset_url }}"
+        defer="defer"
+    ></script>
+{%- endif -%}
+
+{%- if request.design_mode -%}
+    <script
+        src="{{ 'theme-editor.js' | asset_url }}"
+        defer="defer"
+        data-owner-email="{{ shop.email }}"
+        data-owner-id="{{ shop.id }}"
+    ></script>
+{%- endif -%}
+
+{%- comment -%}
+    If you need to do some edits in Theme JS use theme.dev.js file
+
+    *** DO NOT EDIT theme.js file ***
+
+    Then call theme.dev.js file by editing the row above from:
+    <script src="{{ 'theme.js' | asset_url }}" defer="defer"></script>
+    to
+    <script src="{{ 'theme.dev.js' | asset_url }}" defer="defer"></script>
+{%- endcomment -%}

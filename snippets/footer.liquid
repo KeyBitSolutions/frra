@@ -1,0 +1,566 @@
+{%- comment -%}
+  Renders footer content on Footer & Footer minimal sections
+
+  Accepts:
+  - section_id: {String} ID to specify where is the section rendered from
+
+  Usage:
+  {% render 'footer', section_id: 'SiteFooter' %}
+{%- endcomment -%}
+
+{%- liquid
+  assign section_id = section_id | default: 'SiteFooter'
+  assign section_width = section.settings.width
+  assign color_text = section.settings.color_text
+  assign color_scheme = 'color-' | append: section.settings.color_scheme
+  assign selected_color_scheme = section.settings.color_scheme | strip
+  assign scheme_bg_color = settings.color_schemes[selected_color_scheme].settings.section_bg
+  assign scheme_bg_gradient = settings.color_schemes[selected_color_scheme].settings.section_bg_gradient
+  assign color_border = section.settings.color_border
+  assign footer_wave = section.settings.show_footer_wave
+  assign footer_parallax = section.settings.enable_footer_parallax
+  assign bottom_bar_alignment = section.settings.bottom_bar_alignment
+  assign show_social_links = section.settings.show_social_links
+  assign show_payment_icons = section.settings.show_payment_icons
+  assign enable_greyscale = section.settings.enable_greyscale
+  assign increase_border_radius = section.settings.increase_border_radius
+  assign animations_enabled = settings.animations_enabled
+  assign animation_delay = 150
+
+  assign show_follow_on_shop = false
+  if shop.features.follow_on_shop? and section.settings.enable_follow_on_shop
+    assign show_follow_on_shop = true
+  endif
+
+  assign has_social_icons = false
+  if show_social_links and settings.social_facebook_link != blank or settings.social_twitter_link != blank or settings.social_pinterest_link != blank or settings.social_instagram_link != blank or settings.social_youtube_link != blank or settings.social_tiktok_link != blank or settings.social_snapchat_link != blank or settings.social_tumblr_link != blank or settings.social_rss_link != blank
+    assign has_social_icons = true
+  endif
+
+  assign render_socials = false
+  if has_social_icons or show_follow_on_shop
+    assign render_socials = true
+  endif
+
+  assign has_payment_icons = false
+  if show_payment_icons and shop.enabled_payment_types != empty
+    assign has_payment_icons = true
+  endif
+
+  if render_socials and has_payment_icons
+    assign columns = 3
+  elsif render_socials or has_payment_icons
+    assign columns = 2
+  else
+    assign columns = 1
+  endif
+
+  assign color_bg_brightness = scheme_bg_color | color_brightness | round
+  if color_bg_brightness > 153
+    assign color_bg_lighten_darken_shimmer_bg = scheme_bg_color | color_darken: 2
+    assign color_bg_lighten_darken_shimmer_effect = scheme_bg_color | color_darken: 4
+  else
+    assign color_bg_lighten_darken_shimmer_bg = scheme_bg_color | color_lighten: 5
+    assign color_bg_lighten_darken_shimmer_effect = scheme_bg_color | color_lighten: 7
+  endif
+
+  if section.blocks.size == 0
+    assign footer_parallax = false
+  endif
+
+  comment
+    Images sizes
+  endcomment
+  assign desktop_space = 120
+  assign mobile_space = 40
+  case section_width
+    when 'wrapper--full-padded'
+      assign wrapper_width = '100vw'
+    when 'wrapper'
+      assign wrapper_width = '1440px'
+  endcase
+
+  assign show_locale_selector = section.settings.show_locale_selector
+  assign show_locale_code = section.settings.show_locale_code
+  assign show_country_selector = section.settings.show_country_selector
+  assign show_country_name = section.settings.show_country_name
+  assign show_country_flag = section.settings.show_country_flag
+-%}
+
+{% if footer_parallax %}
+  <script src="{{ 'scrollable-parallax.js' | asset_url }}" defer="defer"></script>
+  <script src="{{ 'footer-effect.js' | asset_url }}" defer="defer"></script>
+{% endif %}
+
+{% if request.design_mode %}
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // Theme Editor: Handle section changes that affect footer parallax positioning
+      let reinitTimer;
+
+      // Disconnect any existing observer to prevent multiple observers
+      if (window.footerParallaxThemeEditorObserver) {
+        window.footerParallaxThemeEditorObserver.disconnect();
+        window.footerParallaxThemeEditorObserver = null;
+      }
+
+      const reevaluateAllFooters = () => {
+        const allFooterEffects = document.querySelectorAll('footer-effect');
+
+        if (allFooterEffects.length === 0) return;
+
+        // The first footer in DOM order should be active
+        const shouldBeActiveFooter = allFooterEffects[0];
+        const currentActive = Array.from(allFooterEffects).find((el) => el.isActive);
+
+        // If the first footer is not the current active, switch activation
+        if (shouldBeActiveFooter !== currentActive) {
+          // Deactivate current active footer
+          if (currentActive && typeof currentActive.becomePassive === 'function') {
+            currentActive.becomePassive();
+          }
+
+          // Activate the first footer
+          if (typeof shouldBeActiveFooter.becomeActive === 'function') {
+            shouldBeActiveFooter.becomeActive();
+          }
+        } else if (currentActive && typeof currentActive.refresh === 'function') {
+          // If already correct but need to reinit due to DOM changes
+          currentActive.refresh();
+        }
+      };
+
+      // Watch for Shopify section changes in Theme Editor
+      const themeEditorObserver = new MutationObserver((mutations) => {
+        let shouldReinit = false;
+
+        mutations.forEach((mutation) => {
+          if (mutation.type === 'childList') {
+            // Check if Shopify sections were added/removed/reordered
+            const hasShopifySectionChanges =
+              Array.from(mutation.addedNodes).some(
+                (node) =>
+                  node.nodeType === Node.ELEMENT_NODE &&
+                  (node.classList?.contains('shopify-section') || node.hasAttribute?.('data-section-type'))
+              ) ||
+              Array.from(mutation.removedNodes).some(
+                (node) =>
+                  node.nodeType === Node.ELEMENT_NODE &&
+                  (node.classList?.contains('shopify-section') || node.hasAttribute?.('data-section-type'))
+              );
+
+            if (hasShopifySectionChanges) {
+              shouldReinit = true;
+            }
+          }
+        });
+
+        if (shouldReinit) {
+          // Debounce re-evaluation to avoid excessive calls during theme editor operations
+          clearTimeout(reinitTimer);
+          reinitTimer = setTimeout(() => {
+            reevaluateAllFooters();
+          }, 100);
+        }
+      });
+
+      // Start observing document body for section-level changes
+      themeEditorObserver.observe(document.body, {
+        childList: true,
+        subtree: true,
+      });
+
+      // Store observer globally for cleanup
+      window.footerParallaxThemeEditorObserver = themeEditorObserver;
+    });
+  </script>
+{% endif %}
+
+{%- style -%}
+  {%- if request.visual_preview_mode -%}
+    .section-footer {
+      opacity: 1;
+      visibility: visible;
+    }
+  {%- endif -%}
+
+  #{{ section_id }} {
+    --PT: {{ section.settings.padding_top }}px;
+    --PB: {{ section.settings.padding_bottom }}px;
+    --bg-lighten-darken-shimmer-bg: {{ color_bg_lighten_darken_shimmer_bg }};
+    --bg-lighten-darken-shimmer-effect: {{ color_bg_lighten_darken_shimmer_effect }};
+
+    {% if scheme_bg_gradient != '' -%}
+      --bg: {{ scheme_bg_color }};
+    {%- endif %}
+
+    {%- if color_text.alpha != 0.0 and color_text != '' -%}
+      --text: {{ color_text }};
+      --text-alpha-15: {{ color_text | color_modify: 'alpha', 0.15 }};
+      --text-alpha-50: {{ color_text | color_modify: 'alpha', 0.60 }};
+      --text-alpha-85: {{ color_text | color_modify: 'alpha', 0.85 }};
+    {%- endif -%}
+
+    {%- if color_border.alpha != 0.0 and color_border != '' -%}
+      --border: {{ color_border }};
+    {%- endif -%}
+  }
+
+  #{{ section_id }} .footer-bottom { --grid-columns: {{ columns }}; }
+
+  {%- if footer_wave and section.location == 'footer' and section.index == 1 -%}
+    .shopify-section:last-of-type .section-padding { padding-bottom: max(50px, var(--padding-bottom)); }
+
+    @media screen and (min-width: 768px) {
+      .slideshow:last-of-type .slider--has-arrow .flickity-page-dots { margin-bottom: 45px; }
+      .slideshow:last-of-type .slider__scroll-down { bottom: 10px; }
+    }
+  {%- endif -%}
+{%- endstyle -%}
+
+<footer
+  id="{{ section_id }}"
+  class="section-padding site-footer{% if footer_wave %} wavy{% if footer_parallax %} parallax-wavy{% endif %}{% endif %} {{ color_scheme }}"
+  role="contentinfo"
+  data-section-id="{{ section.id }}"
+  data-section-type="footer"
+>
+  {%- if footer_wave -%}
+    {%- render 'wave-svg' -%}
+  {%- endif -%}
+
+  {% if footer_parallax %}
+    <parallax-element
+      data-parallax-animation="footer"
+      data-parallax-disable-on-safari
+      {% if settings.show_rounded_corners %}
+        data-parallax-rounded-corners
+        {% if increase_border_radius %}
+          data-parallax-rounded-corners-large
+        {% endif %}
+      {% endif %}
+    >
+    </parallax-element>
+
+    <footer-effect
+      {% if footer_wave %}
+        data-parallax-wavy
+      {% endif %}
+    ></footer-effect>
+  {% endif %}
+
+  <div class="footer-content {{ section_width }}">
+    <div class="footer-blocks">
+      {%- for block in section.blocks -%}
+        {%- liquid
+          assign title = block.settings.title
+          assign alignment = block.settings.alignment
+
+          capture block_style
+            echo '--desktop-width: ' | append: block.settings.column_width | append: '%'
+          endcapture
+        -%}
+
+        {%- case block.type -%}
+          {%- when 'logo' -%}
+            {%- assign logo_width = block.settings.logo_width -%}
+            {%- style -%}
+              #{{ section_id }} .footer-block--logo { min-width: calc({{ logo_width }}px + calc(var(--gutter) / 2)); }
+              #{{ section_id }} .footer-block__logo-image { width: {{ logo_width }}px; }
+            {%- endstyle -%}
+            <div
+              class="footer-block footer-block--logo {{ alignment }}"
+              style="{{ block_style }}"
+              {{ block.shopify_attributes }}
+            >
+              {%- if block.settings.image != blank -%}
+                <a href="{{ routes.root_url }}" class="footer-block__logo-image">
+                  {%- liquid
+                    assign retina_size = logo_width | times: 2
+                    assign image_widths = logo_width | append: ', ' | append: retina_size
+                    assign sizes = logo_width | append: 'px'
+                    assign image_alt = block.settings.image.alt | strip_html | escape | default: shop.name
+
+                    render 'image-fill', img_object: block.settings.image, width: retina_size, widths: image_widths, sizes: sizes, classes: 'logo--footer', alt: image_alt
+                  -%}
+                </a>
+              {%- endif -%}
+
+              {%- if block.settings.show_shop_name -%}
+                <a class="footer-block__shop-name h4" href="{{ routes.root_url }}">{{ shop.name }}</a>
+              {%- endif -%}
+
+              {%- if block.settings.text != blank -%}
+                <div class="rte">{{- block.settings.text -}}</div>
+              {%- endif -%}
+            </div>
+
+          {%- when 'logo_full' -%}
+            {%- liquid
+              assign image = block.settings.image
+              assign logo_width = block.settings.logo_width | divided_by: 100.0
+              assign onboarding_aspect_ratio = 1 | divided_by: 0.3
+              assign logo_aspect_ratio = image.aspect_ratio | default: onboarding_aspect_ratio
+
+              assign image_widths = '180, 360, 540, 720, 900, 1080, 1296, 1512, 1728, 2048, 2450, 2700, 3000, 3350, 3750, 4100'
+              assign img_width_desktop = 'calc((' | append: wrapper_width | append: ' - ' | append: desktop_space | append: 'px)' | append: ' * ' | append: logo_width | append: ')'
+              assign img_width_mobile = 'calc((100vw - ' | append: mobile_space | append: 'px)' | append: ' * ' | append: logo_width | append: ')'
+              assign sizes = '(min-width: 1024px) ' | append: img_width_desktop | append: ', ' | append: img_width_mobile
+              assign image_alt = image.alt | strip_html | escape | default: shop.name
+
+              assign block_id = section_id | append: '--' | append: block.id
+              assign animation_anchor = block_id | prepend: '#'
+              capture img_in_classes
+                echo 'image-in image-in--fade'
+              endcapture
+            -%}
+
+            {%- style -%}
+              #{{ section_id }} .footer-block__logo-full-image { width: {{ block.settings.logo_width }}%; }
+              #{{ section_id }} .footer-block--logo-full { padding-top: {{ block.settings.padding_top }}px; }
+            {%- endstyle -%}
+
+            <div
+              id="{{ block_id }}"
+              class="footer-block footer-block--logo-full {{ alignment }}"
+              {% if animations_enabled %}
+                data-aos="image-in"
+                data-aos-anchor="{{ animation_anchor }}"
+                data-aos-intersection="0.4"
+                data-aos-delay="{{ animation_delay }}"
+              {% endif %}
+              {{ block.shopify_attributes }}
+            >
+              <a href="{{ routes.root_url }}" class="footer-block__logo-full-image">
+                {%- render 'image-fill',
+                  img_object: image,
+                  width: retina_size,
+                  widths: image_widths,
+                  sizes: sizes,
+                  aspect_ratio: logo_aspect_ratio,
+                  alt: image_alt,
+                  placeholder_svg: 'lifestyle-1',
+                  loading: loading,
+                  classes: img_in_classes,
+                  inner_classes: 'lazy-image--simple'
+                -%}
+              </a>
+            </div>
+
+          {%- when 'link' -%}
+            {%- assign menu_links = linklists[block.settings.menu].links -%}
+            <collapsible-elements
+              class="footer-block footer-block--menu {{ alignment }}"
+              style="{{ block_style }}"
+              {{ block.shopify_attributes }}
+            >
+              {%- if title != blank -%}
+                <p class="footer-title footer-title--links">
+                  <button
+                    class="footer-title__button h5"
+                    aria-controls="FooterMenu--{{ title | handle }}-{{ forloop.index0 }}"
+                    data-collapsible-trigger
+                    data-collapsible-trigger-mobile
+                    aria-expanded="false"
+                  >
+                    {{- title -}}
+                    {%- render 'icon-toggle-plus' -%}
+                    {%- render 'icon-toggle-minus' -%}
+                  </button>
+                </p>
+              {%- endif -%}
+
+              {%- if menu_links != empty -%}
+                <div
+                  class="footer-links__wrapper"
+                  {% if title != blank %}
+                    id="FooterMenu--{{ title | handle }}-{{ forloop.index0 }}" data-collapsible-container-mobile
+                  {% endif %}
+                >
+                  <ul
+                    class="footer-links"
+                    {% if title != blank %}
+                      data-collapsible-content
+                    {% endif %}
+                  >
+                    {%- for link in menu_links -%}
+                      <li>
+                        <a class="footer-link" href="{{ link.url }}">{{ link.title }}</a>
+                      </li>
+                    {%- endfor -%}
+                  </ul>
+                </div>
+              {%- endif -%}
+            </collapsible-elements>
+
+          {%- when 'blog' -%}
+            {%- assign blog = blogs[block.settings.blog] | default: false -%}
+            {%- assign layout = block.settings.layout -%}
+
+            <div
+              class="footer-block footer-block--blog {{ alignment }}"
+              style="{{ block_style }}"
+              {{ block.shopify_attributes }}
+            >
+              {%- if title != blank -%}
+                <p class="footer-title h5">{{ title }}</p>
+              {%- endif -%}
+
+              {%- if blog -%}
+                {%- if layout == 'articles' -%}
+                  <ul class="footer-articles-list">
+                    {%- for article in blog.articles limit: 3 -%}
+                      <li>
+                        <a
+                          href="{{ article.url }}"
+                          class="footer-article-title footer-link"
+                          title="{{ article.title }}"
+                        >
+                          {{ article.title | strip_html | truncatewords: 5 -}}
+                        </a>
+                      </li>
+                    {%- endfor -%}
+                  </ul>
+                {%- else -%}
+                  {%- assign tags = blog.all_tags | default: false -%}
+                  {%- if tags -%}
+                    <ul class="footer-tags-list">
+                      {%- for tag in tags -%}
+                        {%- unless tag contains 'time_' -%}
+                          <li>
+                            <a href="{{ blog.url }}/tagged/{{ tag | handle }}" class="footer-link footer-link--tags">
+                              {{- tag -}}
+                            </a>
+                          </li>
+                        {%- endunless -%}
+                      {%- endfor -%}
+                    </ul>
+                  {%- endif -%}
+                {%- endif -%}
+              {%- else -%}
+                {% comment %} Onboarding content if no blog selected {% endcomment %}
+                {%- if layout == 'articles' -%}
+                  <ul class="footer-articles-list">
+                    {%- for i in (1..3) -%}
+                      <li>
+                        <a href="#!" class="footer-article-title footer-link">
+                          {{- 'homepage.onboarding.blog.title' | t -}}
+                        </a>
+                      </li>
+                    {%- endfor -%}
+                  </ul>
+                {%- else -%}
+                  <ul class="footer-tags-list">
+                    {%- for i in (1..3) -%}
+                      <li>
+                        <a href="#!" class="footer-link">{{ 'homepage.onboarding.blog.tag' | t }}</a>
+                      </li>
+                    {%- endfor -%}
+                  </ul>
+                {%- endif -%}
+              {%- endif -%}
+            </div>
+
+          {%- when 'newsletter' -%}
+            {%- liquid
+              assign heading_size = block.settings.heading_size | times: 0.01
+              assign uppercase_heading = block.settings.uppercase_heading
+              assign button_text = block.settings.button_text
+              assign button_color = block.settings.button_color
+              assign button_style = block.settings.button_style
+
+              if uppercase_heading
+                assign heading_caps = 'uppercase'
+              else
+                assign heading_caps = 'none'
+              endif
+            -%}
+
+            <div
+              class="footer-block footer-block--newsletter {{ alignment }}"
+              style="{{ block_style }}"
+              {{ block.shopify_attributes }}
+            >
+              {%- style -%}
+                #{{ section_id }} .footer-block--newsletter .footer-title {
+                  --adjust-heading: calc(var(--FONT-ADJUST-HEADING) * {{ heading_size }});
+                  --heading-caps: {{ heading_caps }};
+                }
+              {%- endstyle -%}
+
+              {%- if title != blank -%}
+                <div class="footer-title h5">{{ title }}</div>
+              {%- endif -%}
+
+              {%- if block.settings.text != blank -%}
+                <div class="rte">{{- block.settings.text -}}</div>
+              {%- endif -%}
+
+              {%- render 'newsletter-form',
+                unique: block.id,
+                separate_button_styles: true,
+                button_text: button_text,
+                button_color: button_color,
+                button_style: button_style
+              -%}
+            </div>
+
+          {%- when 'text' -%}
+            {%- assign footer_text = block.settings.footer_text -%}
+
+            <div
+              class="footer-block footer-block--text {{ alignment }}"
+              style="{{ block_style }}"
+              {{ block.shopify_attributes }}
+            >
+              {%- if title != blank -%}
+                <p class="footer-title h5">{{ title }}</p>
+              {%- endif -%}
+
+              <div class="rte">
+                {{- footer_text -}}
+              </div>
+            </div>
+
+          {%- when 'divider' -%}
+            <div
+              class="footer-block footer-block--divider{% if block.settings.column_width == '100' %} footer-block--divider-full{% endif %}"
+              style="{{ block_style }}"
+              {{ block.shopify_attributes }}
+            >
+              {%- if block.settings.show_border_line -%}
+                <hr class="hr--full">
+              {%- endif -%}
+            </div>
+        {%- endcase -%}
+      {%- endfor -%}
+    </div>
+  </div>
+
+  <div class="footer-bottom {{ section_width }} {{ bottom_bar_alignment }}">
+    {%- if render_socials -%}
+      {%- render 'footer-social',
+        show_social_links: show_social_links,
+        show_follow_on_shop: show_follow_on_shop,
+        color_bg: scheme_bg_color,
+        color_text: color_text
+      -%}
+    {%- endif -%}
+
+    <div class="footer-bottom__content">
+      {%- render 'cross-border',
+        show_locale_selector: show_locale_selector,
+        show_locale_code: show_locale_code,
+        show_country_selector: show_country_selector,
+        show_country_name: show_country_name,
+        show_country_flag: show_country_flag
+      -%}
+
+      {%- render 'footer-copyright' -%}
+    </div>
+
+    {%- if show_payment_icons -%}
+      {%- render 'footer-payment', enable_greyscale: enable_greyscale -%}
+    {%- endif -%}
+  </div>
+</footer>

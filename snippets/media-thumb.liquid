@@ -1,0 +1,74 @@
+{%- comment -%}
+  Renders a thumbnail element for a media.
+  Media types include: image, video, external_video and model.
+  Accepts:
+  - media: {Object} Media Liquid object (required)
+  - featured_media: {Object} Media Liquid object (required) - featured media of a given product or variant
+  - unique: {String} Unique id for the media
+  - has_link: {Boolean} true or false - Wrap the element in a hyperlink tag in order to be clickable and tabbable
+  - product_title: {String} Product title used for `aria-label` attribute
+
+  Usage:
+  {%- for media in product.media -%}
+    {%- render 'media-thumb', media: media, featured_media: featured_media, has_link: true, product_title: product.title -%}
+  {%- endfor -%}
+{%- endcomment -%}
+
+{%- liquid
+  assign line_thickness = settings.line_thickness
+  case line_thickness
+    when 'normal'
+      assign border_width = 1
+    when 'bold'
+      assign border_width = 2
+  endcase
+
+  assign thumbnail = media.preview_image
+  assign thumbnail_width = 90 | minus: border_width
+  assign retina_size = thumbnail_width | times: 2
+  assign image_widths = thumbnail_width | append: ', ' | append: retina_size
+  assign sizes = thumbnail_width | append: 'px'
+  assign media_id = media.id
+  assign unique = unique | default: section.id
+  assign alt = thumbnail.alt | escape | default: product_title
+
+  capture thumbnail_id
+    echo unique | append: '-' | append: media_id
+  endcapture
+-%}
+
+{%- capture additional_icons -%}
+  {%- if media.media_type == 'video' or media.media_type == 'external_video' -%}
+    {%- render 'icon-media-video' -%}
+  {%- elsif media.media_type == 'model' -%}
+    {%- render 'icon-media-model' -%}
+  {%- endif -%}
+{%- endcapture -%}
+
+<div class="product-single__thumbnail" data-id="{{ media_id }}" data-thumbnail-id="{{ thumbnail_id }}">
+  {%- if has_link -%}
+    <a
+      href="{{ thumbnail | img_url: '2048x' }}"
+      class="product-single__thumbnail-link"
+      aria-label="{{ product_title | strip_html | escape }}"
+      style="display: block; width: 90px; height: 90px; "
+    >
+  {%- endif -%}
+
+  {%- render 'image',
+    image: thumbnail,
+    width: retina_size,
+    widths: image_widths,
+    sizes: sizes,
+    alt: alt,
+    loading: 'lazy',
+    fetchpriority: 'high',
+    classes: 'product-single__thumbnail-img'
+  -%}
+
+  {{- additional_icons -}}
+
+  {%- if has_link -%}
+    </a>
+  {%- endif -%}
+</div>

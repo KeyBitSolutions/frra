@@ -1,0 +1,16 @@
+/*================ "Main page" ================*/
+.page-title {
+  padding-bottom: 25px;
+}
+
+/*================ "404" ================*/
+#four-oh-four {
+  padding: 50px 0;
+}
+#four-oh-four h1 {
+  font-size: calc(4.5rem * var(--adjust-heading));
+  text-align: center;
+}
+#four-oh-four p {
+  font-size: calc(1.5rem * var(--adjust-body));
+}

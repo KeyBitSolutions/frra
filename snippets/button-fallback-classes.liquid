@@ -1,0 +1,32 @@
+{%- comment -%}
+  * Compare section background color with button background color. If there is no section background color, use body background color or secondary body background color.
+
+  *  primary_color {String} - The primary button color
+  *  secondary_color {String} - The secondary button color
+  *  section_bg_color {String} - The section or block background color
+
+  {% render 'button-fallback-classes', primary_color: primary_color, secondary_color: secondary_color, section_bg_color: section_bg_color %}
+{%- endcomment -%}
+
+{%- liquid
+  assign selected_color_scheme = section.settings.color_scheme | strip
+  assign scheme_bg_color = settings.color_schemes[selected_color_scheme].settings.section_bg
+  assign scheme_btn_primary = settings.color_schemes[selected_color_scheme].settings.btn_primary_bg
+  assign scheme_btn_secondary = settings.color_schemes[selected_color_scheme].settings.btn_secondary_bg
+
+  if section_bg_color == blank or section_bg_color == '' or section_bg_color.alpha == 0.0
+    assign section_bg_color = scheme_bg_color
+  endif
+
+  if primary_color == 'btn--primary' or secondary_color == 'btn--primary'
+    if section_bg_color == scheme_btn_primary
+      echo ' btn-primary-border'
+    endif
+  endif
+
+  if primary_color == 'btn--secondary' or secondary_color == 'btn--secondary'
+    if section_bg_color == scheme_btn_secondary
+      echo ' btn-secondary-border'
+    endif
+  endif
+-%}

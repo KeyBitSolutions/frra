@@ -1,0 +1,906 @@
+<!-- /snippets/announcement.liquid -->
+
+{%- if section.blocks.size > 0 -%}
+  <script src="{{ 'announcement.js' | asset_url }}" defer="defer"></script>
+  <script src="{{ 'ticker.js' | asset_url }}" defer="defer"></script>
+  {% if layout == 'parallax' or layout == 'marquee-with-parallax' %}
+    <script src="{{ 'scrollable-parallax.js' | asset_url }}" defer="defer"></script>
+  {% endif %}
+
+  {%- if request.design_mode -%}
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        if (window.announcementEventHandlersAttached) return;
+        window.announcementEventHandlersAttached = true;
+
+        function handleAnnouncementBarEvent(event, type) {
+          const target = event.target;
+          const bar = target.closest('announcement-bar');
+          if (!bar) return;
+
+          const slider = bar.querySelector('[data-slider]');
+          const parallax = bar.querySelector('[data-parallax-animation]');
+          const blockId = event.detail && event.detail.blockId;
+          if (!blockId) return;
+
+          if (slider) {
+            const flktyInstance = window.theme.Flickity ? window.theme.Flickity.data(slider) : null;
+            if (!flktyInstance) return;
+
+            const slideIndex = parseInt([...target.parentNode.children].indexOf(target));
+
+            if (type === 'select') {
+              flktyInstance.select(slideIndex);
+              if (typeof flktyInstance.pausePlayer === 'function') flktyInstance.pausePlayer();
+            } else if (type === 'deselect') {
+              if (typeof flktyInstance.unpausePlayer === 'function') flktyInstance.unpausePlayer();
+            }
+          } else {
+            const tickerScale = target.closest('[data-ticker-scale]');
+            const slide = document.querySelector(`[data-slide="${blockId}"]`);
+
+            if (tickerScale && slide) {
+              const tickerTexts = tickerScale.querySelectorAll('[data-ticker-text]');
+
+              if (type === 'select') {
+                tickerScale.setAttribute('data-stop', '');
+                tickerTexts.forEach((el) => {
+                  el.classList.remove('ticker--animated');
+                  el.style.transform = `translate3d(${-(
+                    slide.offsetLeft - parseInt(getComputedStyle(slide).marginLeft, 10)
+                  )}px, 0, 0)`;
+                });
+              } else if (type === 'deselect') {
+                tickerTexts.forEach((el) => {
+                  el.classList.add('ticker--animated');
+                  el.removeAttribute('style');
+                });
+                tickerScale.removeAttribute('data-stop');
+                document.dispatchEvent(new CustomEvent('theme:resize:width', {bubbles: true}));
+              }
+            }
+          }
+
+          if (parallax) {
+            if (type === 'select') {
+              parallax.parentNode.style.setProperty('--offsetX', '0%');
+              parallax.classList.add('is-disabled');
+            } else if (type === 'deselect') {
+              parallax.classList.remove('is-disabled');
+              document.dispatchEvent(new CustomEvent('theme:scroll'));
+            }
+          }
+        }
+
+        document.addEventListener('shopify:block:select', (event) => {
+          handleAnnouncementBarEvent(event, 'select');
+        });
+
+        document.addEventListener('shopify:block:deselect', (event) => {
+          handleAnnouncementBarEvent(event, 'deselect');
+        });
+      });
+    </script>
+  {%- endif -%}
+
+  {%- liquid
+    assign announcement_markup = ''
+    assign is_top_bar = true
+    assign has_progress_holder = false
+    assign layout = section.settings.layout
+    assign section_width = section.settings.width | default: 'wrapper--full'
+    assign show_arrows = section.settings.show_arrows
+    assign show_top_border = section.settings.show_top_border
+    assign show_bottom_border = section.settings.show_bottom_border
+    assign border_color = section.settings.border_color
+    assign color_scheme = 'color-' | append: section.settings.color_scheme
+    assign bg_image = section.settings.bg_image
+    assign text_caps = section.settings.text_caps
+    assign type_font = section.settings.type_font
+    assign letter_spacing = section.settings.letter_spacing | divided_by: 1000.0 | append: 'em'
+    assign text_size = section.settings.text_size | times: 0.01
+    assign text_size_mobile = section.settings.text_size_mobile | times: 0.01
+    assign color = section.settings.color
+    assign padding = section.settings.padding | append: 'px'
+    assign message_spacing = section.settings.message_spacing | append: 'px'
+    assign section_type = section_type | default: 'announcement-bar'
+    assign marquee_speed = section.settings.marquee_speed
+    assign direction = section.settings.direction
+
+    if section_type == 'announcement-bar'
+      assign text_size_mobile = text_size
+
+      if text_size > 4.0
+        assign text_size_mobile = 4.0
+      endif
+    endif
+
+    assign animation_intensity = 100
+    if marquee_speed <= 100
+      assign animation_intensity = 60
+    elsif marquee_speed <= 150
+      assign animation_intensity = 70
+    elsif marquee_speed <= 200
+      assign animation_intensity = 80
+    elsif marquee_speed <= 250
+      assign animation_intensity = 90
+    endif
+
+    if section_type == 'marquee'
+      assign is_top_bar = false
+
+      capture parallax_animation
+        case direction
+          when 'ticker-ltr'
+            echo 'offset-ltr'
+          when 'ticker-rtl'
+            echo 'offset-rtl'
+        endcase
+      endcapture
+
+      capture parallax_attributes
+        echo ' data-parallax-animation="' | append: parallax_animation | append: '"'
+        echo ' data-parallax-intensity="' | append: animation_intensity | append: '"'
+        if layout == 'parallax'
+          echo ' data-parallax-static'
+        endif
+        echo ' data-parallax-disable-on-mobile'
+      endcapture
+    endif
+
+    assign section_id = section_type | append: '--' | append: section.id
+    assign section_selector_id = '#' | append: section_id
+    assign animation_anchor = section_selector_id
+    assign animation_duration = 500
+    assign animation_delay = 150
+    if is_top_bar
+      assign animation_delay = 0
+    endif
+    assign placeholder_index = 0
+  -%}
+
+  {%- for block in section.blocks -%}
+    {%- liquid
+      comment
+        Disable animations for blocks only
+      endcomment
+      assign animations_enabled = false
+      assign classes = ''
+      assign target_device_enable = false
+      assign target_url = block.settings.target_url
+      assign target_url_enabled = block.settings.target_url_enabled
+      assign target_referrer = block.settings.target_referrer
+      assign target_referrer_enabled = block.settings.target_referrer_enabled
+      assign page_type = request.page_type
+
+      case layout
+        when 'slider'
+          assign classes = 'announcement__slide'
+        when 'marquee', 'parallax', 'marquee-with-parallax'
+          assign classes = 'announcement__ticker'
+      endcase
+
+      if block.settings.target_device_enabled
+        assign target_device_enable = true
+
+        if block.settings.target_device == 'mobile'
+          assign classes = classes | append: ' mobile'
+        endif
+
+        if block.settings.target_device == 'desktop'
+          assign classes = classes | append: ' desktop'
+        endif
+      endif
+
+      capture block_class
+        echo 'announcement__block'
+        case block.type
+          when 'text'
+            echo ' announcement__block--text'
+          when 'message'
+            echo ' announcement__block--message'
+          when 'custom'
+            echo ' announcement__block--custom'
+          when 'image'
+            echo ' announcement__block--image'
+        endcase
+        echo ' ' | append: classes
+      endcapture
+
+      assign show_announcement = true
+      if target_url_enabled or target_referrer_enabled
+        assign show_announcement = false
+      endif
+
+      if target_url_enabled and target_url != blank
+        if target_url == routes.all_products_collection_url
+          if page_type == 'product'
+            assign show_announcement = true
+          elsif page_type == 'collection'
+            assign show_announcement = false
+          endif
+        elsif target_url == routes.collections_url
+          if page_type == 'collection'
+            assign show_announcement = true
+          else
+            assign show_announcement = false
+          endif
+        elsif target_url == request.path
+          assign show_announcement = true
+        endif
+      endif
+
+      if target_referrer_enabled and target_referrer != blank
+        capture target_referrer_attribute
+          echo 'data-target-referrer="' | append: target_referrer | append: '"'
+        endcapture
+
+        assign show_announcement = true
+      endif
+
+      if request.design_mode
+        assign show_announcement = true
+      endif
+    -%}
+
+    {%- capture block_attributes -%}
+      class="{{ block_class }}"
+      data-slide="{{ block.id }}"
+      data-slide-index="{{ forloop.index0 }}"
+      data-block-id="{{ block.id }}"
+      {{ target_referrer_attribute }}
+      {%- if target_device_enable -%}
+        data-target-device="true"
+      {%- endif -%}
+      {{ block.shopify_attributes }}
+    {%- endcapture -%}
+
+    {%- if show_announcement -%}
+      {%- capture announcement_html -%}
+        {%- case block.type -%}
+          {%- when 'text' -%}
+            {%- if block.settings.text != blank -%}
+              {%- liquid
+                assign title = block.settings.text | replace: '|', '<span class="announcement__divider"></span>'
+                assign icon_image = block.settings.icon_image
+                assign icon_name = block.settings.icon_name
+                assign icon_width = block.settings.icon_width
+                assign retina_size = icon_width | times: 2
+                assign image_widths = icon_width | append: ', ' | append: retina_size
+                assign sizes = icon_width | append: 'px'
+                assign icon_color = block.settings.icon_color
+                assign text_color = block.settings.text_color
+                assign heading_highlight_type = block.settings.heading_highlight_type
+                assign highlight_color = block.settings.highlight_color
+                assign highlight_text_color = block.settings.highlight_text_color
+              -%}
+              {%- capture block_style -%}
+                {%- if text_color != '' and text_color != 'rgba(0,0,0,0)' -%}
+                  --text: {{ text_color }};
+                {%- endif -%}
+
+                {%- if heading_highlight_type != 'highlight' -%}
+                  --highlight-color: var(--text);
+                {%- endif -%}
+
+                {%- if highlight_color != 'rgba(0,0,0,0)' and highlight_color != '' -%}
+                  --highlight-color: {{ highlight_color }};
+                {%- endif -%}
+
+                {%- if highlight_text_color != 'rgba(0,0,0,0)' and highlight_text_color != '' -%}
+                  --highlight-text-color: {{ highlight_text_color }};
+                {%- endif -%}
+              {%- endcapture -%}
+
+              {%- capture styles -%}
+                width: {{ icon_width }}px;
+
+                {%- if icon_image -%}
+                  padding-top: {{ icon_width | divided_by: icon_image.aspect_ratio | round: 2 }}px;
+                {%- endif -%}
+
+                {%- if icon_color != '' and icon_color != 'rgba(0,0,0,0)' and icon_image == blank -%}
+                  --text: {{ icon_color }};
+                {%- endif -%}
+              {%- endcapture -%}{% comment %}
+  Enhanced text decorations options - Liquid variables
+
+  Dependencies:
+    - Title liquid object from settings: `assign title = section.settings.title`
+    - Highlight type from settings: `assign heading_highlight_type = section.settings.heading_highlight_type`
+    - Highlight color from settings: `assign highlight_color = section.settings.highlight_color or assign highlight_color = block.settings.highlight_color`
+    - SVG icons:
+      - icon-squiggle.svg (assets)
+      - icon-circle.liquid (snippet)
+{% endcomment %}
+
+{%- liquid
+  comment
+   Highlighted words count
+  endcomment
+  assign title_temp = title | split: '<em>'
+  assign em_arr = ''
+  if title_temp.size > 1
+    for text_part in title_temp offset: 1
+      assign em_text = text_part | split: '</em>' | first
+      assign em_arr = em_arr | append: '#separator#' | append: em_text
+    endfor
+  endif
+  assign em_arr = em_arr | split: '#separator#'
+  assign words_count_arr = ''
+  assign letters_count_arr = ''
+  if em_arr.size > 0
+    for words in em_arr offset: 1
+      assign word = words | split: ' '
+      assign words_count_arr = words_count_arr | append: word.size | append: ', '
+      assign letters_count_arr = letters_count_arr | append: words.size | append: ', '
+    endfor
+  endif
+
+  assign words_count_arr = words_count_arr | replace_last: ', ', '' | split: ', '
+  assign letters_count_arr = letters_count_arr | replace_last: ', ', '' | split: ', '
+
+  comment
+   Main highlight types logic
+  endcomment
+  assign icon_url = ''
+  assign icon_color = 'var(--heading)'
+
+  if highlight_color != 'rgba(0,0,0,0)' and highlight_color != ''
+    assign icon_color = highlight_color
+  endif
+
+  capture text_highlight_icon
+    assign has_text_highlight = false
+
+    if title contains '<em>'
+      case heading_highlight_type
+        when 'squiggle'
+          assign icon_url = 'icon-squiggle.svg' | asset_url
+        when 'circle' or 'circle-hand-drawn' or 'underline-hand-drawn'
+          echo '<span class="text-highlight__icon" data-highlight-holder>'
+
+            when 'circle'
+              render 'icon-circle'
+            when 'circle-hand-drawn'
+              render 'icon-circle-hand-drawn'
+            when 'underline-hand-drawn'
+              render 'icon-underline-hand-drawn'
+
+          echo '</span>'
+        when 'highlight' or 'squiggle'
+          echo '<span class="text-highlight__icon text-highlight__icon--pseudo" data-highlight-holder></span>'
+        when 'stroke' or 'circle' or 'circle-hand-drawn' or 'squiggle' or 'highlight' or 'highlight-color' or 'underline' or 'underline-hand-drawn' or 'alternate-font'
+          assign has_text_highlight = true
+      endcase
+    endif
+  endcapture
+
+  capture icon_bg
+    if icon_url != ''
+      echo 'url( "' | append: icon_url | append: '" )'
+    else
+      echo 'none'
+    endif
+  endcapture
+  capture icon_styles
+    assign icon_bg = icon_bg | replace: '"', "'"
+    echo 'style="--icon-url: ' | append: icon_bg | append: ';' | append: '--icon-color: ' | append: icon_color | append: ';"'
+  endcapture
+
+  assign text_highlight_wrapper_class = 'text-highlight-wrapper' | append: ' text-highlight-wrapper--' | append: heading_highlight_type
+  capture text_highlight_start
+    echo '<text-highlight class="text-highlight" ' | append: icon_styles | append: ' data-highlight-type="' | append: heading_highlight_type | append: '">'
+    case heading_highlight_type
+      when 'stroke' or 'highlight-color' or 'underline' or 'alternate-font'
+        echo '<span class="text-highlight__string" data-highlight-holder>'
+    endcase
+  endcapture
+  capture text_highlight_end
+    echo text_highlight_icon
+    case heading_highlight_type
+      when 'stroke' or 'highlight-color' or 'underline' or 'alternate-font'
+        echo '</span>'
+    endcase
+    echo '</text-highlight>'
+  endcapture
+
+  if title != blank and title contains '<em>'
+    case heading_highlight_type
+      when 'squiggle' or 'circle' or 'circle-hand-drawn' or 'stroke' or 'highlight' or 'highlight-color' or 'underline' or 'underline-hand-drawn' or 'alternate-font'
+        assign title = title | replace: '<em>', text_highlight_start | replace: '</em>', text_highlight_end
+
+      when 'circle' or 'circle-hand-drawn'
+        comment
+          Update icon's holder class based on the italicised words count
+        endcomment
+        assign title = title | split: 'class="text-highlight"'
+        assign title_mod = ''
+        for title_part in title offset: 1
+          assign current_part = title_part
+
+          if title_part contains 'text-highlight__icon'
+            capture highlight_icon_classes
+              echo 'text-highlight__icon'
+              assign current_count = words_count_arr[forloop.index0] | times: 1
+              assign letters_count = letters_count_arr[forloop.index0] | times: 1
+              if current_count == 1
+                echo ' text-highlight__icon--single-word'
+              endif
+              if letters_count < 6
+                echo ' text-highlight__icon--short'
+                echo ' text-highlight__icon--l' | append: letters_count
+              endif
+              if letters_count > 15
+                echo ' text-highlight__icon--long'
+              endif
+            endcapture
+
+            assign current_part = title_part | replace: 'text-highlight__icon', highlight_icon_classes
+          endif
+
+          unless forloop.last
+            assign title_mod = title_mod | append: current_part | append: 'class="text-highlight"'
+          else
+            assign title_mod = title_mod | append: current_part
+          endunless
+        endfor
+        assign title_first_part = title | first | append: 'class="text-highlight"'
+        assign title_mod = title_mod | prepend: title_first_part
+        assign title = title_mod
+    endcase
+  endif
+-%}{%- capture icon -%}
+                {%- if icon_image != blank -%}
+                  {%- render 'image-fill', img_object: icon_image, width: retina_size, widths: image_widths, sizes: sizes, classes: 'announcement__icon', styles: styles -%}
+                {%- elsif icon_name != 'none' -%}
+                  <div class="announcement__icon icon-stroke" style="{{ styles }}">
+                    {%- render 'icons', icon: icon_name -%}
+                  </div>
+                {%- endif -%}
+              {%- endcapture -%}
+
+              {%- if layout == 'slider' -%}
+                {% if block_style != blank %}
+                  {%- capture block_attributes -%}
+                    {{ block_attributes }}
+                    style="{{ block_style }}"
+                  {%- endcapture -%}
+                {% endif %}
+
+                <div {{ block_attributes }}>
+                  <ticker-bar class="announcement__message">
+                    <div data-ticker-scale class="announcement__scale">
+                      <div data-ticker-text class="announcement__text{% if has_text_highlight %} {{ text_highlight_wrapper_class }}{% endif %}">
+                        {{ icon }}
+                        {% render 'title-with-highlights',
+                          title: title,
+                          heading_highlight_type: heading_highlight_type,
+                          highlight_color: highlight_color,
+                          has_text_highlight: has_text_highlight %}
+                      </div>
+                    </div>
+                  </ticker-bar>
+                </div>
+              {%- endif -%}
+
+              {%- if layout == 'marquee' or layout == 'parallax' or layout == 'marquee-with-parallax' -%}
+                {%- if has_text_highlight -%}
+                  {%- assign block_class = block_class | append: ' ' | append: text_highlight_wrapper_class -%}
+                {%- endif -%}
+
+                {%- capture block_attributes -%}
+                  class="{{ block_class }}"
+                  {%- if block_style != blank -%}
+                    style="{{ block_style }}"
+                  {%- endif -%}
+                  data-slide="{{ block.id }}"
+                  data-slide-index="{{ forloop.index0 }}"
+                  data-block-id="{{ block.id }}"
+                  {%- if target_device_enable -%}
+                    data-target-device="true"
+                  {%- endif -%}
+                  {{ block.shopify_attributes }}
+                {%- endcapture -%}
+
+                <div {{ block_attributes }}>
+                  {{ icon }}
+                  {% render 'title-with-highlights',
+                    title: title,
+                    heading_highlight_type: heading_highlight_type,
+                    highlight_color: highlight_color,
+                    has_text_highlight: has_text_highlight %}
+                </div>
+              {%- endif -%}
+            {%- endif -%}
+
+          {%- when 'message' -%}
+            {%- if block.settings.message -%}
+              {%- if layout == 'slider' -%}
+                <div {{ block_attributes }}>
+                  <ticker-bar class="announcement__message">
+                    <div data-ticker-scale class="announcement__scale">
+                      <div data-ticker-text class="announcement__text">{%- liquid
+  assign free_shipping_text = block.settings.message | default: settings.message
+  assign is_enable = false
+
+  if block.settings.message != blank
+    assign is_enable = true
+  endif
+
+  if settings.show_free_shipping_message and settings.free_shipping_limit != blank and free_shipping_text != blank
+    assign is_enable = true
+  endif
+-%}
+
+{%- if is_enable -%}
+  {%- liquid
+    assign limit = settings.free_shipping_limit | plus: 0
+    assign limit_currency = limit | times: 100
+    assign cart_total_price = cart.total_price
+    assign subtotal_without_currency = cart_total_price | plus: 0 | divided_by: 100
+  -%}
+
+  {%- capture left_to_spend -%}
+    <span data-left-to-spend>
+      {%- if settings.currency_code_enable -%}
+        {{- limit_currency | minus: cart_total_price | money_without_trailing_zeros | append: ' ' | append: cart.currency.iso_code -}}
+      {%- else -%}
+        {{- limit_currency | minus: cart_total_price | money_without_trailing_zeros -}}
+      {%- endif -%}
+    </span>
+  {%- endcapture -%}
+
+  {%- liquid
+    assign free_shipping_message = free_shipping_text | replace: '||amount||', left_to_spend
+    assign qualified_shipping_message = 'cart.general.qualified_shipping_message' | t
+    assign class_message = ''
+
+    if subtotal_without_currency >= limit
+      if qualified_shipping_message != blank
+        assign class_message = ' is-success'
+        assign is_default_message_hidden = ' is-hidden'
+      else
+        assign class_message = ' is-hidden'
+      endif
+    elsif subtotal_without_currency == 0
+      assign class_message = ' is-hidden'
+    endif
+
+    assign percent = limit | minus: subtotal_without_currency | times: 100 | divided_by: limit
+    assign percent = 100 | minus: percent
+  -%}
+
+  <p class="{% unless template.name == 'cart' or section.id == 'announcement-bar' %}cart-message--drawer {% endunless %}cart-message{{ class_message }}"
+    data-cart-message="{% if qualified_shipping_message != blank %}true{% else %}false{% endif %}"
+    data-limit="{{ limit }}"
+    {% if animations_enabled %}
+      data-aos="fade"
+      {% if aos_anchor %}
+        data-aos-anchor="{{ aos_anchor }}"
+      {% endif %}
+      data-aos-delay="{{ animation_delay }}"
+      {%- assign animation_delay = animation_delay | plus: 100 -%}
+    {% endif %}
+  >
+    <span class="cart-message__default{{ is_default_message_hidden }}" data-message-default>{{ free_shipping_message }}</span>
+
+    {%- if qualified_shipping_message != blank -%}
+      <span class="cart-message__success">{{ qualified_shipping_message }}</span>
+    {%- endif -%}
+
+    {%- if has_progress_holder -%}
+      <span class="cart-message__progress-holder">
+        <progress class="cart-message__progress" data-cart-message-progress value="{{ percent }}" max="100" style="--progress-width: {{ percent }}%;"></progress>
+        {%- comment -%}Second progress bar shows only on Firefox{%- endcomment -%}
+        <progress class="cart-message__progress" data-cart-message-progress max="100" style="--progress-width: {{ percent }}%;"></progress>
+      </span>
+    {%- endif -%}
+  </p>
+{%- endif -%}</div>
+                    </div>
+                  </ticker-bar>
+                </div>
+              {%- endif -%}
+
+              {%- if layout == 'marquee' or layout == 'parallax' or layout == 'marquee-with-parallax' -%}
+                <div {{ block_attributes }}>{%- liquid
+  assign free_shipping_text = block.settings.message | default: settings.message
+  assign is_enable = false
+
+  if block.settings.message != blank
+    assign is_enable = true
+  endif
+
+  if settings.show_free_shipping_message and settings.free_shipping_limit != blank and free_shipping_text != blank
+    assign is_enable = true
+  endif
+-%}
+
+{%- if is_enable -%}
+  {%- liquid
+    assign limit = settings.free_shipping_limit | plus: 0
+    assign limit_currency = limit | times: 100
+    assign cart_total_price = cart.total_price
+    assign subtotal_without_currency = cart_total_price | plus: 0 | divided_by: 100
+  -%}
+
+  {%- capture left_to_spend -%}
+    <span data-left-to-spend>
+      {%- if settings.currency_code_enable -%}
+        {{- limit_currency | minus: cart_total_price | money_without_trailing_zeros | append: ' ' | append: cart.currency.iso_code -}}
+      {%- else -%}
+        {{- limit_currency | minus: cart_total_price | money_without_trailing_zeros -}}
+      {%- endif -%}
+    </span>
+  {%- endcapture -%}
+
+  {%- liquid
+    assign free_shipping_message = free_shipping_text | replace: '||amount||', left_to_spend
+    assign qualified_shipping_message = 'cart.general.qualified_shipping_message' | t
+    assign class_message = ''
+
+    if subtotal_without_currency >= limit
+      if qualified_shipping_message != blank
+        assign class_message = ' is-success'
+        assign is_default_message_hidden = ' is-hidden'
+      else
+        assign class_message = ' is-hidden'
+      endif
+    elsif subtotal_without_currency == 0
+      assign class_message = ' is-hidden'
+    endif
+
+    assign percent = limit | minus: subtotal_without_currency | times: 100 | divided_by: limit
+    assign percent = 100 | minus: percent
+  -%}
+
+  <p class="{% unless template.name == 'cart' or section.id == 'announcement-bar' %}cart-message--drawer {% endunless %}cart-message{{ class_message }}"
+    data-cart-message="{% if qualified_shipping_message != blank %}true{% else %}false{% endif %}"
+    data-limit="{{ limit }}"
+    {% if animations_enabled %}
+      data-aos="fade"
+      {% if aos_anchor %}
+        data-aos-anchor="{{ aos_anchor }}"
+      {% endif %}
+      data-aos-delay="{{ animation_delay }}"
+      {%- assign animation_delay = animation_delay | plus: 100 -%}
+    {% endif %}
+  >
+    <span class="cart-message__default{{ is_default_message_hidden }}" data-message-default>{{ free_shipping_message }}</span>
+
+    {%- if qualified_shipping_message != blank -%}
+      <span class="cart-message__success">{{ qualified_shipping_message }}</span>
+    {%- endif -%}
+
+    {%- if has_progress_holder -%}
+      <span class="cart-message__progress-holder">
+        <progress class="cart-message__progress" data-cart-message-progress value="{{ percent }}" max="100" style="--progress-width: {{ percent }}%;"></progress>
+        {%- comment -%}Second progress bar shows only on Firefox{%- endcomment -%}
+        <progress class="cart-message__progress" data-cart-message-progress max="100" style="--progress-width: {{ percent }}%;"></progress>
+      </span>
+    {%- endif -%}
+  </p>
+{%- endif -%}</div>
+              {%- endif -%}
+            {%- endif -%}
+
+          {%- when 'custom' -%}
+            {%- if block.settings.text != blank -%}
+              {%- if layout == 'slider' -%}
+                <div {{ block_attributes }}>
+                  <ticker-bar class="announcement__message">
+                    <div data-ticker-scale class="announcement__scale">
+                      <div data-ticker-text class="announcement__text">
+                        <span>{{ block.settings.text }}</span>
+                      </div>
+                    </div>
+                  </ticker-bar>
+                </div>
+              {%- endif -%}
+            {%- endif -%}
+
+            {%- if layout == 'marquee' or layout == 'parallax' or layout == 'marquee-with-parallax' -%}
+              <div {{ block_attributes }}>
+                <span>{{ block.settings.text }}</span>
+              </div>
+            {%- endif -%}
+
+          {%- when 'image' -%}
+            {%- liquid
+              assign image = block.settings.image
+              assign image_link = block.settings.link
+              assign image_width = block.settings.image_width
+              assign image_width_retina = image_width | times: 2
+              assign image_widths = image_width | append: ', ' | append: image_width_retina
+              assign sizes = image_width | append: 'px'
+
+              assign image_height = image_width | divided_by: image.aspect_ratio | round: 2
+              if image == blank
+                assign image_height = image_width
+                assign placeholder_index = placeholder_index | modulo: 4 | plus: 1
+                assign placeholder_svg = 'product-apparel-' | append: placeholder_index
+              endif
+
+              capture styles
+                echo '--image-width: ' | append: image_width | append: 'px; '
+                echo '--image-height: ' | append: image_height | append: 'px; '
+              endcapture
+
+              capture image_render
+                if image_link
+                  echo '<a href="' | append: image_link | append: '">'
+                endif
+
+                comment
+                  Note: Images are loaded immediately with 'eager' because of issues with deferred 'lazy' loading in Safari, as well as in the Theme editor, when the HTML elements are cloned
+                endcomment
+
+                render 'image', image: image, width: image_width_retina, widths: image_widths, sizes: sizes, loading: 'eager', classes: 'announcement__image', cover: false, placeholder_svg: placeholder_svg
+
+                if image_link
+                  echo '</a>'
+                endif
+              endcapture
+            -%}
+
+            {%- if layout == 'slider' -%}
+              <div {{ block_attributes }} style="{{ styles }}">
+                <ticker-bar class="announcement__message">
+                  <div data-ticker-scale class="announcement__scale">
+                    <div data-ticker-text class="announcement__text">
+                      {{ image_render }}
+                    </div>
+                  </div>
+                </ticker-bar>
+              </div>
+            {%- endif -%}
+
+            {%- if layout == 'marquee' or layout == 'parallax' or layout == 'marquee-with-parallax' -%}
+              <div {{ block_attributes }} style="{{ styles }}">
+                {{ image_render }}
+              </div>
+            {%- endif -%}
+        {%- endcase -%}
+      {%- endcapture -%}
+
+      {%- assign announcement_markup = announcement_markup | append: announcement_html -%}
+    {%- endif -%}
+  {%- endfor -%}
+{%- endif -%}
+
+{% if is_top_bar %}
+  <div class="{{ section_width }}" data-announcement-bar>
+{% endif %}
+<div
+  id="{{ section_id }}"
+  class="section-padding section-marquee {{ color_scheme }}"
+  data-section-type="{{ section_type }}"
+  data-section-id="{{ section.id }}"
+  {% if is_top_bar %}
+    data-announcement-wrapper
+    {% if settings.animations_enabled %}
+      data-aos-intersection="0"
+    {% endif %}
+  {% endif %}
+  {% if settings.animations_enabled %}
+    data-aos="fade"
+    data-aos-anchor="{{ animation_anchor }}"
+    data-aos-delay="{{ animation_delay }}"
+    data-aos-duration="{{ animation_duration }}"
+  {% endif %}
+>
+  {%- if announcement_markup != blank -%}
+    {%- liquid
+      assign line_height = 1.5
+
+      capture borders_px
+        if show_top_border
+          echo ' + var(--BORDER-WIDTH)'
+        endif
+        if show_bottom_border
+          echo ' + var(--BORDER-WIDTH)'
+        endif
+      endcapture
+    -%}
+
+    {%- style -%}
+      {%- if is_top_bar -%}
+        /* Prevent CLS on page load */
+        :root {
+          --announcement-height: calc(0.75rem * {{ text_size_mobile }} * {{ line_height }} + {{ padding }} * 2{{ borders_px }});
+        }
+        @media screen and (min-width: 768px) {
+          :root {
+            --announcement-height: calc(0.75rem * {{ text_size }} * {{ line_height }} + {{ padding }} * 2{{ borders_px }});
+          }
+        }
+      {%- else -%}
+        {{ section_selector_id }} {
+          --PT: {{ section.settings.padding_top }}px;
+          --PB: {{ section.settings.padding_bottom }}px;
+        }
+      {%- endif %}
+
+      {{ type_font | font_face: font_display: 'swap' }}
+
+      {{ section_selector_id }} .announcement {
+        --font-family: {{ type_font.family }}, {{ type_font.fallback_families }};
+        --font-style: {{ type_font.style }};
+        --font-weight: {{ type_font.weight }};
+        --adjust-text-size: {{ text_size }};
+        --padding: {{ padding }};
+        --letter-spacing: {{ letter_spacing }};
+        --line-height: {{ line_height }};
+
+        {% if color != 'rgba(0,0,0,0)' and color != '' -%}
+          --text: {{ color }};
+        {%- endif %}
+
+        {% if border_color != 'rgba(0,0,0,0)' and border_color != '' -%}
+          --border: {{ border_color }};
+        {%- endif %}
+      }
+
+      {{ section_selector_id }} .flickity-enabled .ticker--animated,
+      {{ section_selector_id }} .announcement__ticker { padding: 0 {{ message_spacing }}; }
+
+      @media screen and (max-width: 767px) {
+        {{ section_selector_id }} .announcement { --adjust-text-size: {{ text_size_mobile }}; }
+      }
+    {%- endstyle -%}
+
+    <announcement-bar class="announcement{% if text_caps %} caps{% endif %}{% if show_top_border %} announcement--top-border{% endif %}{% if show_bottom_border %} announcement--bottom-border{% endif %}">
+      {%- if bg_image != blank -%}
+        {%- render 'image-fill', is_background: true, img_object: bg_image, sizes: '100vw' -%}
+      {%- endif -%}
+
+      {%- if layout == 'slider' -%}
+        <div
+          class="announcement__slider"
+          data-slider
+          {% if show_arrows %}
+            data-slider-arrows
+          {% endif %}
+          role="group"
+          data-slider-speed="{{ section.settings.slider_speed | times: 1000 }}"
+        >
+          {{ announcement_markup }}
+        </div>
+      {%- endif -%}
+
+      {%- if layout == 'marquee' or layout == 'parallax' or layout == 'marquee-with-parallax' -%}
+        <div
+          class="announcement__slider"
+          {% if layout == 'parallax' %}
+            data-static
+          {% endif %}
+        >
+          <div class="announcement__slide">
+            <ticker-bar
+              data-marquee-speed="{{ marquee_speed }}"
+              data-clone="{% unless layout == 'parallax' %}true{% endunless %}"
+              {% unless layout == 'parallax' %}
+                data-autoplay
+              {% endunless %}
+              class="announcement__message"
+            >
+              <div data-ticker-scale class="ticker--unloaded announcement__scale">
+                <div data-ticker-text class="announcement__text {{ direction }}">
+                  {{ announcement_markup }}
+                </div>
+              </div>
+            </ticker-bar>
+          </div>
+
+          {% if layout == 'parallax' or layout == 'marquee-with-parallax' %}
+            <parallax-element {{ parallax_attributes }}></parallax-element>
+          {% endif -%}
+        </div>
+      {%- endif -%}
+    </announcement-bar>
+  {%- endif -%}
+</div>
+{% if is_top_bar %}
+  </div>
+{% endif %}

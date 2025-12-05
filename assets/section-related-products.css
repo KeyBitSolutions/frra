@@ -1,0 +1,25 @@
+/*================ "Product recommendations" & "Recently viewed products" ================*/
+.related-products,
+.recent-products {
+  text-align: center;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+.related-products .tabs--stacked .tab {
+  padding: 0;
+}
+.related-products .tab.current + .tab.current {
+  margin-top: var(--gutter);
+}
+@media only screen and (max-width: 767px) {
+  .related-products .tab.current + .tab.current {
+    margin-top: calc(var(--gutter) / 2);
+  }
+}
+.related-products .flickity-slider {
+  position: relative;
+  display: flex;
+  left: 0 !important;
+  width: auto;
+}

@@ -1,0 +1,200 @@
+/*================ Accordions / "Tabs" ================*/
+.accordions-section {
+  background: var(--bg);
+}
+
+@media only screen and (min-width: 768px) {
+  .accordions-section--left div[class^=wrapper] {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-between;
+    gap: var(--gutter);
+  }
+  .accordions-section--left div[class^=wrapper]::after {
+    content: none;
+  }
+}
+.accordions-section--left .accordion__header,
+.accordions-section--left .accordion__content {
+  flex: 1 1 calc(50% - var(--gutter) / 2);
+}
+.accordions-section--left .section__header {
+  max-width: 400px;
+}
+
+.accordion__header {
+  text-align: center;
+}
+.accordion__header .section__heading {
+  font-size: calc(2.1rem * var(--heading-size));
+}
+@media only screen and (max-width: 767px) {
+  .accordion__header .section__heading {
+    font-size: calc(1.85rem * var(--heading-size));
+  }
+}
+
+.accordion__list {
+  list-style: none;
+  margin: 0 auto;
+}
+
+.accordion__item {
+  --icon-space: 53px;
+  position: relative;
+  display: block;
+  margin-bottom: 0;
+  margin-bottom: var(--MB);
+  background: var(--bg-item);
+}
+.body--rounded-corners .accordion__item {
+  border-radius: var(--radius);
+  overflow: visible;
+}
+
+.accordion__item:last-child {
+  margin-bottom: 0;
+}
+
+.accordion__item::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: var(--border-width);
+  background: var(--border);
+  opacity: var(--border-opacity);
+  pointer-events: none;
+}
+
+.accordion__item [data-collapsible-container].is-expanded {
+  overflow: hidden;
+}
+
+.accordion__item--padded .accordion__title {
+  padding-left: var(--inner);
+  padding-right: calc(var(--inner) + var(--icon-space));
+}
+.accordion__item--padded .accordion__title .icon {
+  margin-right: var(--inner);
+}
+.accordion__item--padded .accordion__text {
+  padding-left: var(--inner);
+  padding-right: var(--inner);
+  padding-top: var(--inner);
+}
+.accordion__item--padded .accordion__text-wrapper::before {
+  content: "";
+  height: var(--border-width);
+  background: var(--bg-padded-line);
+  width: 100%;
+  position: absolute;
+}
+
+.accordion__title {
+  display: block;
+  position: relative;
+  width: 100%;
+  padding: 10px var(--icon-space) 10px var(--padding-left);
+  margin: 0;
+  border: 0;
+  background: none;
+  text-align: left;
+}
+@media only screen and (min-width: 768px) {
+  .accordion__title {
+    padding: 15px var(--icon-space) 15px var(--padding-left);
+  }
+}
+
+.accordion__title--row {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.accordion__title:disabled {
+  cursor: pointer;
+}
+
+.accordion__title .icon {
+  top: 0;
+  right: var(--padding-left);
+  height: 100%;
+  width: 14px;
+}
+
+.accordion__title-text {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  font-size: calc(1rem * var(--adjust-body));
+  font-weight: var(--FONT-WEIGHT-BUTTON-BOLD);
+}
+.accordion__title--row .accordion__title-icon + .accordion__title-text {
+  width: calc(100% - var(--icon-size) - 14px);
+}
+
+.accordion__text-wrapper {
+  padding: 0 var(--icon-space) 0 var(--padding-left);
+}
+
+.accordion__text {
+  margin: 0;
+  padding: 0 0 var(--inner);
+  overflow: hidden;
+}
+.accordion__text p {
+  margin: 0 0 15px;
+}
+
+.accordion__columns {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.accordion__column {
+  width: 100%;
+  margin-bottom: var(--MB);
+}
+@media only screen and (min-width: 768px) {
+  .accordion__column {
+    width: calc(50% - var(--grid-gutter));
+    margin-bottom: 0;
+  }
+}
+
+@media only screen and (max-width: 767px) {
+  .aos-initialized .accordion__item[data-aos][data-aos-delay].aos-animate {
+    transition-delay: var(--AD);
+  }
+}
+
+.accordion__column:last-child {
+  margin-bottom: 0;
+}
+
+.accordion__title-icon {
+  width: var(--icon-size);
+  position: relative;
+  margin-right: 0;
+  margin-bottom: 10px;
+}
+.accordion__title--row .accordion__title-icon {
+  margin-right: 14px;
+  margin-bottom: 0;
+}
+.accordion__title-icon .img-object-contain {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.accordion__title-icon--portrait .lazy-image {
+  text-align: center;
+}
+.accordion__title-icon--portrait .img-object-contain {
+  width: auto;
+}
