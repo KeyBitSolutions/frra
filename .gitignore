@@ -11,5 +11,4 @@ Thumbs.db
 node_modules/
 *.local
 **/settings_data.json
-templates
 .cursor*
