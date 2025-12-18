@@ -1,0 +1,204 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "main-page": {
+      "type": "main-page",
+      "disabled": true,
+      "settings": {
+        "show_page_title": false,
+        "padding_top": 60,
+        "padding_bottom": 60
+      }
+    },
+    "section-text": {
+      "type": "section-text",
+      "blocks": {
+        "subheading": {
+          "type": "subheading",
+          "settings": {
+            "text": "<p>Contact us</p>",
+            "size": 100,
+            "margin_bottom": 16
+          }
+        },
+        "heading": {
+          "type": "heading",
+          "settings": {
+            "text": "<p>How can we help you?</p>",
+            "size": 150,
+            "heading_highlight_type": "circle",
+            "highlight_color": "#d43747",
+            "highlight_text_color": "#000000"
+          }
+        },
+        "text": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Need to get in touch? Feel free to reach out using the contact form below or for specific inquiries, reach out to the specific email address. We're available to chat Monday - Friday 9a.m - 9p.m PST. </p>",
+            "size": 100
+          }
+        }
+      },
+      "block_order": [
+        "subheading",
+        "heading",
+        "text"
+      ],
+      "settings": {
+        "text_position": "center",
+        "width": "wrapper--narrow",
+        "padding_top": 60,
+        "padding_bottom": 60
+      }
+    },
+    "section-icons-row": {
+      "type": "section-icons-row",
+      "blocks": {
+        "text-0": {
+          "type": "text",
+          "settings": {
+            "icon_name": "support",
+            "title": "Order Status",
+            "text": "<p>orders@companyname.com</p>"
+          }
+        },
+        "text-1": {
+          "type": "text",
+          "settings": {
+            "icon_name": "mail",
+            "title": "Start a Return",
+            "text": "<p>returns@companyname.com</p>"
+          }
+        },
+        "text-2": {
+          "type": "text",
+          "settings": {
+            "icon_name": "clipboard",
+            "title": "Sizing and Product Info",
+            "text": "<p>products@companyname.com</p>"
+          }
+        }
+      },
+      "block_order": [
+        "text-0",
+        "text-1",
+        "text-2"
+      ],
+      "settings": {
+        "heading": "",
+        "subheading": "",
+        "alignment": "center",
+        "columns": 3,
+        "icons_width": 30,
+        "show_vertical_borders": true,
+        "show_top_border": true,
+        "show_bottom_border": true,
+        "heading_size": 120,
+        "text_size": 100,
+        "text_color": "#000000",
+        "box_color": "",
+        "color_border": "#333",
+        "button_text": "",
+        "button_link": "",
+        "button_color": "btn--black",
+        "button_style": "btn--secondary btn--small",
+        "button_size": "btn--small",
+        "layout_mobile": "stacked",
+        "width": "wrapper",
+        "padding_top": 20,
+        "padding_bottom": 20
+      }
+    },
+    "section-contact-form": {
+      "type": "section-contact-form",
+      "blocks": {
+        "text-3": {
+          "type": "text",
+          "settings": {
+            "title": "What's your name?",
+            "required": true
+          }
+        },
+        "email": {
+          "type": "email",
+          "settings": {
+            "title": "What's your email?",
+            "required": true
+          }
+        },
+        "body": {
+          "type": "body",
+          "settings": {
+            "title": "Message",
+            "required": true
+          }
+        }
+      },
+      "block_order": [
+        "text-3",
+        "email",
+        "body"
+      ],
+      "settings": {
+        "button_color": "btn--black",
+        "button_style": "btn--solid",
+        "button_size": "btn--large",
+        "width": "wrapper--narrow",
+        "padding_top": 40,
+        "padding_bottom": 60
+      }
+    },
+    "section-locations": {
+      "type": "section-locations",
+      "blocks": {
+        "locations": {
+          "type": "locations",
+          "settings": {
+            "title": "566 Emerson Street Palo Alto, California",
+            "working_time": "<p>Mon - Fri: 8am - 5pm</p><p>Sat: 10am - 5pm</p><p>Sun: 12pm - 5pm</p>"
+          }
+        },
+        "locations-0": {
+          "type": "locations",
+          "settings": {
+            "title": "100 Sunset Blvd, Los Angeles, California",
+            "working_time": "<p>Mon - Fri: 8am - 5pm</p><p>Sat: Closed</p><p>Sun: Closed</p>"
+          }
+        },
+        "locations-1": {
+          "type": "locations",
+          "settings": {
+            "title": "566 Cross Creek Rd, Malibu, California",
+            "working_time": "<p>Mon - Fri: 9am - 6pm</p><p>Sat: 12pm - 6pm</p><p>Sun: 12pm - 6pm</p>"
+          }
+        }
+      },
+      "block_order": [
+        "locations",
+        "locations-0",
+        "locations-1"
+      ],
+      "settings": {
+        "subheading": "Our stores",
+        "title": "Locations & hours",
+        "padding_top": 60,
+        "padding_bottom": 80
+      }
+    }
+  },
+  "order": [
+    "main-page",
+    "section-text",
+    "section-icons-row",
+    "section-contact-form",
+    "section-locations"
+  ]
+}

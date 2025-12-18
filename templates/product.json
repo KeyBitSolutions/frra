@@ -1,0 +1,490 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "product": {
+      "type": "product",
+      "blocks": {
+        "badges": {
+          "type": "badges",
+          "settings": {
+            "show_sale_badge": true,
+            "show_custom_badge": true,
+            "show_badges_over_gallery": true,
+            "padding_bottom": 20
+          }
+        },
+        "title": {
+          "type": "title",
+          "settings": {
+            "subheading": "none",
+            "title_size": 125,
+            "price_size": 105,
+            "bold_price": true,
+            "padding_bottom": 16
+          }
+        },
+        "product_accordion": {
+          "type": "product_accordion",
+          "settings": {
+            "show_description": true,
+            "show_read_more": false,
+            "open_by_default": false,
+            "enable_full_width": false,
+            "tabs_bg_color": "",
+            "show_accordion_divider": true,
+            "line_thickness": "normal",
+            "accordion_heading": "Opis",
+            "heading_style": "font-body",
+            "accordion_text": "{{ product.description }}",
+            "accordion_page": "",
+            "padding_bottom": 8
+          }
+        },
+        "colors_xEp6yY": {
+          "type": "colors",
+          "settings": {
+            "colors_title": "Kolor",
+            "colors_products": "{{ product.metafields.custom.color_options.value }}",
+            "padding_bottom": 16
+          }
+        },
+        "description": {
+          "type": "description",
+          "disabled": true,
+          "settings": {
+            "enable_full_width": false,
+            "padding_bottom": 20
+          }
+        },
+        "divider": {
+          "type": "divider",
+          "settings": {
+            "show_line": true,
+            "padding_bottom": 6
+          }
+        },
+        "form": {
+          "type": "form",
+          "settings": {
+            "show_labels": true,
+            "show_quantity": true,
+            "show_payment_button": true,
+            "show_pattern_product": true,
+            "pattern_product_title": "Suggested product for pattern",
+            "padding_bottom": 32
+          }
+        },
+        "timer": {
+          "type": "timer",
+          "disabled": true,
+          "settings": {
+            "end_date": "2025-8-30",
+            "end_time": "11:59",
+            "period": "am",
+            "end_message": "",
+            "digits_size": 65,
+            "heading": "Limited time offer",
+            "heading_size": 95,
+            "heading_style": "font-heading",
+            "text": "<p>Exclusive styles at 30% off, only for three days!</p>",
+            "text_size": 85,
+            "text_color": "#000000",
+            "bg_color": "#f7f6f4",
+            "text_align": "text-center",
+            "padding_bottom": 20
+          }
+        },
+        "fit-guide": {
+          "type": "fit-guide",
+          "disabled": true,
+          "settings": {
+            "heading": "Fit",
+            "selected_segment": "4",
+            "left_label": "Small",
+            "middle_label": "True to size",
+            "right_label": "Large",
+            "fit_color": "",
+            "padding_bottom": 20
+          }
+        },
+        "inventory_countdown": {
+          "type": "inventory_countdown",
+          "settings": {
+            "max_inventory": 8,
+            "hide_inventory_count": false,
+            "padding_bottom": 16
+          }
+        },
+        "icon-1": {
+          "type": "icon",
+          "settings": {
+            "icon_name": "mail",
+            "icon_color": "",
+            "icon_width": 20,
+            "icon_text": "Free shipping on orders over $100",
+            "text_size": 80,
+            "width": "full",
+            "text_alignment": "left",
+            "bg_color": "rgba(0,0,0,0)",
+            "padding_bottom": 16
+          }
+        },
+        "icon-2": {
+          "type": "icon",
+          "settings": {
+            "icon_name": "recycle-circle",
+            "icon_color": "",
+            "icon_width": 20,
+            "icon_text": "Free 30 day returns",
+            "text_size": 80,
+            "width": "full",
+            "text_alignment": "left",
+            "bg_color": "rgba(0,0,0,0)",
+            "padding_bottom": 12
+          }
+        },
+        "product_parameters_LwX64a": {
+          "type": "product_parameters",
+          "settings": {
+            "enable_bellow_gallery": true,
+            "block_title": "YARN FACTS",
+            "padding_bottom": 20,
+            "title_1": "Producent",
+            "title_icon_1": "eco-friendly",
+            "content_1": "<p>{{ product.vendor }}</p>",
+            "title_2": "Kolekcja",
+            "title_icon_2": "award",
+            "content_2": "<p>{{ product.metafields.custom.kolekcja | metafield_tag }}</p>",
+            "title_3": "Waga",
+            "title_icon_3": "package",
+            "content_3": "<p>{{ product.metafields.custom.waga.value }}</p>",
+            "title_4": "Długość",
+            "title_icon_4": "ethically-made",
+            "content_4": "<p>{{ product.metafields.custom.dlugosc.value }}</p>",
+            "title_5": "Grubość włóczki",
+            "title_icon_5": "use-by",
+            "content_5": "<p>{{ product.metafields.custom.grubosc_wloczki.value.wartosc.value }}</p>",
+            "title_6": "Kolor",
+            "title_icon_custom_6": "shopify://shop_images/colors_icon_47d47326-a229-476c-97e0-81610ccf48ed.svg",
+            "title_icon_6": "calendar",
+            "content_6": "<p>{{ product.metafields.shopify[\"color-pattern\"] | metafield_tag: field: 'label' }}</p>",
+            "title_7": "Skład",
+            "title_icon_7": "cotton",
+            "content_7": "<p>{{ product.metafields.custom.sklad | metafield_tag: field: 'wartosc' }}</p>",
+            "title_8": "Jak myć?",
+            "title_icon_8": "dishwasher-safe",
+            "content_8": "{{ product.metafields.custom.jak_myc.value.wartosc | metafield_tag }}"
+          }
+        },
+        "product_accordion-0": {
+          "type": "product_accordion",
+          "disabled": true,
+          "settings": {
+            "show_description": false,
+            "show_read_more": true,
+            "open_by_default": false,
+            "enable_full_width": false,
+            "tabs_bg_color": "",
+            "show_accordion_divider": true,
+            "line_thickness": "normal",
+            "accordion_heading": "Care information",
+            "heading_style": "font-body",
+            "accordion_text": "<p>For best results, dry clean or hand wash with natural detergent. Machine wash on delicate. Lay flat to dry. </p>",
+            "accordion_page": "",
+            "padding_bottom": 0
+          }
+        },
+        "product_accordion-1": {
+          "type": "product_accordion",
+          "disabled": true,
+          "settings": {
+            "show_description": false,
+            "show_read_more": true,
+            "open_by_default": false,
+            "enable_full_width": false,
+            "tabs_bg_color": "",
+            "show_accordion_divider": true,
+            "line_thickness": "normal",
+            "accordion_heading": "Shipping and returns",
+            "heading_style": "font-body",
+            "accordion_text": "<p>Shipping</p><p>Orders can take 2-3 business days to process before shipping. As soon as your package has left our warehouse, you will receive a confirmation by email. <br/></p><p>Returns</p><p>﻿If for any reason you are unhappy with your purchase we offer returns for store credit within 7 days of delivery. If 7 days have passed since your purchase has been delivered, unfortunately, we are unable to offer you a credit or exchange.</p>",
+            "accordion_page": "",
+            "padding_bottom": 24
+          }
+        },
+        "upsell": {
+          "type": "upsell",
+          "disabled": true,
+          "settings": {
+            "product_list": [],
+            "padding_bottom": 0
+          }
+        }
+      },
+      "block_order": [
+        "badges",
+        "title",
+        "product_accordion",
+        "colors_xEp6yY",
+        "description",
+        "divider",
+        "form",
+        "timer",
+        "fit-guide",
+        "inventory_countdown",
+        "icon-1",
+        "icon-2",
+        "product_parameters_LwX64a",
+        "product_accordion-0",
+        "product_accordion-1",
+        "upsell"
+      ],
+      "settings": {
+        "product_sticky_enable": true,
+        "image_layout": "stacked",
+        "image_width": "standard",
+        "product_image_aspect_ratio": true,
+        "enable_zoom": true,
+        "enable_video_looping": false,
+        "color_scheme": "",
+        "width": "wrapper--full-padded",
+        "padding_top": 60,
+        "padding_bottom": 30
+      }
+    },
+    "apps": {
+      "type": "apps",
+      "disabled": true,
+      "settings": {
+        "color_scheme": "",
+        "width": "wrapper",
+        "padding_top": 60,
+        "padding_bottom": 60
+      }
+    },
+    "section-columns": {
+      "type": "section-columns",
+      "blocks": {
+        "text_block": {
+          "type": "text_block",
+          "settings": {
+            "image_width": 100,
+            "title": "Sustainable & trendy",
+            "heading_size": 120,
+            "text": "<p>Our pieces are sustainably made, and designed to be a timeless piece in your wardrobe.</p>",
+            "text_size": 100,
+            "button_text": "",
+            "button_link": "",
+            "button_color": "btn--black",
+            "button_style": "btn--text",
+            "button_size": "btn--small",
+            "video_link_popup": ""
+          }
+        },
+        "text_block-0": {
+          "type": "text_block",
+          "settings": {
+            "image_width": 100,
+            "title": "Elevate your style",
+            "heading_size": 120,
+            "text": "<p>Made with natural materials, each item is comfortable and easily machine washable.</p>",
+            "text_size": 100,
+            "button_text": "",
+            "button_link": "",
+            "button_color": "btn--black",
+            "button_style": "btn--text",
+            "button_size": "btn--small",
+            "video_link_popup": ""
+          }
+        }
+      },
+      "block_order": [
+        "text_block",
+        "text_block-0"
+      ],
+      "settings": {
+        "title": "No need to sacrifice style for comfort.",
+        "heading_size": 140,
+        "layout_desktop": "carousel",
+        "align_text": "text-left",
+        "columns": 2,
+        "show_images": true,
+        "show_borders": false,
+        "layout_mobile": "stacked",
+        "columns_mobile": "1",
+        "equalize_height": true,
+        "desktop_aspect_ratio": 0.7,
+        "mobile_aspect_ratio": 1,
+        "color_scheme": "",
+        "color_borders": "#000000",
+        "width": "wrapper--full-padded",
+        "padding_top": 60,
+        "padding_bottom": 60
+      }
+    },
+    "section-overlapping-images": {
+      "type": "section-overlapping-images",
+      "disabled": true,
+      "settings": {
+        "text_position": "right",
+        "text_alignment": "center",
+        "images_width": 750,
+        "images_offset": 125,
+        "image_link_1": "",
+        "image_link_2": "",
+        "hide_image_2": false,
+        "subheading": "",
+        "title": "<p>Sustainable trends for <em>everyone</em></p>",
+        "heading_size": 130,
+        "heading_highlight_type": "highlight-color",
+        "highlight_color": "#000000",
+        "highlight_text_color": "#ecc295",
+        "description": "<p>Our mission is to empower people through sustainable fashion. We want everyone to look and feel good, while also doing our part to protect the environment.</p>",
+        "text_size": 100,
+        "button_text": "Shop new arrivals",
+        "button_link": "",
+        "button_color": "btn--primary",
+        "button_style": "btn--solid",
+        "button_size": "btn--large",
+        "video_text": "",
+        "video_link": "",
+        "color_scheme": "",
+        "animation": "horizontal",
+        "animation_intensity": 50,
+        "width": "wrapper--full-padded",
+        "padding_top": 20,
+        "padding_bottom": 40
+      }
+    },
+    "section-image-with-text": {
+      "type": "section-image-with-text",
+      "disabled": true,
+      "settings": {
+        "show_accordion_divider": true,
+        "increase_border_radius": false,
+        "section_height": "six-fifty-height",
+        "enable_mobile_height": false,
+        "mobile_height": "four-fifty-height-mobile",
+        "layout": "inline",
+        "image_location": "right",
+        "image_width": "wide",
+        "block_bg_color": "",
+        "color_scheme": "",
+        "section_width": "wrapper",
+        "add_gutter": true,
+        "padding_top": 80,
+        "padding_bottom": 60
+      }
+    },
+    "related-products": {
+      "type": "related-products",
+      "blocks": {
+        "related": {
+          "type": "related",
+          "settings": {
+            "title": "You may also like",
+            "product_recommendations_limit": 4
+          }
+        },
+        "recent": {
+          "type": "recent",
+          "settings": {
+            "title": "Recently viewed",
+            "product_recently_limit": 4
+          }
+        }
+      },
+      "block_order": [
+        "related",
+        "recent"
+      ],
+      "settings": {
+        "enable_tabs": true,
+        "layout": "grid",
+        "columns_mobile": "1",
+        "type_style": "font-heading",
+        "tab_heading_size": 135,
+        "color_scheme": "",
+        "width": "wrapper",
+        "padding_top": 60,
+        "padding_bottom": 60
+      }
+    },
+    "section-icons-row": {
+      "type": "section-icons-row",
+      "blocks": {
+        "text": {
+          "type": "text",
+          "settings": {
+            "icon_name": "none",
+            "title": "New customers get 15% off",
+            "text": "<p>on your first purchase</p>"
+          }
+        },
+        "text-0": {
+          "type": "text",
+          "settings": {
+            "icon_name": "none",
+            "title": "Free shipping",
+            "text": "<p>on orders over $100</p>"
+          }
+        },
+        "text-1": {
+          "type": "text",
+          "settings": {
+            "icon_name": "none",
+            "title": "ShopPay ",
+            "text": "<p>Buy now, pay later</p>"
+          }
+        }
+      },
+      "block_order": [
+        "text",
+        "text-0",
+        "text-1"
+      ],
+      "settings": {
+        "heading": "",
+        "subheading": "",
+        "alignment": "center",
+        "columns": 3,
+        "icons_width": 20,
+        "show_vertical_borders": true,
+        "show_top_border": true,
+        "show_bottom_border": false,
+        "heading_size": 100,
+        "text_size": 90,
+        "color_scheme": "",
+        "text_color": "#333333",
+        "box_color": "",
+        "color_border": "#333333",
+        "button_text": "",
+        "button_link": "",
+        "button_color": "btn--black",
+        "button_style": "btn--solid",
+        "button_size": "btn--small",
+        "layout_mobile": "grid",
+        "width": "wrapper",
+        "padding_top": 20,
+        "padding_bottom": 20
+      }
+    }
+  },
+  "order": [
+    "product",
+    "apps",
+    "section-columns",
+    "section-overlapping-images",
+    "section-image-with-text",
+    "related-products",
+    "section-icons-row"
+  ]
+}

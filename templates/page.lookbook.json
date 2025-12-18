@@ -1,0 +1,672 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "main-page": {
+      "type": "main-page",
+      "disabled": true,
+      "settings": {
+        "show_page_title": true,
+        "padding_top": 60,
+        "padding_bottom": 60
+      }
+    },
+    "section-image-with-text": {
+      "type": "section-image-with-text",
+      "blocks": {
+        "subheading": {
+          "type": "subheading",
+          "settings": {
+            "subheading": "Spring/Summer",
+            "size": 100,
+            "text_position": "left",
+            "spacing_bottom": 12
+          }
+        },
+        "heading": {
+          "type": "heading",
+          "settings": {
+            "title": "<p>Our latest lookbook has dropped and is now ready to shop</p>",
+            "size": 120,
+            "text_position": "left",
+            "heading_highlight_type": "underline-hand-drawn",
+            "highlight_color": "#000000",
+            "highlight_text_color": "",
+            "spacing_bottom": 12
+          }
+        }
+      },
+      "block_order": [
+        "subheading",
+        "heading"
+      ],
+      "settings": {
+        "show_accordion_divider": true,
+        "increase_border_radius": false,
+        "section_height": "seven-fifty-height",
+        "enable_mobile_height": false,
+        "mobile_height": "four-fifty-height-mobile",
+        "layout": "inline",
+        "image_location": "right",
+        "image_width": "standard",
+        "block_bg_color": "",
+        "section_width": "wrapper",
+        "add_gutter": true,
+        "padding_top": 60,
+        "padding_bottom": 60
+      }
+    },
+    "section-columns": {
+      "type": "section-columns",
+      "blocks": {
+        "text_block": {
+          "type": "text_block",
+          "settings": {
+            "image_width": 100,
+            "title": "Glenda Top",
+            "heading_size": 120,
+            "text": "<p>Greta is wearing the Glenda Top in chocolate.</p>",
+            "text_size": 100,
+            "button_text": "Shop now",
+            "button_color": "btn--black",
+            "button_style": "btn--text",
+            "button_size": "btn--small",
+            "video_link_popup": ""
+          }
+        },
+        "text_block-0": {
+          "type": "text_block",
+          "settings": {
+            "image_width": 100,
+            "title": "Kendra Skirt",
+            "heading_size": 120,
+            "text": "<p>Paloma is wearing the Kendra Skirt in blue.</p>",
+            "text_size": 100,
+            "button_text": "Shop now",
+            "button_color": "btn--black",
+            "button_style": "btn--text",
+            "button_size": "btn--small",
+            "video_link_popup": ""
+          }
+        }
+      },
+      "block_order": [
+        "text_block",
+        "text_block-0"
+      ],
+      "settings": {
+        "title": "",
+        "heading_size": 120,
+        "align_text": "text-center",
+        "columns": 2,
+        "show_images": true,
+        "show_borders": false,
+        "layout_mobile": "stacked",
+        "columns_mobile": "1",
+        "equalize_height": true,
+        "desktop_aspect_ratio": 1,
+        "mobile_aspect_ratio": 1,
+        "color_borders": "#000000",
+        "width": "wrapper",
+        "padding_top": 60,
+        "padding_bottom": 60
+      }
+    },
+    "section-columns-0": {
+      "type": "section-columns",
+      "blocks": {
+        "text_block-1": {
+          "type": "text_block",
+          "settings": {
+            "image_width": 100,
+            "title": "Dree Skort",
+            "heading_size": 120,
+            "text": "<p>Eva is wearing the Dree Skort in beige.</p>",
+            "text_size": 100,
+            "button_text": "Shop now",
+            "button_color": "btn--black",
+            "button_style": "btn--text",
+            "button_size": "btn--small",
+            "video_link_popup": ""
+          }
+        },
+        "text_block-2": {
+          "type": "text_block",
+          "settings": {
+            "image_width": 100,
+            "title": "Jana Jumpsuit",
+            "heading_size": 120,
+            "text": "<p>Greta is wearing the Jana Jumpsuit in black.</p>",
+            "text_size": 100,
+            "button_text": "Shop now",
+            "button_color": "btn--black",
+            "button_style": "btn--text",
+            "button_size": "btn--small",
+            "video_link_popup": ""
+          }
+        }
+      },
+      "block_order": [
+        "text_block-1",
+        "text_block-2"
+      ],
+      "settings": {
+        "title": "",
+        "heading_size": 120,
+        "align_text": "text-center",
+        "columns": 2,
+        "show_images": true,
+        "show_borders": false,
+        "layout_mobile": "stacked",
+        "columns_mobile": "1",
+        "equalize_height": true,
+        "desktop_aspect_ratio": 1,
+        "mobile_aspect_ratio": 1,
+        "color_borders": "#000000",
+        "width": "wrapper",
+        "padding_top": 60,
+        "padding_bottom": 60
+      }
+    },
+    "section-text": {
+      "type": "section-text",
+      "blocks": {
+        "subheading-0": {
+          "type": "subheading",
+          "settings": {
+            "text": "<p>Perfect for any occasion</p>",
+            "size": 100,
+            "margin_bottom": 10
+          }
+        },
+        "heading-0": {
+          "type": "heading",
+          "settings": {
+            "text": "<p>New looks</p>",
+            "size": 135,
+            "heading_highlight_type": "highlight",
+            "highlight_color": "#fff7f2",
+            "highlight_text_color": "#000000"
+          }
+        },
+        "text": {
+          "type": "text",
+          "disabled": true,
+          "settings": {
+            "text": "<p>Use this text to share information about your brand with your customers. Describe a product, share announcements, or welcome customers to your store.</p>",
+            "size": 100
+          }
+        },
+        "button": {
+          "type": "button",
+          "disabled": true,
+          "settings": {
+            "button_text": "Read More",
+            "button_link": "",
+            "button_color": "btn--black",
+            "button_style": "btn--solid",
+            "button_size": "btn--small"
+          }
+        }
+      },
+      "block_order": [
+        "subheading-0",
+        "heading-0",
+        "text",
+        "button"
+      ],
+      "settings": {
+        "text_position": "center",
+        "width": "wrapper--narrow",
+        "padding_top": 60,
+        "padding_bottom": 0
+      }
+    },
+    "section-collection": {
+      "type": "section-collection",
+      "settings": {
+        "products_layout": "carousel",
+        "products_limit": 8,
+        "products_per_row_on_desktop": 4,
+        "columns_mobile": "1",
+        "text_alignment": "text-center",
+        "title": "",
+        "heading_size": 180,
+        "heading_highlight_type": "circle",
+        "highlight_color": "#d43747",
+        "highlight_text_color": "#000000",
+        "text": "<p>Dressed up or dressed down, these pieces are both comfortable and stylish.</p>",
+        "text_size": 100,
+        "button_position": "top",
+        "button_text": "",
+        "button_color": "btn--black",
+        "button_style": "btn--primary",
+        "button_size": "btn--large",
+        "enable_slider_mobile": true,
+        "width": "wrapper",
+        "padding_top": 0,
+        "padding_bottom": 60
+      }
+    },
+    "section-look": {
+      "type": "section-look",
+      "blocks": {
+        "product": {
+          "type": "product",
+          "settings": {
+            "position_x_desktop": 50,
+            "position_y_desktop": 50,
+            "position_x_mobile": 50,
+            "position_y_mobile": 50,
+            "info_bubbles_position_desktop": 30,
+            "info_bubbles_position_mobile": 30
+          }
+        },
+        "product-0": {
+          "type": "product",
+          "settings": {
+            "position_x_desktop": 30,
+            "position_y_desktop": 73,
+            "position_x_mobile": 30,
+            "position_y_mobile": 73,
+            "info_bubbles_position_desktop": 30,
+            "info_bubbles_position_mobile": 30
+          }
+        }
+      },
+      "block_order": [
+        "product",
+        "product-0"
+      ],
+      "settings": {
+        "products_on_row": 2,
+        "image_position": "is-reversed",
+        "enable_aspect_ratio": true,
+        "main_image_aspect_ratio": 1,
+        "title": "Shop the Look",
+        "heading_size": 120,
+        "text": "<p>Our most popular looks of the season</p>",
+        "text_size": 100,
+        "text_alignment": "text-left",
+        "show_hotspots": true,
+        "show_arrow": true,
+        "popup_heading": "Shop the Look",
+        "show_free_shipping_message": true,
+        "hotspot_color": "#fff7f2",
+        "hotspot_contents_bg_color": "#ffffff",
+        "button_text": "",
+        "button_link": "",
+        "button_color": "btn--primary",
+        "button_style": "btn--solid",
+        "button_size": "btn--medium",
+        "width": "wrapper--full-padded",
+        "padding_top": 60,
+        "padding_bottom": 60
+      }
+    },
+    "section-video": {
+      "type": "section-video",
+      "disabled": true,
+      "settings": {
+        "video_height": "six-fifty-height",
+        "enable_mobile_height": false,
+        "mobile_height": "six-fifty-height-mobile",
+        "text_width": "normal",
+        "text_position": "middle-center",
+        "video_link": "",
+        "title": "<p>Behind the scenes <em>exclusive</em></p>",
+        "heading_size": 100,
+        "heading_highlight_type": "squiggle",
+        "highlight_color": "#d43747",
+        "highlight_text_color": "#000000",
+        "text": "Watch our editorial photoshoot for backstage access",
+        "text_size": 100,
+        "button_1_text": "Welcome",
+        "button_1_link": "",
+        "button_1_color": "btn--white",
+        "button_1_style": "btn--solid-border",
+        "button_1_size": "btn--medium",
+        "button_2_text": "",
+        "button_2_link": "",
+        "button_2_color": "btn--black",
+        "button_2_style": "btn--solid",
+        "button_2_size": "btn--medium"
+      }
+    },
+    "section-columns-1": {
+      "type": "section-columns",
+      "blocks": {
+        "text_block-3": {
+          "type": "text_block",
+          "settings": {
+            "image_width": 100,
+            "title": "Tabbi Romper",
+            "heading_size": 120,
+            "text": "<p>Simone is wearing the Tabbi Romper in beige.</p>",
+            "text_size": 100,
+            "button_text": "Shop now",
+            "button_color": "btn--black",
+            "button_style": "btn--text",
+            "button_size": "btn--small",
+            "video_link_popup": ""
+          }
+        },
+        "text_block-4": {
+          "type": "text_block",
+          "settings": {
+            "image_width": 100,
+            "title": "Isabel Jacket",
+            "heading_size": 120,
+            "text": "<p>Camille is wearing the Isabel Jacket in camel.</p>",
+            "text_size": 100,
+            "button_text": "Shop now",
+            "button_color": "btn--black",
+            "button_style": "btn--text",
+            "button_size": "btn--small",
+            "video_link_popup": ""
+          }
+        }
+      },
+      "block_order": [
+        "text_block-3",
+        "text_block-4"
+      ],
+      "settings": {
+        "title": "",
+        "heading_size": 120,
+        "align_text": "text-center",
+        "columns": 2,
+        "show_images": true,
+        "show_borders": false,
+        "layout_mobile": "stacked",
+        "columns_mobile": "1",
+        "equalize_height": true,
+        "desktop_aspect_ratio": 1,
+        "mobile_aspect_ratio": 1,
+        "color_borders": "#000000",
+        "width": "wrapper",
+        "padding_top": 60,
+        "padding_bottom": 60
+      }
+    },
+    "section-text-0": {
+      "type": "section-text",
+      "blocks": {
+        "subheading-1": {
+          "type": "subheading",
+          "settings": {
+            "text": "<p>Look no further</p>",
+            "size": 100,
+            "margin_bottom": 10
+          }
+        },
+        "heading-1": {
+          "type": "heading",
+          "settings": {
+            "text": "<p>Dresses for every occasion </p>",
+            "size": 135,
+            "heading_highlight_type": "circle",
+            "highlight_color": "#e7d3fe",
+            "highlight_text_color": "#000000"
+          }
+        },
+        "text-0": {
+          "type": "text",
+          "disabled": true,
+          "settings": {
+            "text": "<p>Use this text to share information about your brand with your customers. Describe a product, share announcements, or welcome customers to your store.</p>",
+            "size": 100
+          }
+        },
+        "button-0": {
+          "type": "button",
+          "disabled": true,
+          "settings": {
+            "button_text": "Read More",
+            "button_link": "",
+            "button_color": "btn--black",
+            "button_style": "btn--solid",
+            "button_size": "btn--small"
+          }
+        }
+      },
+      "block_order": [
+        "subheading-1",
+        "heading-1",
+        "text-0",
+        "button-0"
+      ],
+      "settings": {
+        "text_position": "center",
+        "width": "wrapper",
+        "padding_top": 60,
+        "padding_bottom": 0
+      }
+    },
+    "section-collection-0": {
+      "type": "section-collection",
+      "settings": {
+        "products_layout": "carousel",
+        "products_limit": 8,
+        "products_per_row_on_desktop": 4,
+        "columns_mobile": "1",
+        "text_alignment": "text-center",
+        "title": "",
+        "heading_size": 300,
+        "heading_highlight_type": "circle",
+        "highlight_color": "#d43747",
+        "highlight_text_color": "#000000",
+        "text": "<p>Our latest collection has something that will suit any style and any event.</p>",
+        "text_size": 100,
+        "button_position": "top",
+        "button_text": "",
+        "button_color": "btn--black",
+        "button_style": "btn--primary",
+        "button_size": "btn--large",
+        "enable_slider_mobile": true,
+        "width": "wrapper",
+        "padding_top": 0,
+        "padding_bottom": 60
+      }
+    },
+    "section-text-1": {
+      "type": "section-text",
+      "blocks": {
+        "subheading-2": {
+          "type": "subheading",
+          "settings": {
+            "text": "<p>Spring/Summer</p>",
+            "size": 100,
+            "margin_bottom": 16
+          }
+        },
+        "heading-2": {
+          "type": "heading",
+          "settings": {
+            "text": "<p>Collection preview</p>",
+            "size": 215,
+            "heading_highlight_type": "italics",
+            "highlight_color": "#d43747",
+            "highlight_text_color": "#000000"
+          }
+        },
+        "text-1": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Vibrant and Radiant. Our latest collection features fun patterns in bright colors. Clothing inspired by all the beauty in the world — to help you feel joy and embrace it!</p>",
+            "size": 100
+          }
+        },
+        "button-1": {
+          "type": "button",
+          "settings": {
+            "button_text": "Read More",
+            "button_link": "",
+            "button_color": "btn--black",
+            "button_style": "btn--solid",
+            "button_size": "btn--small"
+          }
+        }
+      },
+      "block_order": [
+        "subheading-2",
+        "heading-2",
+        "text-1",
+        "button-1"
+      ],
+      "disabled": true,
+      "settings": {
+        "text_position": "center",
+        "width": "wrapper--narrow",
+        "padding_top": 60,
+        "padding_bottom": 60
+      }
+    },
+    "section-grid": {
+      "type": "section-grid",
+      "blocks": {
+        "image": {
+          "type": "image",
+          "settings": {
+            "width": "50",
+            "text_position": "center",
+            "subheading": "Most loved",
+            "title": "Trending",
+            "text": "Capsule wardrobe essentials with an extra flair",
+            "button_1_text": "Shop Now",
+            "button_1_link": "",
+            "button_2_text": "",
+            "button_2_link": ""
+          }
+        },
+        "image-0": {
+          "type": "image",
+          "settings": {
+            "width": "50",
+            "text_position": "center",
+            "subheading": "Last chance",
+            "title": "Clearance",
+            "text": "Last chance to browse and buy",
+            "button_1_text": "Shop Now",
+            "button_1_link": "",
+            "button_2_text": "",
+            "button_2_link": ""
+          }
+        }
+      },
+      "block_order": [
+        "image",
+        "image-0"
+      ],
+      "disabled": true,
+      "settings": {
+        "desktop_height": "five-fifty-height",
+        "enable_mobile_height": false,
+        "mobile_height": "four-fifty-height-mobile",
+        "heading_size": 150,
+        "text_size": 100,
+        "button_1_color": "btn--white",
+        "button_1_style": "btn--text",
+        "button_1_size": "btn--small",
+        "button_2_color": "btn--black",
+        "button_2_style": "btn--text",
+        "button_2_size": "btn--small",
+        "enable_slider_mobile": true,
+        "columns_mobile": "1",
+        "overlay_text": true,
+        "width": "wrapper--full",
+        "add_gutter": true,
+        "padding_top": 60,
+        "padding_bottom": 60
+      }
+    },
+    "section-banner-image": {
+      "type": "section-banner-image",
+      "blocks": {
+        "subheading-3": {
+          "type": "subheading",
+          "settings": {
+            "text": "<p>Spring/Summer</p>",
+            "size": 100
+          }
+        },
+        "heading-3": {
+          "type": "heading",
+          "settings": {
+            "text": "<p>Collection preview</p>",
+            "size": 180,
+            "heading_highlight_type": "circle",
+            "highlight_color": "#e7d3fe",
+            "highlight_text_color": "#000000"
+          }
+        },
+        "text-2": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Vibrant and Radiant. Our latest collection features fun patterns in bright colors. Clothing inspired by all the beauty in the world — to help you feel joy and embrace it!</p>",
+            "size": 100
+          }
+        },
+        "button-2": {
+          "type": "button",
+          "settings": {
+            "stacked_button": false,
+            "button_1_text": "Shop Now",
+            "button_1_color": "btn--white",
+            "button_1_style": "btn--text",
+            "button_1_size": "btn--large",
+            "button_2_text": "",
+            "button_2_link": "",
+            "button_2_color": "btn--black",
+            "button_2_style": "btn--solid",
+            "button_2_size": "btn--small"
+          }
+        }
+      },
+      "block_order": [
+        "subheading-3",
+        "heading-3",
+        "text-2",
+        "button-2"
+      ],
+      "settings": {
+        "height": "six-fifty-height",
+        "enable_mobile_height": true,
+        "mobile_height": "five-fifty-height-mobile",
+        "transition": "zoom-out",
+        "enable_zoom_animation": true,
+        "enable_card_scrolling": false,
+        "increase_border_radius": true,
+        "content_width": 80,
+        "text_position": "left",
+        "text_alignment": "text-left",
+        "width": "wrapper--full",
+        "padding_top": 0,
+        "padding_bottom": 0
+      }
+    }
+  },
+  "order": [
+    "main-page",
+    "section-image-with-text",
+    "section-columns",
+    "section-columns-0",
+    "section-text",
+    "section-collection",
+    "section-look",
+    "section-video",
+    "section-columns-1",
+    "section-text-0",
+    "section-collection-0",
+    "section-text-1",
+    "section-grid",
+    "section-banner-image"
+  ]
+}

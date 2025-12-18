@@ -1,0 +1,1705 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "section-marquee": {
+      "type": "section-marquee",
+      "blocks": {
+        "text": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Zaufano nam ponad 7,500+ klientów od 2023 roku</p>",
+            "text_color": "",
+            "heading_highlight_type": "circle",
+            "highlight_color": "#d43747",
+            "highlight_text_color": "#000000",
+            "icon_name": "none",
+            "icon_color": "",
+            "icon_width": 25,
+            "target_device_enabled": false,
+            "target_device": "mobile"
+          }
+        }
+      },
+      "block_order": [
+        "text"
+      ],
+      "settings": {
+        "layout": "slider",
+        "show_top_border": false,
+        "show_bottom_border": true,
+        "padding": 10,
+        "marquee_speed": 100,
+        "direction": "ticker-ltr",
+        "slider_speed": 7,
+        "show_arrows": false,
+        "text_caps": false,
+        "type_font": "space_mono_n4",
+        "text_size": 100,
+        "text_size_mobile": 80,
+        "letter_spacing": 0,
+        "message_spacing": 10,
+        "color_scheme": "",
+        "color": "#000000",
+        "border_color": "#000000",
+        "padding_top": 0,
+        "padding_bottom": 0
+      }
+    },
+    "section-slideshow": {
+      "type": "section-slideshow",
+      "blocks": {
+        "image": {
+          "type": "image",
+          "settings": {
+            "overlay_type": "disabled",
+            "video_link_bg": "",
+            "content_width": 50,
+            "text_position": "left",
+            "text_alignment": "text-center",
+            "subheading": "Just Arrived",
+            "title": "<p><em>Elevate</em> your wardrobe</p>",
+            "heading_size": 150,
+            "heading_highlight_type": "underline-hand-drawn",
+            "highlight_color": "#fff3f2",
+            "highlight_text_color": "#ffffff",
+            "text": "The best of the season, handpicked by us",
+            "text_size": 90,
+            "show_text_background": false,
+            "bg_color": "",
+            "text_color": "",
+            "stacked_button": true,
+            "button_1_text": "Shop New Arrivals",
+            "button_1_link": "shopify://collections/all",
+            "button_1_color": "btn--white",
+            "button_1_style": "btn--solid-border",
+            "button_1_size": "btn--large",
+            "button_2_text": "View Lookbook",
+            "button_2_link": "",
+            "button_2_color": "btn--black",
+            "button_2_style": "btn--solid",
+            "button_2_size": "btn--large",
+            "video_text": "",
+            "video_link": ""
+          }
+        },
+        "image-0": {
+          "type": "image",
+          "settings": {
+            "overlay_type": "disabled",
+            "video_link_bg": "",
+            "content_width": 80,
+            "text_position": "center",
+            "text_alignment": "text-center",
+            "subheading": "Wardrobe Refresh",
+            "title": "<p>New styles are <em>here</em></p>",
+            "heading_size": 150,
+            "heading_highlight_type": "circle-hand-drawn",
+            "highlight_color": "#fff3f2",
+            "highlight_text_color": "#ffffff",
+            "text": "Shine with our latest must-haves",
+            "text_size": 90,
+            "show_text_background": false,
+            "bg_color": "",
+            "text_color": "",
+            "stacked_button": false,
+            "button_1_text": "Shop Spring/Summer",
+            "button_1_link": "shopify://collections/all",
+            "button_1_color": "btn--white",
+            "button_1_style": "btn--solid-border",
+            "button_1_size": "btn--large",
+            "button_2_text": "Shop Sale",
+            "button_2_link": "",
+            "button_2_color": "btn--black",
+            "button_2_style": "btn--solid",
+            "button_2_size": "btn--large",
+            "video_text": "",
+            "video_link": ""
+          }
+        }
+      },
+      "block_order": [
+        "image",
+        "image-0"
+      ],
+      "settings": {
+        "slide_height": "seven-fifty-height",
+        "enable_mobile_height": true,
+        "mobile_slide_height": "full-height-mobile",
+        "show_nav_dots": true,
+        "show_nav_arrows": false,
+        "show_arrow_down": false,
+        "autoplay": true,
+        "duration": 4,
+        "transition": "zoom-out",
+        "enable_zoom_animation": true,
+        "enable_card_scrolling": true,
+        "increase_border_radius": true,
+        "color_scheme": ""
+      }
+    },
+    "section-countdown": {
+      "type": "section-countdown",
+      "blocks": {
+        "subheading": {
+          "type": "subheading",
+          "settings": {
+            "text": "<p>Shop Before It Ends</p>",
+            "size": 85
+          }
+        },
+        "heading": {
+          "type": "heading",
+          "settings": {
+            "text": "<p>Save 10% on bestsellers</p>",
+            "size": 135,
+            "heading_highlight_type": "italics",
+            "highlight_color": "#f4e5e5",
+            "highlight_text_color": "#000000"
+          }
+        },
+        "timer": {
+          "type": "timer",
+          "settings": {
+            "end_date": "2025-8-30",
+            "end_time": "11:59",
+            "period": "am",
+            "end_message": "",
+            "digit_size": 160,
+            "unit_size": 145,
+            "bg_color": "rgba(0,0,0,0)",
+            "bg_opacity": 15
+          }
+        },
+        "button": {
+          "type": "button",
+          "settings": {
+            "button_1_text": "Shop the sale",
+            "button_1_link": "shopify://collections/all",
+            "button_1_color": "btn--black",
+            "button_1_style": "btn--text",
+            "button_1_size": "btn--medium",
+            "button_2_text": "",
+            "button_2_link": "",
+            "button_2_color": "btn--black",
+            "button_2_style": "btn--solid",
+            "button_2_size": "btn--small"
+          }
+        }
+      },
+      "block_order": [
+        "subheading",
+        "heading",
+        "timer",
+        "button"
+      ],
+      "settings": {
+        "layout_style": "inline",
+        "text_alignment": "center",
+        "height": "150",
+        "enable_mobile_height": true,
+        "mobile_height": "300",
+        "overlay_type": "disabled",
+        "enable_zoom_animation": true,
+        "color_scheme": "",
+        "text_width": "normal",
+        "width": "wrapper--full-padded",
+        "padding_top": 36,
+        "padding_bottom": 36
+      }
+    },
+    "section_products_list_RdL48M": {
+      "type": "section-products-list",
+      "blocks": {
+        "product_fbXPj4": {
+          "type": "product",
+          "settings": {
+            "product": "wzor-na-druty-zoyana-sweter",
+            "title": "",
+            "product_description": "",
+            "button_text": "View Product",
+            "show_second_image": true,
+            "show_circle": true,
+            "hide_on_mobile": false,
+            "circle_text_color": "#000000",
+            "circle_rotate_animation": "rotate-on-scroll",
+            "circle_text": "New Arrival ~ New Arrival ~",
+            "circle_word_spacing": 3,
+            "circle_size": 150
+          }
+        },
+        "product_Arz8Cx": {
+          "type": "product",
+          "settings": {
+            "product": "wloczka-merino-baby-alpaka-bawelna-zoya-50g-antyczny-roz",
+            "title": "",
+            "product_description": "",
+            "button_text": "View Product",
+            "show_second_image": true,
+            "show_circle": true,
+            "hide_on_mobile": false,
+            "circle_text_color": "#000000",
+            "circle_rotate_animation": "rotate-on-scroll",
+            "circle_text": "New Arrival ~ New Arrival ~",
+            "circle_word_spacing": 3,
+            "circle_size": 150
+          }
+        },
+        "product_QWcVLg": {
+          "type": "product",
+          "settings": {
+            "product": "czesanka-merynos-antyk-23-mikrony-50g",
+            "title": "",
+            "product_description": "",
+            "button_text": "View Product",
+            "show_second_image": true,
+            "show_circle": true,
+            "hide_on_mobile": false,
+            "circle_text_color": "#000000",
+            "circle_rotate_animation": "rotate-on-scroll",
+            "circle_text": "New Arrival ~ New Arrival ~",
+            "circle_word_spacing": 3,
+            "circle_size": 150
+          }
+        }
+      },
+      "block_order": [
+        "product_fbXPj4",
+        "product_Arz8Cx",
+        "product_QWcVLg"
+      ],
+      "name": "Products list",
+      "settings": {
+        "title": "",
+        "heading_size": 100,
+        "button_color": "btn--black",
+        "button_style": "btn--solid",
+        "button_size": "btn--medium",
+        "image_aspect_ratio": 1,
+        "color_scheme": "",
+        "width": "wrapper",
+        "padding_top": 60,
+        "padding_bottom": 60
+      }
+    },
+    "section-text": {
+      "type": "section-text",
+      "blocks": {
+        "subheading-0": {
+          "type": "subheading",
+          "settings": {
+            "text": "<p>The Essentials</p>",
+            "size": 100,
+            "margin_bottom": 10
+          }
+        },
+        "heading-0": {
+          "type": "heading",
+          "settings": {
+            "text": "<p>Shop by Category</p>",
+            "size": 120,
+            "heading_highlight_type": "underline",
+            "highlight_color": "#0b0b0b",
+            "highlight_text_color": "#000000"
+          }
+        }
+      },
+      "block_order": [
+        "subheading-0",
+        "heading-0"
+      ],
+      "settings": {
+        "text_position": "center",
+        "color_scheme": "",
+        "width": "wrapper--full-padded",
+        "padding_top": 50,
+        "padding_bottom": 0
+      }
+    },
+    "section-grid": {
+      "type": "section-grid",
+      "blocks": {
+        "image-1": {
+          "type": "image",
+          "settings": {
+            "width": "33.33",
+            "overlay_type": "disabled",
+            "text_position": "bottom-left",
+            "subheading": "Just added",
+            "title": "New",
+            "text": "Shop the latest",
+            "button_1_text": "",
+            "button_1_link": "",
+            "button_2_text": "",
+            "button_2_link": "",
+            "show_text_background": false,
+            "bg_color": "",
+            "text_color": ""
+          }
+        },
+        "image_X9RcnM": {
+          "type": "image",
+          "settings": {
+            "width": "33.33",
+            "overlay_type": "disabled",
+            "text_position": "bottom-left",
+            "subheading": "Just added",
+            "title": "New",
+            "text": "Shop the latest",
+            "button_1_text": "",
+            "button_1_link": "",
+            "button_2_text": "",
+            "button_2_link": "",
+            "show_text_background": false,
+            "bg_color": "",
+            "text_color": ""
+          }
+        },
+        "image-2": {
+          "type": "image",
+          "settings": {
+            "width": "33.33",
+            "overlay_type": "disabled",
+            "text_position": "bottom-left",
+            "subheading": "Layers to love",
+            "title": "Fall/Winter",
+            "text": "Bundle up in style",
+            "button_1_text": "",
+            "button_1_link": "",
+            "button_2_text": "",
+            "button_2_link": "",
+            "show_text_background": false,
+            "bg_color": "",
+            "text_color": ""
+          }
+        },
+        "image-3": {
+          "type": "image",
+          "settings": {
+            "width": "33.33",
+            "overlay_type": "disabled",
+            "text_position": "bottom-left",
+            "subheading": "Sleek styles",
+            "title": "Dresses",
+            "text": "A look for every occasion",
+            "button_1_text": "",
+            "button_1_link": "",
+            "button_2_text": "",
+            "button_2_link": "",
+            "show_text_background": false,
+            "bg_color": "",
+            "text_color": ""
+          }
+        },
+        "image-4": {
+          "type": "image",
+          "settings": {
+            "width": "33.33",
+            "overlay_type": "disabled",
+            "text_position": "bottom-left",
+            "subheading": "Most-Wanted",
+            "title": "Bestselling",
+            "text": "Your favorites, selling fast!",
+            "button_1_text": "",
+            "button_1_link": "",
+            "button_2_text": "",
+            "button_2_link": "",
+            "show_text_background": false,
+            "bg_color": "",
+            "text_color": ""
+          }
+        },
+        "image_ygtxT6": {
+          "type": "image",
+          "settings": {
+            "width": "33.33",
+            "overlay_type": "disabled",
+            "text_position": "center",
+            "subheading": "",
+            "title": "Image",
+            "text": "Add more info or delete this text",
+            "button_1_text": "Shop Now",
+            "button_1_link": "",
+            "button_2_text": "",
+            "button_2_link": "",
+            "show_text_background": false,
+            "bg_color": "",
+            "text_color": ""
+          }
+        }
+      },
+      "block_order": [
+        "image-1",
+        "image_X9RcnM",
+        "image-2",
+        "image-3",
+        "image-4",
+        "image_ygtxT6"
+      ],
+      "settings": {
+        "desktop_height": "four-fifty-height",
+        "enable_mobile_height": true,
+        "mobile_height": "two-fifty-height-mobile",
+        "heading_size": 100,
+        "text_size": 100,
+        "button_1_color": "btn--white",
+        "button_1_style": "btn--text",
+        "button_1_size": "btn--small",
+        "button_2_color": "btn--white",
+        "button_2_style": "btn--solid",
+        "button_2_size": "btn--small",
+        "color_scheme": "",
+        "overlayed_text": "#ffffff",
+        "enable_slider_mobile": false,
+        "columns_mobile": "2",
+        "overlay_text": false,
+        "width": "wrapper--full-padded",
+        "add_gutter": true,
+        "padding_top": 20,
+        "padding_bottom": 50
+      }
+    },
+    "section-marquee-0": {
+      "type": "section-marquee",
+      "blocks": {
+        "text-0": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Empower your look</p>",
+            "text_color": "",
+            "heading_highlight_type": "italics",
+            "highlight_color": "#0b0b0b",
+            "highlight_text_color": "#0b0b0b",
+            "icon_name": "none",
+            "icon_color": "",
+            "icon_width": 25,
+            "target_device_enabled": false,
+            "target_device": "mobile"
+          }
+        },
+        "text-1": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Step into style</p>",
+            "text_color": "",
+            "heading_highlight_type": "italics",
+            "highlight_color": "#000000",
+            "highlight_text_color": "#000000",
+            "icon_name": "none",
+            "icon_color": "",
+            "icon_width": 25,
+            "target_device_enabled": false,
+            "target_device": "mobile"
+          }
+        }
+      },
+      "block_order": [
+        "text-0",
+        "text-1"
+      ],
+      "settings": {
+        "layout": "marquee-with-parallax",
+        "show_top_border": false,
+        "show_bottom_border": false,
+        "padding": 10,
+        "marquee_speed": 100,
+        "direction": "ticker-ltr",
+        "slider_speed": 7,
+        "show_arrows": false,
+        "text_caps": false,
+        "type_font": "space_mono_n4",
+        "text_size": 120,
+        "text_size_mobile": 80,
+        "letter_spacing": 0,
+        "message_spacing": 15,
+        "color_scheme": "",
+        "color": "#545454",
+        "border_color": "#000000",
+        "padding_top": 10,
+        "padding_bottom": 0
+      }
+    },
+    "section-promotion-row": {
+      "type": "section-promotion-row",
+      "blocks": {
+        "column": {
+          "type": "column",
+          "settings": {
+            "subheading": "<p>IN-STORE AND ONLINE</p>",
+            "subheading_size": 75,
+            "heading": "<p>30% OFF</p>",
+            "heading_size": 295,
+            "heading_highlight_type": "italics",
+            "highlight_color": "#fff7f2",
+            "highlight_text_color": "#000000",
+            "description": "Save extra for a limited time",
+            "description_size": 90,
+            "disclaimer": "*Runs until 11:59pm PST",
+            "disclaimer_size": 75,
+            "button_text": "Shop our sale collection",
+            "button_link": "",
+            "button_color": "btn--white",
+            "button_style": "btn--soft",
+            "button_size": "btn--small",
+            "bg_color": "",
+            "gradient_background": "linear-gradient(180deg, rgba(0, 0, 0, 1), rgba(0, 0, 0, 1) 100%)",
+            "text_color": "#ffffff",
+            "overlay_type": "disabled"
+          }
+        },
+        "column-0": {
+          "type": "column",
+          "settings": {
+            "subheading": "<p>For a limited time</p>",
+            "subheading_size": 75,
+            "heading": "<p><em>FREE TOTE</em></p>",
+            "heading_size": 205,
+            "heading_highlight_type": "underline-hand-drawn",
+            "highlight_color": "#fbecdf",
+            "highlight_text_color": "#ffffff",
+            "description": "With every purchase over $99",
+            "description_size": 80,
+            "disclaimer": "",
+            "disclaimer_size": 75,
+            "button_text": "",
+            "button_link": "",
+            "button_color": "btn--black",
+            "button_style": "btn--solid",
+            "button_size": "btn--small",
+            "bg_color": "#000000",
+            "gradient_background": "linear-gradient(180deg, rgba(11, 11, 11, 1), rgba(0, 0, 0, 1) 100%)",
+            "text_color": "#ffffff",
+            "overlay_type": "disabled"
+          }
+        }
+      },
+      "block_order": [
+        "column",
+        "column-0"
+      ],
+      "settings": {
+        "layout": "1",
+        "count_up_enabled": true,
+        "count_up_duration": 60,
+        "height": "450",
+        "enable_mobile_height": false,
+        "mobile_height": "400",
+        "color_scheme": "",
+        "enable_slider_mobile": false,
+        "columns_mobile": "1",
+        "width": "wrapper--full-padded",
+        "padding_top": 10,
+        "padding_bottom": 10
+      }
+    },
+    "section-marquee-1": {
+      "type": "section-marquee",
+      "blocks": {
+        "text-2": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Step into style</p>",
+            "text_color": "",
+            "heading_highlight_type": "circle",
+            "highlight_color": "#d43747",
+            "highlight_text_color": "#000000",
+            "icon_name": "none",
+            "icon_color": "",
+            "icon_width": 25,
+            "target_device_enabled": false,
+            "target_device": "mobile"
+          }
+        },
+        "text-3": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Empower your look</p>",
+            "text_color": "",
+            "heading_highlight_type": "circle",
+            "highlight_color": "#d43747",
+            "highlight_text_color": "#000000",
+            "icon_name": "none",
+            "icon_color": "",
+            "icon_width": 25,
+            "target_device_enabled": false,
+            "target_device": "mobile"
+          }
+        }
+      },
+      "block_order": [
+        "text-2",
+        "text-3"
+      ],
+      "settings": {
+        "layout": "marquee-with-parallax",
+        "show_top_border": false,
+        "show_bottom_border": false,
+        "padding": 10,
+        "marquee_speed": 100,
+        "direction": "ticker-rtl",
+        "slider_speed": 7,
+        "show_arrows": false,
+        "text_caps": false,
+        "type_font": "space_mono_n4",
+        "text_size": 120,
+        "text_size_mobile": 80,
+        "letter_spacing": 0,
+        "message_spacing": 15,
+        "color_scheme": "",
+        "color": "#545454",
+        "border_color": "#000000",
+        "padding_top": 0,
+        "padding_bottom": 10
+      }
+    },
+    "section-collection": {
+      "type": "section-collection",
+      "settings": {
+        "collection": "",
+        "products_layout": "carousel",
+        "products_limit": 8,
+        "products_per_row_on_desktop": 4,
+        "columns_mobile": "2",
+        "text_alignment": "text-left",
+        "title": "<p>Trending this Season</p>",
+        "heading_size": 175,
+        "heading_highlight_type": "circle",
+        "highlight_color": "#d43747",
+        "highlight_text_color": "#000000",
+        "text": "",
+        "text_size": 110,
+        "button_position": "top",
+        "button_text": "Shop all trending",
+        "button_color": "btn--primary",
+        "button_style": "btn--solid",
+        "button_size": "btn--large",
+        "color_scheme": "",
+        "enable_slider_mobile": false,
+        "width": "wrapper--full-padded",
+        "padding_top": 80,
+        "padding_bottom": 100
+      }
+    },
+    "section-sticky-image-cards": {
+      "type": "section-sticky-image-cards",
+      "blocks": {
+        "card": {
+          "type": "card",
+          "settings": {
+            "video": "",
+            "subheading": "",
+            "title": "<p>Designed to empower you to express your unique sense of style with confidence.</p>",
+            "heading_size": 160,
+            "truncate_text": true,
+            "heading_length": 15,
+            "button_text": "Shop our collection",
+            "button_link": "",
+            "button_color": "btn--black",
+            "button_style": "btn--solid",
+            "button_size": "btn--medium"
+          }
+        },
+        "card-0": {
+          "type": "card",
+          "settings": {
+            "video": "",
+            "subheading": "",
+            "title": "<p>Stand out wherever you go. Our latest lookbook has dropped and is ready to shop.</p>",
+            "heading_size": 160,
+            "truncate_text": true,
+            "heading_length": 15,
+            "button_text": "View lookbook",
+            "button_link": "",
+            "button_color": "btn--black",
+            "button_style": "btn--solid",
+            "button_size": "btn--medium"
+          }
+        },
+        "card-1": {
+          "type": "card",
+          "settings": {
+            "video": "",
+            "subheading": "",
+            "title": "<p>Discover timeless pieces and chic ensembles to elevate your world.</p>",
+            "heading_size": 160,
+            "truncate_text": true,
+            "heading_length": 15,
+            "button_text": "Shop Bestsellers",
+            "button_link": "",
+            "button_color": "btn--black",
+            "button_style": "btn--solid",
+            "button_size": "btn--medium"
+          }
+        }
+      },
+      "block_order": [
+        "card",
+        "card-0",
+        "card-1"
+      ],
+      "settings": {
+        "text_alignment": "left",
+        "image_position": "",
+        "aspect_ratio_desktop": 2,
+        "aspect_ratio_mobile": 1,
+        "layout_mobile": "sticky",
+        "color_scheme": "",
+        "width": "wrapper--full-padded",
+        "padding_top": 80,
+        "padding_bottom": 80
+      }
+    },
+    "section-testimonials-with-images": {
+      "type": "section-testimonials-with-images",
+      "blocks": {
+        "testimonial": {
+          "type": "testimonial",
+          "settings": {
+            "star_rating": 5,
+            "enable_border": true,
+            "heading": "Fave dress",
+            "text_size": 125,
+            "text": "<p>This brand is a dream! Every item is a perfect fit and exudes luxury. Their customer service is exceptional—always quick to respond and incredibly helpful.</p>",
+            "content_size": 100,
+            "customer_name": "Maryam O.",
+            "subheading": ""
+          }
+        },
+        "image-5": {
+          "type": "image",
+          "settings": {
+            "star_rating": 5,
+            "enable_border": false,
+            "aspect_ratio": 0.8,
+            "heading": "Perfect for all-day wear!",
+            "text_size": 125,
+            "customer_name": "Daphne N.",
+            "block_color": ""
+          }
+        },
+        "testimonial-0": {
+          "type": "testimonial",
+          "settings": {
+            "star_rating": 5,
+            "enable_border": true,
+            "heading": "Love it!",
+            "text_size": 125,
+            "text": "<p>Every piece fits like a glove and radiates sophistication. Their customer service is phenomenal—always prompt and exceptionally accommodating.</p>",
+            "content_size": 100,
+            "customer_name": "Bisan T.",
+            "subheading": "<p>12 days ago</p>"
+          }
+        },
+        "image-6": {
+          "type": "image",
+          "settings": {
+            "star_rating": 5,
+            "enable_border": false,
+            "aspect_ratio": 0.8,
+            "heading": "Super chic and perfect for a night out",
+            "text_size": 125,
+            "customer_name": "Charlie L.",
+            "block_color": ""
+          }
+        },
+        "testimonial-1": {
+          "type": "testimonial",
+          "settings": {
+            "star_rating": 5,
+            "enable_border": true,
+            "heading": "Love slow fashion",
+            "text_size": 125,
+            "text": "<p>Their commitment to eco-friendly materials and ethical production practices sets them apart. The customer service team is equally committed.</p>",
+            "content_size": 100,
+            "customer_name": "Nico K.",
+            "subheading": "<p>Verified customer</p>"
+          }
+        },
+        "image-7": {
+          "type": "image",
+          "settings": {
+            "star_rating": 5,
+            "enable_border": false,
+            "aspect_ratio": 0.8,
+            "heading": "My new go-to outfit",
+            "text_size": 125,
+            "customer_name": "Alex D.",
+            "block_color": ""
+          }
+        },
+        "testimonial-2": {
+          "type": "testimonial",
+          "settings": {
+            "star_rating": 5,
+            "enable_border": true,
+            "heading": "Loyal customer",
+            "text_size": 125,
+            "text": "<p>Love the <a href=\"/products/maria-top\" title=\"Maria Top\">Maria top</a>! It's my go-to in the summer and super comfortable. I love that they use breathable fabrics that are still fashionable.</p>",
+            "content_size": 100,
+            "customer_name": "Tina D.",
+            "subheading": "<p>Loyal Customer</p>"
+          }
+        }
+      },
+      "block_order": [
+        "testimonial",
+        "image-5",
+        "testimonial-0",
+        "image-6",
+        "testimonial-1",
+        "image-7",
+        "testimonial-2"
+      ],
+      "settings": {
+        "subheading": "",
+        "subheading_size": 100,
+        "title": "10,000+ 5-star reviews",
+        "heading_size": 145,
+        "text_alignment": "text-left",
+        "color_scheme": "",
+        "testimonial_block_color": "#ffffff",
+        "star_color": "#0b0b0b",
+        "width": "wrapper--full-padded",
+        "padding_top": 100,
+        "padding_bottom": 100
+      }
+    },
+    "section-hero-scrolling": {
+      "type": "section-hero-scrolling",
+      "blocks": {
+        "scrolling_text": {
+          "type": "scrolling_text",
+          "settings": {
+            "text": "<p>✦</p>"
+          }
+        },
+        "scrolling_text-0": {
+          "type": "scrolling_text",
+          "settings": {
+            "text": "<p>spring style</p>"
+          }
+        },
+        "button-0": {
+          "type": "button",
+          "settings": {
+            "stacked_button": false,
+            "button_1_text": "Shop the collection",
+            "button_1_link": "shopify://collections/all",
+            "button_1_color": "btn--white",
+            "button_1_style": "btn--soft",
+            "button_1_size": "btn--large",
+            "button_2_text": "",
+            "button_2_link": "",
+            "button_2_color": "btn--black",
+            "button_2_style": "btn--solid",
+            "button_2_size": "btn--medium"
+          }
+        }
+      },
+      "block_order": [
+        "scrolling_text",
+        "scrolling_text-0",
+        "button-0"
+      ],
+      "settings": {
+        "overlay_type": "disabled",
+        "message_spacing": 30,
+        "marquee_speed": 100,
+        "height": "six-fifty-height",
+        "enable_mobile_height": true,
+        "mobile_height": "two-thirds-height-mobile",
+        "transition": "zoom-out",
+        "enable_zoom_animation": true,
+        "enable_card_scrolling": false,
+        "increase_border_radius": true,
+        "text_align": "align--middle",
+        "scrolling_text_color": "#ffffff",
+        "text_caps": false,
+        "type_font": "space_mono_n4",
+        "size": 300,
+        "size_mobile": 80,
+        "letter_spacing": 100,
+        "scrolling_align": "align--middle",
+        "direction": "ticker-ltr",
+        "color_scheme": "",
+        "padding_top": 0,
+        "padding_bottom": 0
+      }
+    },
+    "section-overlapping-images": {
+      "type": "section-overlapping-images",
+      "settings": {
+        "text_position": "right",
+        "text_alignment": "left",
+        "images_width": 750,
+        "images_offset": 55,
+        "image_link_1": "",
+        "image_link_2": "",
+        "hide_image_2": false,
+        "subheading": "Everyday essentials",
+        "title": "<p>Sustainable trends you'll love                      <a href=\"/pages/about\" title=\"About\"><em>forever</em></a>.</p>",
+        "heading_size": 130,
+        "heading_highlight_type": "underline-hand-drawn",
+        "highlight_color": "#e6caca",
+        "highlight_text_color": "rgba(0,0,0,0)",
+        "description": "<p>✦ We believe that fashion should be stylish, affordable and accessible to everyone. </p><p>✦ Body positivity and inclusivity are values that are at the heart of our brand.</p><p>✦ We want everyone to look and feel good, while also doing our part to help the environment.</p>",
+        "text_size": 100,
+        "button_text": "Our Story",
+        "button_link": "",
+        "button_color": "btn--primary",
+        "button_style": "btn--text",
+        "button_size": "btn--large",
+        "video_text": "",
+        "video_link": "",
+        "color_scheme": "",
+        "animation": "vertical",
+        "animation_intensity": 60,
+        "width": "wrapper--full-padded",
+        "padding_top": 100,
+        "padding_bottom": 100
+      }
+    },
+    "section-social-gallery": {
+      "type": "section-social-gallery",
+      "blocks": {
+        "image-8": {
+          "type": "image",
+          "settings": {
+            "text": "<p>@sleepymelody</p>",
+            "text_size": 75,
+            "button_text": "Shop the look",
+            "button_link": "",
+            "link_target_blank": false
+          }
+        },
+        "image-9": {
+          "type": "image",
+          "settings": {
+            "text": "<p>@mich.elle</p>",
+            "text_size": 75,
+            "button_text": "Shop the look",
+            "button_link": "",
+            "link_target_blank": false
+          }
+        },
+        "image-10": {
+          "type": "image",
+          "settings": {
+            "text": "<p>@hann.ah.d.</p>",
+            "text_size": 75,
+            "button_text": "Shop the look",
+            "button_link": "",
+            "link_target_blank": false
+          }
+        },
+        "image-11": {
+          "type": "image",
+          "settings": {
+            "text": "<p>@instachels</p>",
+            "text_size": 75,
+            "button_text": "Shop the look",
+            "button_link": "",
+            "link_target_blank": false
+          }
+        },
+        "image-12": {
+          "type": "image",
+          "settings": {
+            "text": "<p>@superolivia</p>",
+            "text_size": 75,
+            "button_text": "Shop the look",
+            "button_link": "",
+            "link_target_blank": false
+          }
+        },
+        "image-13": {
+          "type": "image",
+          "settings": {
+            "text": "<p>@ronniesays</p>",
+            "text_size": 75,
+            "button_text": "Shop the look",
+            "button_link": "",
+            "link_target_blank": false
+          }
+        }
+      },
+      "block_order": [
+        "image-8",
+        "image-9",
+        "image-10",
+        "image-11",
+        "image-12",
+        "image-13"
+      ],
+      "settings": {
+        "align_heading": "text-center",
+        "align_text": "text-center",
+        "columns": 4,
+        "aspect_ratio_desktop": 1,
+        "aspect_ratio_mobile": 1,
+        "subheading": "Tag @modastyle for a chance to be featured",
+        "title": "Join our community of 100K+",
+        "heading_size": 120,
+        "button_color": "btn--black",
+        "button_style": "btn--text",
+        "button_size": "btn--medium",
+        "color_scheme": "",
+        "width": "wrapper--full-padded",
+        "padding_top": 30,
+        "padding_bottom": 100
+      }
+    },
+    "section-divider": {
+      "type": "section-divider",
+      "settings": {
+        "show_line": true,
+        "color_scheme": "",
+        "width": "wrapper--full",
+        "padding_top": 30,
+        "padding_bottom": 0
+      }
+    },
+    "section-text-0": {
+      "type": "section-text",
+      "blocks": {
+        "heading-1": {
+          "type": "heading",
+          "settings": {
+            "text": "<p>Made to <em>elevate</em> your world.</p>",
+            "size": 120,
+            "heading_highlight_type": "alternate-font",
+            "highlight_color": "#000000",
+            "highlight_text_color": "rgba(0,0,0,0)"
+          }
+        },
+        "button-1": {
+          "type": "button",
+          "disabled": true,
+          "settings": {
+            "button_text": "Read More",
+            "button_link": "",
+            "button_color": "btn--black",
+            "button_style": "btn--solid",
+            "button_size": "btn--medium"
+          }
+        }
+      },
+      "block_order": [
+        "heading-1",
+        "button-1"
+      ],
+      "settings": {
+        "text_position": "center",
+        "color_scheme": "",
+        "width": "wrapper",
+        "padding_top": 60,
+        "padding_bottom": 0
+      }
+    },
+    "section-marquee-2": {
+      "type": "section-marquee",
+      "blocks": {
+        "text-4": {
+          "type": "text",
+          "settings": {
+            "text": "<p>follow us</p>",
+            "text_color": "",
+            "heading_highlight_type": "circle",
+            "highlight_color": "#d43747",
+            "highlight_text_color": "#000000",
+            "icon_name": "none",
+            "icon_color": "",
+            "icon_width": 25,
+            "target_device_enabled": false,
+            "target_device": "mobile"
+          }
+        },
+        "image-14": {
+          "type": "image",
+          "settings": {
+            "link": "",
+            "image_width": 160
+          }
+        },
+        "text-5": {
+          "type": "text",
+          "settings": {
+            "text": "<p>@modastyle</p>",
+            "text_color": "",
+            "heading_highlight_type": "circle",
+            "highlight_color": "#d43747",
+            "highlight_text_color": "#000000",
+            "icon_name": "none",
+            "icon_color": "",
+            "icon_width": 25,
+            "target_device_enabled": false,
+            "target_device": "mobile"
+          }
+        },
+        "image-15": {
+          "type": "image",
+          "settings": {
+            "link": "",
+            "image_width": 160
+          }
+        },
+        "text-6": {
+          "type": "text",
+          "settings": {
+            "text": "<p>follow us</p>",
+            "text_color": "",
+            "heading_highlight_type": "circle",
+            "highlight_color": "#d43747",
+            "highlight_text_color": "#000000",
+            "icon_name": "none",
+            "icon_color": "",
+            "icon_width": 25,
+            "target_device_enabled": false,
+            "target_device": "mobile"
+          }
+        },
+        "image-16": {
+          "type": "image",
+          "settings": {
+            "link": "",
+            "image_width": 160
+          }
+        },
+        "text-7": {
+          "type": "text",
+          "settings": {
+            "text": "<p>@modastyle</p>",
+            "text_color": "",
+            "heading_highlight_type": "circle",
+            "highlight_color": "#d43747",
+            "highlight_text_color": "#000000",
+            "icon_name": "none",
+            "icon_color": "",
+            "icon_width": 25,
+            "target_device_enabled": false,
+            "target_device": "mobile"
+          }
+        },
+        "image-17": {
+          "type": "image",
+          "settings": {
+            "link": "",
+            "image_width": 160
+          }
+        }
+      },
+      "block_order": [
+        "text-4",
+        "image-14",
+        "text-5",
+        "image-15",
+        "text-6",
+        "image-16",
+        "text-7",
+        "image-17"
+      ],
+      "settings": {
+        "layout": "marquee",
+        "show_top_border": false,
+        "show_bottom_border": true,
+        "padding": 50,
+        "marquee_speed": 100,
+        "direction": "ticker-rtl",
+        "slider_speed": 7,
+        "show_arrows": false,
+        "text_caps": false,
+        "type_font": "rubik_n5",
+        "text_size": 200,
+        "text_size_mobile": 80,
+        "letter_spacing": 0,
+        "message_spacing": 20,
+        "color_scheme": "",
+        "color": "#0b0b0b",
+        "border_color": "#000000",
+        "padding_top": 0,
+        "padding_bottom": 0
+      }
+    },
+    "section-grid-0": {
+      "type": "section-grid",
+      "blocks": {
+        "image-18": {
+          "type": "image",
+          "settings": {
+            "width": "50",
+            "overlay_type": "disabled",
+            "text_position": "bottom-center",
+            "subheading": "Mix and match",
+            "title": "Effortlessly Chic",
+            "text": "Refresh your closet with wardrobe staples",
+            "button_1_text": "Shop Now",
+            "button_1_link": "",
+            "button_2_text": "",
+            "button_2_link": "",
+            "show_text_background": false,
+            "bg_color": "",
+            "text_color": ""
+          }
+        },
+        "image-19": {
+          "type": "image",
+          "settings": {
+            "width": "50",
+            "overlay_type": "disabled",
+            "text_position": "bottom-center",
+            "subheading": "The best basics",
+            "title": "Essentials only",
+            "text": "Easy additions to incorporate into your closet.",
+            "button_1_text": "Shop Essentials",
+            "button_1_link": "",
+            "button_2_text": "",
+            "button_2_link": "",
+            "show_text_background": false,
+            "bg_color": "",
+            "text_color": ""
+          }
+        },
+        "image-20": {
+          "type": "image",
+          "disabled": true,
+          "settings": {
+            "width": "50",
+            "overlay_type": "disabled",
+            "text_position": "bottom-left",
+            "subheading": "The best basics",
+            "title": "Essentials only",
+            "text": "Easy additions to incorporate into your closet.",
+            "button_1_text": "Shop Essentials",
+            "button_1_link": "",
+            "button_2_text": "",
+            "button_2_link": "",
+            "show_text_background": false,
+            "bg_color": "",
+            "text_color": ""
+          }
+        }
+      },
+      "block_order": [
+        "image-18",
+        "image-19",
+        "image-20"
+      ],
+      "settings": {
+        "desktop_height": "five-fifty-height",
+        "enable_mobile_height": true,
+        "mobile_height": "three-fifty-height-mobile",
+        "heading_size": 130,
+        "text_size": 90,
+        "button_1_color": "btn--white",
+        "button_1_style": "btn--text",
+        "button_1_size": "btn--medium",
+        "button_2_color": "btn--white",
+        "button_2_style": "btn--text",
+        "button_2_size": "btn--large",
+        "color_scheme": "",
+        "overlayed_text": "#ffffff",
+        "enable_slider_mobile": false,
+        "columns_mobile": "1",
+        "overlay_text": true,
+        "width": "wrapper--full-padded",
+        "add_gutter": true,
+        "padding_top": 80,
+        "padding_bottom": 20
+      }
+    },
+    "section-shop-the-look-banner": {
+      "type": "section-shop-the-look-banner",
+      "blocks": {
+        "product": {
+          "type": "product",
+          "settings": {
+            "product": "",
+            "position_x_desktop": 31,
+            "position_y_desktop": 41,
+            "position_x_mobile": 21,
+            "position_y_mobile": 42,
+            "hide_info_bubbles_desktop": false,
+            "info_bubbles_position_desktop": 55,
+            "hide_info_bubbles_mobile": false,
+            "info_bubbles_position_mobile": 5
+          }
+        },
+        "product-0": {
+          "type": "product",
+          "settings": {
+            "product": "",
+            "position_x_desktop": 39,
+            "position_y_desktop": 86,
+            "position_x_mobile": 41,
+            "position_y_mobile": 90,
+            "hide_info_bubbles_desktop": false,
+            "info_bubbles_position_desktop": 0,
+            "hide_info_bubbles_mobile": false,
+            "info_bubbles_position_mobile": 15
+          }
+        },
+        "product-1": {
+          "type": "product",
+          "settings": {
+            "product": "",
+            "position_x_desktop": 59,
+            "position_y_desktop": 61,
+            "position_x_mobile": 59,
+            "position_y_mobile": 61,
+            "hide_info_bubbles_desktop": false,
+            "info_bubbles_position_desktop": 15,
+            "hide_info_bubbles_mobile": false,
+            "info_bubbles_position_mobile": 40
+          }
+        }
+      },
+      "block_order": [
+        "product",
+        "product-0",
+        "product-1"
+      ],
+      "settings": {
+        "aspect_ratio_desktop": 0.5,
+        "show_arrow": true,
+        "initial_open_card": true,
+        "product_card_aspect_ratio": 0.9,
+        "button_color": "btn--white",
+        "button_style": "btn--solid-border",
+        "title": "",
+        "heading_size": 190,
+        "text": "",
+        "text_size": 100,
+        "text_alignment": "text-left",
+        "aspect_ratio_mobile": 1,
+        "popup_heading": "Shop the Look",
+        "show_free_shipping_message": true,
+        "hotspot_color": "",
+        "color_scheme": "",
+        "hotspot_contents_bg_color": "#ffffff",
+        "width": "wrapper--full-padded",
+        "padding_top": 0,
+        "padding_bottom": 20
+      }
+    },
+    "section-press": {
+      "type": "section-press",
+      "blocks": {
+        "press": {
+          "type": "press",
+          "settings": {
+            "text": "<h2>Unleashing bold statements, one stitch at a time.</h2>",
+            "link": "",
+            "logo_width": 120
+          }
+        },
+        "press-0": {
+          "type": "press",
+          "settings": {
+            "text": "<h2>Turning everyday style into extraordinary fashion moments.</h2>",
+            "link": "",
+            "logo_width": 120
+          }
+        },
+        "press-1": {
+          "type": "press",
+          "settings": {
+            "text": "<h2>The art of self-expression, woven in the fabric of creativity.</h2>",
+            "link": "",
+            "logo_width": 120
+          }
+        },
+        "press-2": {
+          "type": "press",
+          "settings": {
+            "text": "<h2>In a world full of trends, they design the timeless.</h2>",
+            "link": "",
+            "logo_width": 120
+          }
+        },
+        "press-3": {
+          "type": "press",
+          "disabled": true,
+          "settings": {
+            "text": "<p>Provide some information about what the company below thinks about your brand.</p>",
+            "link": "",
+            "logo_width": 100
+          }
+        },
+        "press-4": {
+          "type": "press",
+          "disabled": true,
+          "settings": {
+            "text": "<p>Provide some information about what the company below thinks about your brand.</p>",
+            "link": "",
+            "logo_width": 100
+          }
+        },
+        "press-5": {
+          "type": "press",
+          "disabled": true,
+          "settings": {
+            "text": "<p>Provide some information about what the company below thinks about your brand.</p>",
+            "link": "",
+            "logo_width": 100
+          }
+        }
+      },
+      "block_order": [
+        "press",
+        "press-0",
+        "press-1",
+        "press-2",
+        "press-3",
+        "press-4",
+        "press-5"
+      ],
+      "settings": {
+        "title": "In the Press",
+        "show_quotations": false,
+        "show_rounded_corners": false,
+        "logo_opacity": 50,
+        "autoplay": true,
+        "duration": 3,
+        "color_scheme": "",
+        "enable_slider_mobile": true,
+        "width": "wrapper",
+        "padding_top": 80,
+        "padding_bottom": 80
+      }
+    },
+    "section-banner-text-columns": {
+      "type": "section-banner-text-columns",
+      "blocks": {
+        "column-1": {
+          "type": "column",
+          "settings": {
+            "overlay_type": "disabled",
+            "subheading": "Product spotlight",
+            "heading": "Top summer trends",
+            "text": "",
+            "button_text": "Shop now",
+            "button_link": ""
+          }
+        },
+        "column-2": {
+          "type": "column",
+          "settings": {
+            "overlay_type": "disabled",
+            "subheading": "Seaside Looks",
+            "heading": "Introducing swim",
+            "text": "",
+            "button_text": "Shop the collection",
+            "button_link": ""
+          }
+        },
+        "column-3": {
+          "type": "column",
+          "settings": {
+            "overlay_type": "disabled",
+            "subheading": "Style preview",
+            "heading": "Our lookbook",
+            "text": "",
+            "button_text": "Read More",
+            "button_link": ""
+          }
+        }
+      },
+      "block_order": [
+        "column-1",
+        "column-2",
+        "column-3"
+      ],
+      "settings": {
+        "appearance": "columns",
+        "content_alignment": "center",
+        "text_alignment": "text-center",
+        "section_height": "three-quarters-height",
+        "enable_mobile_height": true,
+        "mobile_section_height": "four-fifty-height-mobile",
+        "color_scheme": "",
+        "button_color": "btn--white",
+        "button_style": "btn--text",
+        "button_size": "btn--small",
+        "show_single_image": false,
+        "heading_size": 110,
+        "width": "wrapper",
+        "padding_top": 0,
+        "padding_bottom": 0
+      }
+    },
+    "section-newsletter": {
+      "type": "section-newsletter",
+      "disabled": true,
+      "settings": {
+        "flex_align": "align--middle-split",
+        "title": "Sign up for offers and save 10%",
+        "text": "<p>Join our email newsletter to receive the latest product updates, and receive 10% off your first order.</p>",
+        "extra_fields": "name",
+        "button_text": "",
+        "color_scheme": "",
+        "image_height": "three-fifty-height",
+        "overlay_type": "disabled",
+        "width": "wrapper",
+        "padding_top": 60,
+        "padding_bottom": 60
+      }
+    },
+    "section-accordions-with-images": {
+      "type": "section-accordions-with-images",
+      "blocks": {
+        "text-8": {
+          "type": "text",
+          "settings": {
+            "title": "How long does it take to get my products?",
+            "text": "<p>Domestic shipping can take up to 5 business days.<br/><br/>Foreign shipping could take up to 14 business days.<br/><br/>Due to global supply chain challenges, shipping times could be longer than usual.</p>",
+            "icon_width": 20,
+            "icon_position": "inline-left"
+          }
+        },
+        "text-9": {
+          "type": "text",
+          "settings": {
+            "title": "Do you offer warranty for your products?",
+            "text": "<p>All our products are subject to quality control.<br/><br/>Our warranty provides a guarantee against manufacturer defects.<br/><br/>The guarantee covers any manufacturing, design, or material defect. Please notify us within 2 months of noticing any defects.<br/><br/>It does not cover blows, improper use, or other issues that are not attributable to a manufacturer defects.</p>",
+            "icon_width": 20,
+            "icon_position": "inline-left"
+          }
+        },
+        "text-10": {
+          "type": "text",
+          "settings": {
+            "title": "Do you offer refunds?",
+            "text": "<p>Yes, we offer full and partial refunds.<br/><br/>Please enquire for more information about our Refund policy.</p>",
+            "icon_width": 20,
+            "icon_position": "inline-left"
+          }
+        },
+        "text-11": {
+          "type": "text",
+          "settings": {
+            "title": "What shipping methods do you offer?",
+            "text": "<p>We use all major carriers, and local courier partners. Use the shipping estimator in the cart to check your shipping rates.</p>",
+            "icon_width": 20,
+            "icon_position": "inline-left"
+          }
+        }
+      },
+      "block_order": [
+        "text-8",
+        "text-9",
+        "text-10",
+        "text-11"
+      ],
+      "settings": {
+        "layout": "one-column",
+        "show_accordion_divider": true,
+        "line_thickness": "normal",
+        "content_alignment": "text-left",
+        "subheading": "",
+        "title": "Find your luxury — everyday.",
+        "type_style": "font-heading",
+        "heading_size": 125,
+        "text": "<p>Questions about our client services? Don't worry about a thing! We've got you via <a href=\"/pages/contact\" title=\"Contact\">email or text</a>. Order before 4pm for same day delivery in Palo Alto. <a href=\"/pages/faq\" title=\"FAQ\">Find out more</a></p>",
+        "tabs_bg_color": "rgba(0,0,0,0)",
+        "color_scheme": "",
+        "border_color": "#000000",
+        "width": "wrapper",
+        "padding_top": 80,
+        "padding_bottom": 80
+      }
+    },
+    "section-icons-row": {
+      "type": "section-icons-row",
+      "blocks": {
+        "text-12": {
+          "type": "text",
+          "settings": {
+            "icon_name": "none",
+            "title": "New customers get 15% off",
+            "text": "<p>on your first purchase</p>"
+          }
+        },
+        "text-13": {
+          "type": "text",
+          "settings": {
+            "icon_name": "none",
+            "title": "Free shipping",
+            "text": "<p>on orders over $100</p>"
+          }
+        },
+        "text-14": {
+          "type": "text",
+          "settings": {
+            "icon_name": "none",
+            "title": "ShopPay",
+            "text": "<p>Buy now, pay later</p>"
+          }
+        }
+      },
+      "block_order": [
+        "text-12",
+        "text-13",
+        "text-14"
+      ],
+      "settings": {
+        "heading": "",
+        "subheading": "",
+        "alignment": "center",
+        "columns": 3,
+        "icons_width": 20,
+        "show_vertical_borders": true,
+        "show_top_border": true,
+        "show_bottom_border": false,
+        "heading_size": 110,
+        "text_size": 90,
+        "color_scheme": "",
+        "text_color": "#333333",
+        "box_color": "",
+        "color_border": "#333333",
+        "button_text": "",
+        "button_link": "",
+        "button_color": "btn--black",
+        "button_style": "btn--solid",
+        "button_size": "btn--small",
+        "layout_mobile": "grid",
+        "width": "wrapper",
+        "padding_top": 20,
+        "padding_bottom": 20
+      }
+    }
+  },
+  "order": [
+    "section-marquee",
+    "section-slideshow",
+    "section-countdown",
+    "section_products_list_RdL48M",
+    "section-text",
+    "section-grid",
+    "section-marquee-0",
+    "section-promotion-row",
+    "section-marquee-1",
+    "section-collection",
+    "section-sticky-image-cards",
+    "section-testimonials-with-images",
+    "section-hero-scrolling",
+    "section-overlapping-images",
+    "section-social-gallery",
+    "section-divider",
+    "section-text-0",
+    "section-marquee-2",
+    "section-grid-0",
+    "section-shop-the-look-banner",
+    "section-press",
+    "section-banner-text-columns",
+    "section-newsletter",
+    "section-accordions-with-images",
+    "section-icons-row"
+  ]
+}

@@ -1,0 +1,271 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "collection-image-with-title": {
+      "type": "collection-image-with-title",
+      "disabled": true,
+      "settings": {
+        "banner_height": "two-fifty-height",
+        "text_position": "middle-center",
+        "show_image": true,
+        "banner_image": "{{ collection.image }}",
+        "padding_top": 0,
+        "padding_bottom": 0
+      }
+    },
+    "section-text": {
+      "type": "section-text",
+      "blocks": {
+        "subheading": {
+          "type": "subheading",
+          "disabled": true,
+          "settings": {
+            "text": "<p>Subheading</p>",
+            "size": 100,
+            "margin_bottom": 16
+          }
+        },
+        "text": {
+          "type": "text",
+          "settings": {
+            "size": 150
+          }
+        },
+        "button": {
+          "type": "button",
+          "disabled": true,
+          "settings": {
+            "button_text": "Read More",
+            "button_link": "",
+            "button_color": "btn--black",
+            "button_style": "btn--solid",
+            "button_size": "btn--small"
+          }
+        }
+      },
+      "block_order": [
+        "subheading",
+        "text",
+        "button"
+      ],
+      "settings": {
+        "text_position": "left",
+        "width": "wrapper--full-padded",
+        "padding_top": 40,
+        "padding_bottom": 20
+      }
+    },
+    "subcollections": {
+      "type": "subcollections",
+      "disabled": true,
+      "settings": {
+        "subcollections": [],
+        "limit": 8,
+        "layout": "grid",
+        "image_source": "product",
+        "image_aspect_ratio": 1.3,
+        "padding_top": 60,
+        "padding_bottom": 0
+      }
+    },
+    "section-list-collection": {
+      "type": "section-list-collection",
+      "blocks": {
+        "collection-0": {
+          "type": "collection",
+          "settings": {
+            "bg_color": "#f7f7f7"
+          }
+        },
+        "collection-1": {
+          "type": "collection",
+          "settings": {
+            "bg_color": "#f7f7f7"
+          }
+        },
+        "collection-2": {
+          "type": "collection",
+          "settings": {
+            "bg_color": "#f7f7f7"
+          }
+        },
+        "collection-3": {
+          "type": "collection",
+          "settings": {
+            "bg_color": "#f7f7f7"
+          }
+        },
+        "collection-4": {
+          "type": "collection",
+          "settings": {
+            "bg_color": "#f7f7f7"
+          }
+        },
+        "collection-5": {
+          "type": "collection",
+          "settings": {
+            "bg_color": "#f7f7f7"
+          }
+        }
+      },
+      "block_order": [
+        "collection-0",
+        "collection-1",
+        "collection-2",
+        "collection-3",
+        "collection-4",
+        "collection-5"
+      ],
+      "disabled": true,
+      "settings": {
+        "title": "",
+        "heading_size": 100,
+        "layout": "carousel",
+        "alignment": "left",
+        "image_shape": "circle",
+        "text_size": 100,
+        "overlay_text": false,
+        "width": "wrapper--full-padded",
+        "padding_top": 40,
+        "padding_bottom": 10
+      }
+    },
+    "collection": {
+      "type": "collection",
+      "blocks": {
+        "promo": {
+          "type": "promo",
+          "settings": {
+            "width": "auto",
+            "title": "<p>All the Latest Trends</p>",
+            "heading_size": 130,
+            "heading_highlight_type": "circle",
+            "highlight_color": "#D43747",
+            "content": "",
+            "text_size": 100,
+            "text_position": "center",
+            "layout": "stacked",
+            "bg_color": "#000000",
+            "button_text": "",
+            "button_link": "",
+            "button_color": "btn--white",
+            "button_style": "btn--solid-border",
+            "button_size": "btn--small"
+          }
+        }
+      },
+      "block_order": [
+        "promo"
+      ],
+      "settings": {
+        "show_breadcrumbs": true,
+        "enable_sorting": true,
+        "enable_filters": true,
+        "filters_layout": "open",
+        "show_more": true,
+        "filter_mode": "group",
+        "padding_top": 30,
+        "padding_bottom": 60
+      }
+    },
+    "section-grid": {
+      "type": "section-grid",
+      "blocks": {
+        "image": {
+          "type": "image",
+          "settings": {
+            "width": "33.33",
+            "text_position": "center",
+            "subheading": "Most loved",
+            "title": "Shop Trending",
+            "text": "Capsule wardrobe essentials with an extra flair",
+            "button_1_text": "Shop Now",
+            "button_1_link": "",
+            "button_2_text": "",
+            "button_2_link": ""
+          }
+        },
+        "image-0": {
+          "type": "image",
+          "settings": {
+            "width": "33.33",
+            "text_position": "center",
+            "subheading": "Last chance",
+            "title": "Shop Clearance",
+            "text": "Last chance to browse and buy",
+            "button_1_text": "Shop Now",
+            "button_1_link": "",
+            "button_2_text": "",
+            "button_2_link": ""
+          }
+        }
+      },
+      "block_order": [
+        "image",
+        "image-0"
+      ],
+      "disabled": true,
+      "settings": {
+        "heading_size": 150,
+        "button_1_color": "btn--white",
+        "button_1_style": "btn--text",
+        "button_1_size": "btn--small",
+        "button_2_color": "btn--black",
+        "button_2_style": "btn--text",
+        "button_2_size": "btn--small",
+        "enable_slider_mobile": true,
+        "width": "wrapper--full-padded",
+        "add_gutter": true,
+        "padding_top": 0,
+        "padding_bottom": 60
+      }
+    },
+    "section-marquee": {
+      "type": "section-marquee",
+      "blocks": {
+        "text-0": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Shop {{ collection.title }}</p>",
+            "icon_name": "none",
+            "icon_color": "",
+            "icon_width": 20,
+            "target_device_enabled": false,
+            "target_device": "mobile"
+          }
+        }
+      },
+      "block_order": [
+        "text-0"
+      ],
+      "settings": {
+        "layout": "marquee",
+        "padding": 10,
+        "marquee_speed": 125,
+        "slider_speed": 5,
+        "text_size": 400,
+        "message_spacing": 25,
+        "color": "#ffffff",
+        "padding_top": 0,
+        "padding_bottom": 0
+      }
+    }
+  },
+  "order": [
+    "collection-image-with-title",
+    "section-text",
+    "subcollections",
+    "section-list-collection",
+    "collection",
+    "section-grid",
+    "section-marquee"
+  ]
+}

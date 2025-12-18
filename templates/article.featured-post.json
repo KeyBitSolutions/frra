@@ -1,0 +1,92 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "article": {
+      "type": "article",
+      "settings": {
+        "show_date": true,
+        "show_author": true,
+        "show_tags": true,
+        "show_share_button": true,
+        "text": "Share",
+        "padding_top": 60,
+        "padding_bottom": 60
+      }
+    },
+    "section-grid": {
+      "type": "section-grid",
+      "blocks": {
+        "image": {
+          "type": "image",
+          "settings": {
+            "text_position": "center",
+            "subheading": "",
+            "title": "Shop Trending",
+            "text": "Add more info or delete this text"
+          }
+        },
+        "image-0": {
+          "type": "image",
+          "settings": {
+            "text_position": "center",
+            "subheading": "",
+            "title": "Shop Clearance",
+            "text": "Add more info or delete this text"
+          }
+        },
+        "image-1": {
+          "type": "image",
+          "disabled": true,
+          "settings": {
+            "text_position": "center",
+            "subheading": "",
+            "title": "Shop <br> Best Sellers",
+            "text": "Add more info or delete this text"
+          }
+        }
+      },
+      "block_order": [
+        "image",
+        "image-0",
+        "image-1"
+      ],
+      "disabled": true,
+      "settings": {
+        "heading_size": 150,
+        "enable_slider_mobile": true,
+        "width": "wrapper--narrow",
+        "add_gutter": true,
+        "padding_top": 0,
+        "padding_bottom": 60
+      }
+    },
+    "section-blog": {
+      "type": "section-blog",
+      "disabled": true,
+      "settings": {
+        "blog": "news",
+        "image_aspect_ratio": 1,
+        "rows": 1,
+        "columns": 2,
+        "heading": "More posts from our blog",
+        "button_style": "btn--primary btn--small",
+        "width": "wrapper--narrow",
+        "padding_top": 0,
+        "padding_bottom": 60
+      }
+    }
+  },
+  "order": [
+    "article",
+    "section-grid",
+    "section-blog"
+  ]
+}

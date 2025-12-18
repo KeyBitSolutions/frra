@@ -1,0 +1,307 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "main-page": {
+      "type": "main-page",
+      "disabled": true,
+      "settings": {
+        "show_page_title": true,
+        "padding_top": 60,
+        "padding_bottom": 60
+      }
+    },
+    "section-text": {
+      "type": "section-text",
+      "blocks": {
+        "subheading": {
+          "type": "subheading",
+          "settings": {
+            "text": "<p>Help center</p>",
+            "size": 100,
+            "margin_bottom": 16
+          }
+        },
+        "heading": {
+          "type": "heading",
+          "settings": {
+            "text": "<p>Frequently asked questions</p>",
+            "size": 150,
+            "heading_highlight_type": "italics",
+            "highlight_color": "#d43747",
+            "highlight_text_color": "#000000"
+          }
+        },
+        "text": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Here are some answers to popular questions about our brand and products. Looking to get in touch or have other questions not listed? <a href=\"/pages/contact\" title=\"Contact\">Contact us here</a></p>",
+            "size": 100
+          }
+        },
+        "button": {
+          "type": "button",
+          "disabled": true,
+          "settings": {
+            "button_text": "Read More",
+            "button_link": "",
+            "button_color": "btn--black",
+            "button_style": "btn--solid",
+            "button_size": "btn--small"
+          }
+        }
+      },
+      "block_order": [
+        "subheading",
+        "heading",
+        "text",
+        "button"
+      ],
+      "settings": {
+        "text_position": "center",
+        "width": "wrapper--narrow",
+        "padding_top": 60,
+        "padding_bottom": 40
+      }
+    },
+    "section-accordions": {
+      "type": "section-accordions",
+      "blocks": {
+        "text-0": {
+          "type": "text",
+          "settings": {
+            "title": "How long does it take to get my products?",
+            "text": "<p>Domestic shipping can take up to 5 business days.<br/><br/>Foreign shipping could take up to 14 business days.<br/><br/>Due to global supply chain challenges, shipping times could be longer than usual.</p>"
+          }
+        },
+        "text-1": {
+          "type": "text",
+          "settings": {
+            "title": "How much does it cost?",
+            "text": "<p>Shipping rates can vary depending on your region and are calculated at checkout.<br/><br/>Here are the full details of our <a href=\"/policies/shipping-policy\" title=\"Shipping Policy\">Shipping Policy</a>.</p>"
+          }
+        },
+        "text-2": {
+          "type": "text",
+          "settings": {
+            "title": "Is there free shipping?",
+            "text": "<p>Yes, we offer free shipping for large domestic orders.  Check the cart to see the current deal on free shipping..</p>"
+          }
+        },
+        "text-3": {
+          "type": "text",
+          "settings": {
+            "title": "Do you ship internationally?",
+            "text": "<p>Yes, we ship our products all over the globe.<br/><br/>Please note that free shipping is not applicable for international orders and that shipping rates could vary depending on your region.</p>"
+          }
+        },
+        "text-4": {
+          "type": "text",
+          "settings": {
+            "title": "Do you ship to my area?",
+            "text": "<p>A full list of all of our shipping areas can be found <a href=\"/policies/shipping-policy\" title=\"Shipping Policy\">here</a>.<br/><br/>If your country or region is not mentioned, please feel free to reach out to see if we can work out the details.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "text-0",
+        "text-1",
+        "text-2",
+        "text-3",
+        "text-4"
+      ],
+      "settings": {
+        "layout": "one-column",
+        "show_accordion_divider": true,
+        "line_thickness": "normal",
+        "subheading": "",
+        "title": "Shipping & Delivery",
+        "type_style": "font-heading",
+        "heading_size": 120,
+        "text": "",
+        "tabs_bg_color": "rgba(0,0,0,0)",
+        "border_color": "",
+        "width": "wrapper--narrow",
+        "padding_top": 60,
+        "padding_bottom": 60
+      }
+    },
+    "section-accordions-0": {
+      "type": "section-accordions",
+      "blocks": {
+        "text-5": {
+          "type": "text",
+          "settings": {
+            "title": "Do you offer refunds?",
+            "text": "<p>Yes, we offer full and partial refunds.<br/><br/>Please enquire for more information about our Refund policy.</p>"
+          }
+        },
+        "text-6": {
+          "type": "text",
+          "settings": {
+            "title": "How long after I complete a purchase can I ask for a refund?",
+            "text": "<p>A refund request can be submitted within a month after the purchase is made.</p>"
+          }
+        },
+        "text-7": {
+          "type": "text",
+          "settings": {
+            "title": "How much can I get refunded?",
+            "text": "<p>In the case when the<strong>product and packaging are unopened and undamaged</strong>, you are<strong>eligible</strong>for a full refund.<br/><br/>In the case when<strong>the packaging has been opened and the product has been used</strong>, you are<strong>eligible</strong>for a partial refund.<br/><br/>In the case when a<strong>product has been damaged</strong>, and the damage is not covered by your warranty, you are<strong>not eligible</strong>for a refund.<br/><br/>Please check our <a href=\"/policies/terms-of-service\" title=\"Terms of Service\">Terms of Service</a> to see if you're eligible for a refund.</p>"
+          }
+        },
+        "text-8": {
+          "type": "text",
+          "settings": {
+            "title": "Who pays the shipping costs in the case of a refund when the order doesn't have free shipping?",
+            "text": "<p>When an order does not include free shipping, all shipping costs (including the return shipping) are handled by the customer.</p>"
+          }
+        },
+        "text-9": {
+          "type": "text",
+          "settings": {
+            "title": "Who pays the shipping costs in the case of a refund when the order has free shipping?",
+            "text": "<p>When an order includes free shipping, only the cost of the return shipping is handled by the customer.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "text-5",
+        "text-6",
+        "text-7",
+        "text-8",
+        "text-9"
+      ],
+      "settings": {
+        "layout": "one-column",
+        "show_accordion_divider": true,
+        "line_thickness": "normal",
+        "subheading": "",
+        "title": "Returns & Refunds",
+        "type_style": "font-heading",
+        "heading_size": 120,
+        "text": "",
+        "tabs_bg_color": "rgba(0,0,0,0)",
+        "border_color": "",
+        "width": "wrapper--narrow",
+        "padding_top": 60,
+        "padding_bottom": 60
+      }
+    },
+    "section-accordions-1": {
+      "type": "section-accordions",
+      "blocks": {
+        "text-10": {
+          "type": "text",
+          "settings": {
+            "title": "Do you offer warranty for your products?",
+            "text": "<p>All our products are subject to quality control.<br/><br/>Our warranty provides a guarantee against manufacturer defects.<br/><br/>The guarantee covers any manufacturing, design, or material defect. Please notify us within 2 months of noticing any defects.<br/><br/>It does not cover blows, improper use, or other issues that are not attributable to a manufacturer defects.</p>"
+          }
+        },
+        "text-11": {
+          "type": "text",
+          "settings": {
+            "title": "Do you offer extended warranty?",
+            "text": "<p>An extended warranty can be added to your products for an additional cost.<br/><br/>Please get in touch for more information about extended warranties.</p>"
+          }
+        },
+        "text-12": {
+          "type": "text",
+          "settings": {
+            "title": "How much does extended warranty cost?",
+            "text": "<p>The extended warranty could come at a different cost depending on the type of product and extended period.<br/><br/>Please get in touch for more information.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "text-10",
+        "text-11",
+        "text-12"
+      ],
+      "settings": {
+        "layout": "one-column",
+        "show_accordion_divider": true,
+        "line_thickness": "normal",
+        "subheading": "",
+        "title": "Warranty & Repair",
+        "type_style": "font-heading",
+        "heading_size": 120,
+        "text": "",
+        "tabs_bg_color": "rgba(0,0,0,0)",
+        "border_color": "",
+        "width": "wrapper--narrow",
+        "padding_top": 60,
+        "padding_bottom": 60
+      }
+    },
+    "section-accordions-2": {
+      "type": "section-accordions",
+      "blocks": {
+        "text-13": {
+          "type": "text",
+          "settings": {
+            "title": "Is my payment data safe with you?",
+            "text": "<p>All direct payment gateways adhere to the standards set by PCI-DSS as managed by the PCI Security Standards Council, which is a joint effort of brands like Visa, MasterCard, American Express, and Discover.</p>"
+          }
+        },
+        "text-14": {
+          "type": "text",
+          "settings": {
+            "title": "Do you accept online payments?",
+            "text": "<p>Yes, we accept online payments. All payment processing and vital customer information is quick, easy, and secure.<br/></p><p>Learn more about our store's safe checkout experience (powered by Shopify) <a href=\"https://www.shopify.com/legal/terms#DataProtection\" target=\"_blank\" title=\"https://www.shopify.com/legal/terms#DataProtection\">here</a>.</p>"
+          }
+        },
+        "text-15": {
+          "type": "text",
+          "settings": {
+            "title": "Where can I learn more about the payment and processing on your store?",
+            "text": "<p>For more insight, you may also want to read Shopify’s Terms of Service <a href=\"https://www.shopify.com/legal/terms\" target=\"_blank\" title=\"https://www.shopify.com/legal/terms\">here</a> or Privacy Statement <a href=\"https://www.shopify.com/legal/privacy\" target=\"_blank\" title=\"https://www.shopify.com/legal/privacy\">here</a>.</p>"
+          }
+        },
+        "text-16": {
+          "type": "text",
+          "settings": {
+            "title": "What forms of payment do you accept?",
+            "text": "<p>We accept payments from major credit card companies like Visa, Mastercard, and American Express.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "text-13",
+        "text-14",
+        "text-15",
+        "text-16"
+      ],
+      "settings": {
+        "layout": "one-column",
+        "show_accordion_divider": true,
+        "line_thickness": "normal",
+        "subheading": "",
+        "title": "Payments & Safety",
+        "type_style": "font-heading",
+        "heading_size": 120,
+        "text": "",
+        "tabs_bg_color": "rgba(0,0,0,0)",
+        "border_color": "",
+        "width": "wrapper--narrow",
+        "padding_top": 60,
+        "padding_bottom": 80
+      }
+    }
+  },
+  "order": [
+    "main-page",
+    "section-text",
+    "section-accordions",
+    "section-accordions-0",
+    "section-accordions-1",
+    "section-accordions-2"
+  ]
+}

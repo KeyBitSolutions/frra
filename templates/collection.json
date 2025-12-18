@@ -1,0 +1,406 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "collection-image-with-title": {
+      "type": "collection-image-with-title",
+      "disabled": true,
+      "settings": {
+        "banner_height": "two-fifty-height",
+        "text_position": "middle-center",
+        "show_image": true,
+        "overlay_type": "disabled",
+        "color_scheme": "",
+        "padding_top": 0,
+        "padding_bottom": 0
+      }
+    },
+    "section-grid": {
+      "type": "section-grid",
+      "blocks": {
+        "image": {
+          "type": "image",
+          "settings": {
+            "width": "100",
+            "overlay_type": "disabled",
+            "text_position": "center",
+            "subheading": "",
+            "title": "",
+            "text": "",
+            "button_1_text": "",
+            "button_1_link": "",
+            "button_2_text": "",
+            "button_2_link": "",
+            "show_text_background": false,
+            "bg_color": "",
+            "text_color": ""
+          }
+        },
+        "image-0": {
+          "type": "image",
+          "disabled": true,
+          "settings": {
+            "width": "33.33",
+            "overlay_type": "disabled",
+            "text_position": "center",
+            "subheading": "",
+            "title": "Clearance",
+            "text": "Add more info or delete this text",
+            "button_1_text": "Shop Now",
+            "button_1_link": "",
+            "button_2_text": "",
+            "button_2_link": "",
+            "show_text_background": false,
+            "bg_color": "",
+            "text_color": ""
+          }
+        },
+        "image-1": {
+          "type": "image",
+          "disabled": true,
+          "settings": {
+            "width": "33.33",
+            "overlay_type": "disabled",
+            "text_position": "center",
+            "subheading": "",
+            "title": "Best Sellers",
+            "text": "Add more info or delete this text",
+            "button_1_text": "Shop Now",
+            "button_1_link": "",
+            "button_2_text": "",
+            "button_2_link": "",
+            "show_text_background": false,
+            "bg_color": "",
+            "text_color": ""
+          }
+        },
+        "image-2": {
+          "type": "image",
+          "disabled": true,
+          "settings": {
+            "width": "33.33",
+            "overlay_type": "disabled",
+            "text_position": "center",
+            "subheading": "",
+            "title": "New Arrivals",
+            "text": "Add more info or delete this text",
+            "button_1_text": "Shop Now",
+            "button_1_link": "",
+            "button_2_text": "",
+            "button_2_link": "",
+            "show_text_background": false,
+            "bg_color": "",
+            "text_color": ""
+          }
+        }
+      },
+      "block_order": [
+        "image",
+        "image-0",
+        "image-1",
+        "image-2"
+      ],
+      "settings": {
+        "desktop_height": "two-fifty-height",
+        "enable_mobile_height": true,
+        "mobile_height": "two-fifty-height-mobile",
+        "heading_size": 130,
+        "text_size": 100,
+        "button_1_color": "btn--white",
+        "button_1_style": "btn--text",
+        "button_1_size": "btn--small",
+        "button_2_color": "btn--black",
+        "button_2_style": "btn--text",
+        "button_2_size": "btn--small",
+        "color_scheme": "",
+        "overlayed_text": "#ffffff",
+        "enable_slider_mobile": false,
+        "columns_mobile": "1",
+        "overlay_text": true,
+        "width": "wrapper--full-padded",
+        "add_gutter": true,
+        "padding_top": 30,
+        "padding_bottom": 24
+      }
+    },
+    "section-text": {
+      "type": "section-text",
+      "blocks": {
+        "heading": {
+          "type": "heading",
+          "settings": {
+            "text": "<p>{{ collection.title }}</p>",
+            "size": 190,
+            "heading_highlight_type": "italics",
+            "highlight_color": "#fff7f2",
+            "highlight_text_color": "#000000"
+          }
+        },
+        "text": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Use this text to share information about your brand with your customers. Describe a product, share announcements, or welcome customers to your store.</p>",
+            "size": 100
+          }
+        }
+      },
+      "block_order": [
+        "heading",
+        "text"
+      ],
+      "settings": {
+        "text_position": "left",
+        "color_scheme": "",
+        "width": "wrapper--full-padded",
+        "padding_top": 0,
+        "padding_bottom": 20
+      }
+    },
+    "section-list-butttons": {
+      "type": "section-list-butttons",
+      "blocks": {
+        "button": {
+          "type": "button",
+          "settings": {
+            "heading": "New",
+            "button_link": "",
+            "overlay_type": "opacity",
+            "block_text_color": "#0b0b0b",
+            "bg_color": "#ffffff",
+            "border_color": "#000000"
+          }
+        },
+        "button-0": {
+          "type": "button",
+          "settings": {
+            "heading": "Tops",
+            "button_link": "",
+            "overlay_type": "opacity",
+            "block_text_color": "#000000",
+            "bg_color": "#ffffff",
+            "border_color": "#0b0b0b"
+          }
+        },
+        "button-1": {
+          "type": "button",
+          "settings": {
+            "heading": "Linen",
+            "button_link": "",
+            "overlay_type": "opacity",
+            "block_text_color": "#000000",
+            "bg_color": "#ffffff",
+            "border_color": "#000000"
+          }
+        },
+        "button-2": {
+          "type": "button",
+          "settings": {
+            "heading": "Dresses",
+            "button_link": "",
+            "overlay_type": "opacity",
+            "block_text_color": "#000000",
+            "bg_color": "#ffffff",
+            "border_color": "#000000"
+          }
+        },
+        "button-3": {
+          "type": "button",
+          "settings": {
+            "heading": "Jackets",
+            "button_link": "",
+            "overlay_type": "opacity",
+            "block_text_color": "#000000",
+            "bg_color": "#ffffff",
+            "border_color": "#0b0b0b"
+          }
+        },
+        "button-4": {
+          "type": "button",
+          "settings": {
+            "heading": "Tanks",
+            "button_link": "",
+            "overlay_type": "opacity",
+            "block_text_color": "#0b0b0b",
+            "bg_color": "#ffffff",
+            "border_color": "#0b0b0b"
+          }
+        }
+      },
+      "block_order": [
+        "button",
+        "button-0",
+        "button-1",
+        "button-2",
+        "button-3",
+        "button-4"
+      ],
+      "settings": {
+        "title": "",
+        "heading_size": 100,
+        "layout": "carousel",
+        "alignment": "left",
+        "collections_per_row": 6,
+        "columns_mobile": "2",
+        "type_style": "subheading-text",
+        "button_style": "rounded",
+        "text_size": 80,
+        "letter_spacing": 75,
+        "show_arrow": true,
+        "bg_color": "#ffffff",
+        "block_text_color": "#000000",
+        "border_color": "#000000",
+        "color_scheme": "",
+        "section_text_color": "",
+        "enable_slider_mobile": true,
+        "animations_enabled": false,
+        "width": "wrapper--full-padded",
+        "padding_top": 0,
+        "padding_bottom": 0
+      }
+    },
+    "subcollections": {
+      "type": "subcollections",
+      "disabled": true,
+      "settings": {
+        "subcollections": [
+          "all",
+          "bestsellers",
+          "bestselling",
+          "blouses",
+          "blazers",
+          "bottoms"
+        ],
+        "limit": 8,
+        "layout": "carousel",
+        "image_source": "product",
+        "image_aspect_ratio": 0.7,
+        "overlay_type": "disabled",
+        "color_scheme": "",
+        "padding_top": 0,
+        "padding_bottom": 0
+      }
+    },
+    "collection": {
+      "type": "collection",
+      "blocks": {
+        "promo": {
+          "type": "promo",
+          "settings": {
+            "collection": "",
+            "promo_position": 1,
+            "width": "half",
+            "title": "<p>25% off sale on now!</p>",
+            "heading_size": 140,
+            "heading_highlight_type": "circle",
+            "highlight_color": "#ffffff",
+            "highlight_text_color": "#000000",
+            "content": "",
+            "text_size": 100,
+            "text_position": "bottom-left",
+            "layout": "stacked",
+            "overlay_type": "disabled",
+            "promo_bg_color": "#d3d3d3",
+            "show_text_background": false,
+            "bg_color": "#000000",
+            "text_color": "",
+            "button_text": "Shop the sale",
+            "button_link": "",
+            "button_color": "btn--white",
+            "button_style": "btn--text",
+            "button_size": "btn--small"
+          }
+        }
+      },
+      "block_order": [
+        "promo"
+      ],
+      "settings": {
+        "show_breadcrumbs": false,
+        "products_per_page": 24,
+        "enable_sorting": true,
+        "enable_filters": true,
+        "filters_layout": "open",
+        "show_more": true,
+        "filter_mode": "default",
+        "color_scheme": "",
+        "padding_top": 30,
+        "padding_bottom": 60
+      }
+    },
+    "section-icons-row": {
+      "type": "section-icons-row",
+      "blocks": {
+        "text-0": {
+          "type": "text",
+          "settings": {
+            "icon_name": "none",
+            "title": "New customers get 15% off",
+            "text": "<p>on your first purchase</p>"
+          }
+        },
+        "text-1": {
+          "type": "text",
+          "settings": {
+            "icon_name": "none",
+            "title": "Free shipping",
+            "text": "<p>on orders over $100</p>"
+          }
+        },
+        "text-2": {
+          "type": "text",
+          "settings": {
+            "icon_name": "none",
+            "title": "ShopPay",
+            "text": "<p>Buy now, pay later</p>"
+          }
+        }
+      },
+      "block_order": [
+        "text-0",
+        "text-1",
+        "text-2"
+      ],
+      "settings": {
+        "heading": "",
+        "subheading": "",
+        "alignment": "center",
+        "columns": 3,
+        "icons_width": 20,
+        "show_vertical_borders": true,
+        "show_top_border": true,
+        "show_bottom_border": false,
+        "heading_size": 100,
+        "text_size": 90,
+        "color_scheme": "",
+        "text_color": "#333333",
+        "box_color": "",
+        "color_border": "#333333",
+        "button_text": "",
+        "button_link": "",
+        "button_color": "btn--black",
+        "button_style": "btn--solid",
+        "button_size": "btn--small",
+        "layout_mobile": "grid",
+        "width": "wrapper",
+        "padding_top": 60,
+        "padding_bottom": 60
+      }
+    }
+  },
+  "order": [
+    "collection-image-with-title",
+    "section-grid",
+    "section-text",
+    "section-list-butttons",
+    "subcollections",
+    "collection",
+    "section-icons-row"
+  ]
+}

@@ -1,0 +1,182 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "section-marquee": {
+      "type": "section-marquee",
+      "blocks": {
+        "text": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Bigger markdowns! <a href=\"/collections/sale\" title=\"Sale\">Save on sale now</a></p>",
+            "icon_name": "none",
+            "icon_color": "",
+            "icon_width": 20,
+            "target_device_enabled": false,
+            "target_device": "mobile"
+          }
+        },
+        "text-0": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Our latest lookbook is live! <a href=\"/pages/lookbook\" title=\"Lookbook\">Shop now</a></p>",
+            "icon_name": "none",
+            "icon_color": "",
+            "icon_width": 20,
+            "target_device_enabled": false,
+            "target_device": "mobile"
+          }
+        }
+      },
+      "block_order": [
+        "text",
+        "text-0"
+      ],
+      "settings": {
+        "layout": "slider",
+        "padding": 10,
+        "marquee_speed": 100,
+        "slider_speed": 7,
+        "text_size": 150,
+        "message_spacing": 25,
+        "color": "#ffffff",
+        "padding_top": 0,
+        "padding_bottom": 60
+      }
+    },
+    "blog": {
+      "type": "blog",
+      "settings": {
+        "default_color": "accent",
+        "blog_style": "photo",
+        "post_columns": 3,
+        "image_aspect_ratio": 1,
+        "show_rss_icon": false,
+        "show_date": true,
+        "show_author": false,
+        "show_tags": true,
+        "tag_alignment": "center",
+        "padding_top": 0,
+        "padding_bottom": 60
+      }
+    },
+    "section-text": {
+      "type": "section-text",
+      "blocks": {
+        "subheading": {
+          "type": "subheading",
+          "settings": {
+            "text": "<p>Now trending</p>",
+            "size": 100
+          }
+        },
+        "heading": {
+          "type": "heading",
+          "settings": {
+            "text": "<p>Discover our collections</p>",
+            "size": 120,
+            "heading_highlight_type": "italics"
+          }
+        },
+        "text-1": {
+          "type": "text",
+          "disabled": true,
+          "settings": {
+            "text": "<p>Use this text to share information about your brand with your customers. Describe a product, share announcements, or welcome customers to your store.</p>",
+            "size": 100
+          }
+        },
+        "button": {
+          "type": "button",
+          "disabled": true,
+          "settings": {}
+        }
+      },
+      "block_order": [
+        "subheading",
+        "heading",
+        "text-1",
+        "button"
+      ],
+      "settings": {
+        "text_position": "center",
+        "width": "wrapper--narrow",
+        "padding_top": 60,
+        "padding_bottom": 0
+      }
+    },
+    "section-grid": {
+      "type": "section-grid",
+      "blocks": {
+        "image": {
+          "type": "image",
+          "settings": {
+            "text_position": "center",
+            "subheading": "Last chance",
+            "title": "Clearance",
+            "text": "Last chance to browse and buy"
+          }
+        },
+        "image-0": {
+          "type": "image",
+          "settings": {
+            "text_position": "center",
+            "subheading": "Most loved",
+            "title": "Bestsellers",
+            "text": "Capsule wardrobe essentials with an extra flair"
+          }
+        },
+        "image-1": {
+          "type": "image",
+          "settings": {
+            "text_position": "center",
+            "subheading": "Just released",
+            "title": "New",
+            "text": "Our top picks from the latest collection"
+          }
+        }
+      },
+      "block_order": [
+        "image",
+        "image-0",
+        "image-1"
+      ],
+      "settings": {
+        "heading_size": 150,
+        "enable_slider_mobile": true,
+        "width": "wrapper--full",
+        "add_gutter": true,
+        "padding_top": 60,
+        "padding_bottom": 60
+      }
+    },
+    "section-newsletter": {
+      "type": "section-newsletter",
+      "settings": {
+        "flex_align": "align--middle-center",
+        "title": "Never miss a post!",
+        "text": "<p>Get the latest fashion news straight to your inbox</p>",
+        "extra_fields": "",
+        "button_text": "",
+        "image_height": "three-fifty-height",
+        "width": "wrapper",
+        "padding_top": 60,
+        "padding_bottom": 60
+      }
+    }
+  },
+  "order": [
+    "section-marquee",
+    "blog",
+    "section-text",
+    "section-grid",
+    "section-newsletter"
+  ]
+}
