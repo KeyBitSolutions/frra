@@ -1,17 +1,45 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
 @source "../../../**/*.liquid";
 @source "../../../**/*.{js,ts,css}";
 @config '../../../tailwind.config.js';
 
-
 @layer base {
-  
 }
 
 @layer components {
+  /* Black checkbox styling */
+  .checkbox {
+    appearance: none !important;
+    min-width: 14px !important;
+    min-height: 14px !important;
+    border: 2px solid rgb(209 213 219) !important;
+    border-radius: 0.25rem !important;
+    cursor: pointer !important;
+    position: relative !important;
+    transition:
+      background-color 0.2s,
+      border-color 0.2s;
+  }
+
+  .checkbox:checked {
+    background-color: black !important;
+    border-color: black !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' d='M2 6l3 3 5-5'/%3E%3C/svg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: center !important;
+    background-size: 12px 12px !important;
+  }
+
+  .checkbox:focus {
+    outline: none !important;
+    box-shadow: none !important;
+  }
+
+  .checkbox:hover:not(:checked) {
+    border-color: rgb(156 163 175) !important;
+  }
 }
 
 @layer utilities {
 }
-

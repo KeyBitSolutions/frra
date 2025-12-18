@@ -14,10 +14,29 @@
     "announcement-bar": {
       "type": "announcement-bar",
       "blocks": {
+        "text_tq3epq": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Premiera nowego sklepu furora!</p>",
+            "text_color": "",
+            "heading_highlight_type": "underline-hand-drawn",
+            "highlight_color": "#000000",
+            "highlight_text_color": "",
+            "icon_name": "none",
+            "icon_color": "",
+            "icon_width": 20,
+            "target_url_enabled": false,
+            "target_url": "",
+            "target_referrer_enabled": false,
+            "target_referrer": "",
+            "target_device_enabled": false,
+            "target_device": "mobile"
+          }
+        },
         "text": {
           "type": "text",
           "settings": {
-            "text": "<p>Free shipping on orders over $100 <a href=\"/collections/all\" title=\"All products\"><strong>Shop now</strong></a></p>",
+            "text": "<p>Darmowa dostawa od 50zł do paczkomatów <a href=\"/collections/all\" title=\"All products\"><strong>Kup Teraz</strong></a></p>",
             "text_color": "",
             "heading_highlight_type": "circle",
             "highlight_color": "#d43747",
@@ -35,6 +54,7 @@
         },
         "text-0": {
           "type": "text",
+          "disabled": true,
           "settings": {
             "text": "<p>New customers save 10% with code WELCOME10</p>",
             "text_color": "",
@@ -54,6 +74,7 @@
         }
       },
       "block_order": [
+        "text_tq3epq",
         "text",
         "text-0"
       ],
@@ -67,7 +88,7 @@
         "show_arrows": false,
         "marquee_speed": 100,
         "direction": "ticker-ltr",
-        "text_caps": true,
+        "text_caps": false,
         "type_font": "space_mono_n4",
         "text_size": 110,
         "letter_spacing": 100,
@@ -79,123 +100,24 @@
     },
     "header": {
       "type": "header",
-      "blocks": {
-        "image": {
-          "type": "image",
-          "settings": {
-            "position": "1",
-            "image_second_menu": false,
-            "aspect_ratio": 1.2,
-            "wide_image": false,
-            "overlay_type": "disabled",
-            "title": "Knitwear",
-            "heading_size": 100,
-            "link_text": "",
-            "link": "",
-            "text_color": ""
-          }
-        },
-        "image-0": {
-          "type": "image",
-          "settings": {
-            "position": "1",
-            "image_second_menu": false,
-            "aspect_ratio": 1.2,
-            "wide_image": false,
-            "overlay_type": "disabled",
-            "title": "Fall looks",
-            "heading_size": 100,
-            "link_text": "",
-            "link": "",
-            "text_color": ""
-          }
-        },
-        "image-1": {
-          "type": "image",
-          "settings": {
-            "position": "2",
-            "image_second_menu": false,
-            "aspect_ratio": 1.2,
-            "wide_image": false,
-            "overlay_type": "disabled",
-            "title": "Revive Dress",
-            "heading_size": 100,
-            "link_text": "Shop now",
-            "link": "",
-            "text_color": ""
-          }
-        },
-        "image-2": {
-          "type": "image",
-          "settings": {
-            "position": "2",
-            "image_second_menu": false,
-            "aspect_ratio": 1.2,
-            "wide_image": false,
-            "overlay_type": "disabled",
-            "title": "Corin Coat",
-            "heading_size": 100,
-            "link_text": "Shop now",
-            "link": "",
-            "text_color": ""
-          }
-        },
-        "image-3": {
-          "type": "image",
-          "settings": {
-            "position": "2",
-            "image_second_menu": false,
-            "aspect_ratio": 1.2,
-            "wide_image": false,
-            "overlay_type": "disabled",
-            "title": "Nalani Cardigan",
-            "heading_size": 100,
-            "link_text": "Shop now",
-            "link": "",
-            "text_color": ""
-          }
-        },
-        "image-4": {
-          "type": "image",
-          "settings": {
-            "position": "2",
-            "image_second_menu": false,
-            "aspect_ratio": 1.2,
-            "wide_image": false,
-            "overlay_type": "disabled",
-            "title": "Brandi Bikini Top",
-            "heading_size": 100,
-            "link_text": "Shop now",
-            "link": "",
-            "text_color": ""
-          }
-        }
-      },
-      "block_order": [
-        "image",
-        "image-0",
-        "image-1",
-        "image-2",
-        "image-3",
-        "image-4"
-      ],
       "settings": {
-        "sticky_header": false,
+        "sticky_header": true,
         "link_hover_effect": "dot",
         "highlight_color": "#fff7f2",
         "highlight_text_color": "",
         "header_border": true,
         "header_border_color": "",
         "border_opacity": 50,
+        "logo_not_home": "shopify://shop_images/furora_logo.svg",
         "logo_max_width": 100,
         "main-menu": "menu",
         "main_menu_secondary": "",
-        "show_images": false,
+        "show_images": true,
         "image_aspect_ratio": 1.1,
-        "menu_alignment": "left",
+        "menu_alignment": "center",
         "header_icons_as_text": false,
         "show_locale_selector": false,
-        "show_locale_code": true,
+        "show_locale_code": false,
         "show_country_selector": false,
         "show_country_name": false,
         "show_country_flag": false,
@@ -205,6 +127,7 @@
         "highlight_item_color": "#de5757",
         "highlight_item_text_color": "#ffffff",
         "header_transparent": false,
+        "logo": "shopify://shop_images/furora_logo_white.svg",
         "header_gradient": true
       }
     },
@@ -214,7 +137,7 @@
         "menu": {
           "type": "menu",
           "settings": {
-            "mobile_menu_linklist": "main-menu",
+            "mobile_menu_linklist": "menu",
             "text_size": 100,
             "show_images": true,
             "image_aspect_ratio": 0.5,

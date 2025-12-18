@@ -1,147 +1,144 @@
 {%- comment -%}
-    Renders product form with buy buttons
+  Renders product form with buy buttons
 
-    Accepts:
-    - product: {Object} Product object (required)
-    - section: {Object} Section object (required - needed by partials)
-    - section_id: {String} Section ID (required)
-    - block: {Object} Block object (optional)
-    - product_form_id: {String} The ID of the product form (required)
-    - current_variant: {Object} Current selected variant (required)
-    - unique: {String} Unique ID for the form (required)
-    - animations_enabled: {Boolean} Whether animations are enabled (optional)
-    - animation_anchor: {String} AOS animation anchor (optional)
-    - animation_order: {Number} AOS animation order (optional)
-    - show_quantity: {Boolean} Whether to show quantity selector (optional)
-    - show_remaining: {Boolean} Whether to show remaining inventory (optional)
-    - show_labels: {Boolean} Whether to show variant option labels (optional)
-    - label_text_caps: {Boolean} Whether label text should be capitalized (optional)
-    - is_quick_view: {Boolean} Whether this is a quick view (optional, default: false)
+  Accepts:
+  - product: {Object} Product object (required)
+  - section: {Object} Section object (required - needed by partials)
+  - section_id: {String} Section ID (required)
+  - block: {Object} Block object (optional)
+  - product_form_id: {String} The ID of the product form (required)
+  - current_variant: {Object} Current selected variant (required)
+  - unique: {String} Unique ID for the form (required)
+  - animations_enabled: {Boolean} Whether animations are enabled (optional)
+  - animation_anchor: {String} AOS animation anchor (optional)
+  - animation_order: {Number} AOS animation order (optional)
+  - show_quantity: {Boolean} Whether to show quantity selector (optional)
+  - show_remaining: {Boolean} Whether to show remaining inventory (optional)
+  - show_labels: {Boolean} Whether to show variant option labels (optional)
+  - label_text_caps: {Boolean} Whether label text should be capitalized (optional)
+  - is_quick_view: {Boolean} Whether this is a quick view (optional, default: false)
 
-    Usage:
-    {%- render 'product-form',
-      product: product,
-      section: section,
-      section_id: section_id,
-      block: block,
-      product_form_id: product_form_id,
-      current_variant: current_variant,
-      unique: unique,
-      animations_enabled: animations_enabled,
-      animation_anchor: animation_anchor,
-      animation_order: animation_order,
-      show_quantity: show_quantity,
-      show_remaining: show_remaining,
-      show_labels: show_labels,
-      label_text_caps: label_text_caps,
-      is_quick_view: is_quick_view
-    -%}
+  Usage:
+  {%- render 'product-form',
+    product: product,
+    section: section,
+    section_id: section_id,
+    block: block,
+    product_form_id: product_form_id,
+    current_variant: current_variant,
+    unique: unique,
+    animations_enabled: animations_enabled,
+    animation_anchor: animation_anchor,
+    animation_order: animation_order,
+    show_quantity: show_quantity,
+    show_remaining: show_remaining,
+    show_labels: show_labels,
+    label_text_caps: label_text_caps,
+    is_quick_view: is_quick_view
+  -%}
 {%- endcomment -%}
 
 {%- liquid
-    assign unique = unique | default: ''
-    assign variants_style = settings.variants_style
-    assign show_variant_image = settings.show_variant_image
-    assign gift_card_recipient_feature_active = false
+  assign unique = unique | default: ''
+  assign variants_style = settings.variants_style
+  assign show_variant_image = settings.show_variant_image
+  assign gift_card_recipient_feature_active = false
 
-    if settings.show_gift_card_recipient and product.gift_card?
-        assign gift_card_recipient_feature_active = true
-    endif
+  if settings.show_gift_card_recipient and product.gift_card?
+    assign gift_card_recipient_feature_active = true
+  endif
 -%}
 
 {%- if show_remaining and is_quick_view -%}
-    <div
-        class="product__block"
-        id="Inventory-{{ unique }}"
-    >
-        {%- render 'inventory-countdown',
-            current_variant: current_variant,
-            product_variants: product.variants
-        -%}
-    </div>
+  <div
+    class="product__block"
+    id="Inventory-{{ unique }}"
+  >
+    {%- render 'inventory-countdown', current_variant: current_variant, product_variants: product.variants -%}
+  </div>
 {%- endif -%}
 
 {%- comment -%} Size Chart Button Logic {%- endcomment -%}
 {%- liquid
-    assign show_size_guide = false
-    assign size_guide_string = 'general.size_chart.button' | t
-    assign info_page_title_override = settings.info_page_title_override
+  assign show_size_guide = false
+  assign size_guide_string = 'general.size_chart.button' | t
+  assign info_page_title_override = settings.info_page_title_override
 
-    assign tags_string = product.tags | join: ','
-    assign size_separator = '_size_'
-    assign specific_pages = ''
-    if tags_string contains size_separator
-        for tag in product.tags
-            if tag contains size_separator
-                assign page_handle = tag | split: size_separator | last | split: ',' | first
-                assign specific_pages = specific_pages | append: page_handle | append: ','
-            endif
-        endfor
-    endif
-    assign specific_pages_arr = specific_pages | split: ','
-    if specific_pages_arr.size > 0
-        assign show_size_guide = true
-    endif
+  assign tags_string = product.tags | join: ','
+  assign size_separator = '_size_'
+  assign specific_pages = ''
+  if tags_string contains size_separator
+    for tag in product.tags
+      if tag contains size_separator
+        assign page_handle = tag | split: size_separator | last | split: ',' | first
+        assign specific_pages = specific_pages | append: page_handle | append: ','
+      endif
+    endfor
+  endif
+  assign specific_pages_arr = specific_pages | split: ','
+  if specific_pages_arr.size > 0
+    assign show_size_guide = true
+  endif
 
-    assign product_size_chart = product.metafields.theme.size_chart.value
-    assign info_page = settings.info_page
-    if product_size_chart != blank or info_page != blank
-        if product_size_chart != blank
-            assign info_page = product_size_chart
-        elsif info_page != blank
-            assign info_page = pages[info_page]
-        endif
-        assign show_size_guide = true
+  assign product_size_chart = product.metafields.theme.size_chart.value
+  assign info_page = settings.info_page
+  if product_size_chart != blank or info_page != blank
+    if product_size_chart != blank
+      assign info_page = product_size_chart
+    elsif info_page != blank
+      assign info_page = pages[info_page]
     endif
+    assign show_size_guide = true
+  endif
 
-    assign size_chart_button_as_label = false
-    assign has_size_option = false
-    unless product.has_only_default_variant
-        for option in product.options_with_values
-            assign separator = option.name | handle | prepend: ',' | append: ','
-            assign size_translation = 'general.size_chart.size' | t
-            assign translation_string = size_translation | remove: '  ' | replace: ', ', ',' | replace: ' ,', ',' | replace: ',', '____' | handle | replace: '____', ',' | append: ',' | prepend: ','
-            unless translation_string contains separator
-                continue
-            endunless
-            assign has_size_option = true
-        endfor
-    endunless
+  assign size_chart_button_as_label = false
+  assign has_size_option = false
+  unless product.has_only_default_variant
+    for option in product.options_with_values
+      assign separator = option.name | handle | prepend: ',' | append: ','
+      assign size_translation = 'general.size_chart.size' | t
+      assign translation_string = size_translation | remove: '  ' | replace: ', ', ',' | replace: ' ,', ',' | replace: ',', '____' | handle | replace: '____', ',' | append: ',' | prepend: ','
+      unless translation_string contains separator
+        continue
+      endunless
+      assign has_size_option = true
+    endfor
+  endunless
 
-    if has_size_option and show_labels
-        assign size_chart_button_as_label = true
-    endif
+  if has_size_option and show_labels
+    assign size_chart_button_as_label = true
+  endif
 
-    assign size_button_text = size_guide_string
-    if info_page_title_override != blank
-        assign size_button_text = info_page_title_override
-    endif
-    if label_text_caps
-        assign size_button_text = size_button_text | replace: 'ß', '<span style="text-transform: lowercase;">ß</span>'
-    endif
+  assign size_button_text = size_guide_string
+  if info_page_title_override != blank
+    assign size_button_text = info_page_title_override
+  endif
+  if label_text_caps
+    assign size_button_text = size_button_text | replace: 'ß', '<span style="text-transform: lowercase;">ß</span>'
+  endif
 -%}
 
 {%- comment -%} Check if there's actual content for the size guide {%- endcomment -%}
 {%- liquid
-    assign empty_size_guide = true
+  assign empty_size_guide = true
 
-    comment
-        Check if any of the tag-based pages have content
-    endcomment
-    for page_handle in specific_pages_arr
-        assign page_size_chart = pages[page_handle]
-        if page_size_chart.title != blank
-            assign empty_size_guide = false
-            break
-        endif
-    endfor
-
-    comment
-        Check if the info page has content
-    endcomment
-    if info_page != blank and info_page.title != blank
-        assign empty_size_guide = false
+  comment
+    Check if any of the tag-based pages have content
+  endcomment
+  for page_handle in specific_pages_arr
+    assign page_size_chart = pages[page_handle]
+    if page_size_chart.title != blank
+      assign empty_size_guide = false
+      break
     endif
+  endfor
+
+  comment
+    Check if the info page has content
+  endcomment
+  if info_page != blank and info_page.title != blank
+    assign empty_size_guide = false
+  endif
 -%}
 
 {%- capture size_chart_button -%}
@@ -155,30 +152,30 @@
 {%- endcapture -%}
 
 {%- unless size_chart_button_as_label or size_chart_button == blank -%}
-    <div
-        class="product__form__size-chart"
-        {% if animations_enabled %}
-            data-aos="hero"
-            data-aos-anchor="{{ animation_anchor }}"
-            data-aos-order="{{ animation_order }}"
-            {%- assign animation_order = animation_order | plus: 1 -%}
-        {% endif %}
-    >
-        {{- size_chart_button -}}
-    </div>
+  <div
+    class="product__form__size-chart"
+    {% if animations_enabled %}
+      data-aos="hero"
+      data-aos-anchor="{{ animation_anchor }}"
+      data-aos-order="{{ animation_order }}"
+      {%- assign animation_order = animation_order | plus: 1 -%}
+    {% endif %}
+  >
+    {{- size_chart_button -}}
+  </div>
 {%- endunless -%}
 
 {% comment %} Shop pay split payment terms {% endcomment %}
 <div
-    class="shop-pay-terms"
-    {% if animations_enabled %}
-        data-aos="hero"
-        data-aos-anchor="{{ animation_anchor }}"
-        data-aos-order="{{ animation_order }}"
-        {%- assign animation_order = animation_order | plus: 1 -%}
-    {% endif %}
+  class="shop-pay-terms"
+  {% if animations_enabled %}
+    data-aos="hero"
+    data-aos-anchor="{{ animation_anchor }}"
+    data-aos-order="{{ animation_order }}"
+    {%- assign animation_order = animation_order | plus: 1 -%}
+  {% endif %}
 >
-    {{ form | payment_terms }}
+  {{ form | payment_terms }}
 </div>
 
 {%- capture quantity_selector -%}
@@ -314,6 +311,7 @@
 
   {%- unless product.has_only_default_variant -%}
     {%- assign selects_counter = 0 -%}
+    <variant-change-listener></variant-change-listener>
     <variant-selects
       class="product__selectors"
       id="variant-selects-{{ unique }}"
@@ -736,87 +734,126 @@
 {{- form_fields -}}
 
 {%- if gift_card_recipient_feature_active -%}
-    {%- render 'gift-card-recipient-form',
-        product: product,
-        form: form,
-        section: section,
-        animations_enabled: animations_enabled,
-        animation_order: animation_order,
-        animation_anchor: animation_anchor
-    -%}
-    {%- assign animation_order = animation_order | plus: 1 -%}
+  {%- render 'gift-card-recipient-form',
+    product: product,
+    form: form,
+    section: section,
+    animations_enabled: animations_enabled,
+    animation_order: animation_order,
+    animation_anchor: animation_anchor
+  -%}
+  {%- assign animation_order = animation_order | plus: 1 -%}
 {%- endif -%}
 
 {%- if show_quantity -%}
-    <div
-        class="selector-wrapper selector-wrapper--qty"
-        data-selector-wrapper
-        {% if animations_enabled %}
-            data-aos="hero"
-            data-aos-anchor="{{ animation_anchor }}"
-            data-aos-order="{{ animation_order }}"
-            {%- assign animation_order = animation_order | plus: 1 -%}
-        {% endif %}
-    >
-        {{ quantity_selector }}
-    </div>
+  <div
+    class="selector-wrapper selector-wrapper--qty"
+    data-selector-wrapper
+    {% if animations_enabled %}
+      data-aos="hero"
+      data-aos-anchor="{{ animation_anchor }}"
+      data-aos-order="{{ animation_order }}"
+      {%- assign animation_order = animation_order | plus: 1 -%}
+    {% endif %}
+  >
+    {{ quantity_selector }}
+  </div>
 {%- endif -%}
 
 {% if show_pattern_product %}
-    {% if product.metafields.custom.sugerowana_wloczka_dla_wzoru != blank %}
-        {% assign pattern_product = product.metafields.custom.sugerowana_wloczka_dla_wzoru.value
-            | first
-        %}
-        {% if pattern_product.available %}
-            <span class="label-typography">
-                {{- block.settings.pattern_product_title -}}
-            </span>
-            <div class="pattern-product">
-                <div class="flex items-start gap-4">
-                    <label
-                        class="label-typography flex cursor-pointer items-center gap-2"
-                        for="pattern_product"
-                    >
-                        <input
-                            type="checkbox"
-                            class="checkbox"
-                            name="pattern_product"
-                            id="pattern_product"
-                            value="1"
-                            data-pattern-product-price="{{ pattern_product.price }}"
-                            data-pattern-product-formatted-price="{{ pattern_product.price | money }}"
-                            data-pattern-product-id="{{ pattern_product.id }}"
-                            data-pattern-product-variants-available="{{ pattern_product.variants.available }}"
-                        >
-                        <div class="pattern-product__image w-[80px]">
-                            {%- liquid
-                                assign image = pattern_product.featured_media
-                                assign image_alt = image.alt | escape | default: pattern_product.title
-                                assign placeholder_svg = 'product-1'
-                                assign sizes = img_sizes | default: 'auto'
-                                assign image_widths = '200, 225, 250, 275, 300, 325, 350, 375, 400'
+  {% if product.metafields.custom.sugerowana_wloczka_dla_wzoru != blank
+    and product.metafields.custom.kolekcja_wzoru != blank
+  %}
+    {% assign pattern_product = product.metafields.custom.sugerowana_wloczka_dla_wzoru.value | first %}
+    {% assign pattern_collection = product.metafields.custom.kolekcja_wzoru.value %}
 
-                                render 'image-fill', classes: 'w-[80px] rounded-full', aspect_ratio: 1, is_background: false, img_object: image, widths: image_widths, sizes: sizes, placeholder_svg: placeholder_svg, alt: image_alt
-                            -%}
-                        </div>
+    {%- comment -%} Build size count object from rozmiary values {%- endcomment -%}
+    {%- liquid
+      assign size_count_object = '{}'
+      if pattern_collection.rozmiary.value != blank
+        assign size_count_parts = ''
+        for size_item in pattern_collection.rozmiary.value
+          assign rozmiar_value = size_item.rozmiar
+          if rozmiar_value != blank
+            assign size_parts = rozmiar_value | split: '-'
+            assign size_name = size_parts[0]
+            assign size_count = size_parts[1] | default: '1'
+            if size_count_parts != blank
+              assign size_count_parts = size_count_parts | append: ','
+            endif
+            assign size_count_parts = size_count_parts | append: '"' | append: size_name | append: '":' | append: size_count
+          endif
+        endfor
+        if size_count_parts != blank
+          assign size_count_object = '{' | append: size_count_parts | append: '}'
+        endif
+      endif
+    -%}
 
-                        <div class="flex flex-col gap-2">
-                            <div class="pattern-product__title flex flex-col gap-2">
-                                <span>
-                                    {{- pattern_product.title -}}
-                                </span>
-                                <div class="flex items-center gap-2">
-                                    <span class="">Sugerowana ilość: 1 x </span>
-                                    {% render 'product-price',
-                                        product: pattern_product,
-                                        namespace: 'pattern-product'
-                                    %}
-                                </div>
-                            </div>
-                        </div>
-                    </label>
-                </div>
-            </div>
+    {% if pattern_product.available %}
+      <product-form-checkboxes
+        {% if animations_enabled %}
+          data-aos="hero"
+          data-aos-anchor="{{ animation_anchor }}"
+          data-aos-order="{{ animation_order }}"
+          {%- assign animation_order = animation_order | plus: 1 -%}
         {% endif %}
+      >
+        <span class="label-typography block mb-2">
+          {{- block.settings.pattern_product_title -}}
+        </span>
+        <div class="pattern-product">
+          <div class="flex items-start gap-4">
+            <label
+              class="label-typography flex cursor-pointer items-center gap-2"
+              for="pattern_product"
+            >
+              <input
+                type="checkbox"
+                class="checkbox"
+                name="pattern_product"
+                id="pattern_product"
+                value="1"
+                data-main-product-price="{{ product.price }}"
+                data-pattern-product-price="{{ pattern_product.price }}"
+                data-pattern-product-formatted-price="{{ pattern_product.price | money }}"
+                data-pattern-product-id="{{ pattern_product.id }}"
+                data-pattern-product-variant-id="{{ pattern_product.selected_or_first_available_variant.id }}"
+                data-pattern-product-variants-available="{{ pattern_product.selected_or_first_available_variant.available }}"
+                data-parrent-product-count-for-variant="{{ size_count_object | escape }}"
+                data-current-variant-title="{{ current_variant.title }}"
+              >
+              <div class="pattern-product__image w-[80px]">
+                {%- liquid
+                  assign image = pattern_product.featured_media
+                  assign image_alt = image.alt | escape | default: pattern_product.title
+                  assign placeholder_svg = 'product-1'
+                  assign sizes = img_sizes | default: 'auto'
+                  assign image_widths = '200, 225, 250, 275, 300, 325, 350, 375, 400'
+
+                  render 'image-fill', classes: 'w-[80px] rounded-full', aspect_ratio: 1, is_background: false, img_object: image, widths: image_widths, sizes: sizes, placeholder_svg: placeholder_svg, alt: image_alt
+                -%}
+              </div>
+
+              <div class="flex flex-col gap-2">
+                <div class="pattern-product__title flex flex-col gap-2">
+                  <span>
+                    {{- pattern_product.title -}}
+                  </span>
+                  <div class="flex items-center gap-2">
+                    <span class="">
+                      Sugerowana ilość:
+                      <span class="mr-1" data-pattern-product-count>1</span>
+                      <span class="text-[10px] leading-[12px]">x</span>
+                    </span>
+                    {% render 'product-price', product: pattern_product, namespace: 'pattern-product' %}
+                  </div>
+                </div>
+              </div>
+            </label>
+          </div>
+        </div>
+      </product-form-checkboxes>
     {% endif %}
+  {% endif %}
 {% endif %}
