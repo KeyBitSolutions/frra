@@ -47,8 +47,10 @@
   if settings.show_gift_card_recipient and product.gift_card?
     assign gift_card_recipient_feature_active = true
   endif
--%}
 
+  assign pattern_type = product.metafields.custom.kolekcja_wzoru.value
+  assign pattern_needles = pattern_type.sugerowane_igly.value
+-%}
 {%- if show_remaining and is_quick_view -%}
   <div
     class="product__block"
@@ -760,7 +762,7 @@
   </div>
 {%- endif -%}
 
-{% if show_pattern_product %}
+{% if show_pattern_product or show_needles_for_pattern_product %}
   {% if product.metafields.custom.sugerowana_wloczka_dla_wzoru != blank
     and product.metafields.custom.kolekcja_wzoru != blank
   %}
@@ -815,12 +817,13 @@
                 id="pattern_product"
                 value="1"
                 data-main-product-price="{{ product.price }}"
-                data-pattern-product-price="{{ pattern_product.price }}"
-                data-pattern-product-formatted-price="{{ pattern_product.price | money }}"
-                data-pattern-product-id="{{ pattern_product.id }}"
-                data-pattern-product-variant-id="{{ pattern_product.selected_or_first_available_variant.id }}"
-                data-pattern-product-variants-available="{{ pattern_product.selected_or_first_available_variant.available }}"
-                data-parrent-product-count-for-variant="{{ size_count_object | escape }}"
+                data-additional-product-price="{{ pattern_product.price }}"
+                data-additional-product-formatted-price="{{ pattern_product.price | money }}"
+                data-additional-product-id="{{ pattern_product.id }}"
+                data-additional-product-variant-id="{{ pattern_product.selected_or_first_available_variant.id }}"
+                {% if size_count_object != '{}' %}
+                  data-additional-product-count-for-variant="{{ size_count_object | escape }}"
+                {% endif %}
                 data-current-variant-title="{{ current_variant.title }}"
               >
               <div class="pattern-product__image w-[80px]">
@@ -843,7 +846,7 @@
                   <div class="flex items-center gap-2">
                     <span class="">
                       Sugerowana ilość:
-                      <span class="mr-1" data-pattern-product-count>1</span>
+                      <span class="mr-1" data-additional-product-count>1</span>
                       <span class="text-[10px] leading-[12px]">x</span>
                     </span>
                     {% render 'product-price', product: pattern_product, namespace: 'pattern-product' %}
@@ -854,6 +857,78 @@
           </div>
         </div>
       </product-form-checkboxes>
+      {% if show_needles_for_pattern_product and pattern_needles.size > 0 %}
+        {% comment %} Only render the needle checkboxes section if at least one pattern_needles is available {% endcomment %}
+        {% assign has_available_needle = false %}
+        {% for needle in pattern_needles %}
+          {% if needle.available %}
+            {% assign has_available_needle = true %}
+            {% break %}
+          {% endif %}
+        {% endfor %}
+        {% if has_available_needle %}
+          <product-form-checkboxes
+            {% if animations_enabled %}
+              data-aos="hero"
+              data-aos-anchor="{{ animation_anchor }}"
+              data-aos-order="{{ animation_order }}"
+              {%- assign animation_order = animation_order | plus: 1 -%}
+            {% endif %}
+          >
+            <span class="label-typography block mb-2">
+              {{- block.settings.needles_for_pattern_product_title -}}
+            </span>
+            {% for needle in pattern_needles %}
+              {% if needle.available %}
+                <div class="pattern-product">
+                  <div class="flex items-start gap-4">
+                    <label
+                      class="label-typography flex cursor-pointer items-center gap-2"
+                      for="pattern_needle_{{ needle.id }}"
+                    >
+                      <input
+                        type="checkbox"
+                        class="checkbox"
+                        name="pattern_needles"
+                        id="pattern_needle_{{ needle.id }}"
+                        value="{{ needle.id }}"
+                        data-main-product-price="{{ product.price }}"
+                        data-additional-product-price="{{ needle.price }}"
+                        data-additional-product-formatted-price="{{ needle.price | money }}"
+                        data-additional-product-id="{{ needle.id }}"
+                        data-additional-product-variant-id="{{ needle.selected_or_first_available_variant.id }}"
+                        data-additional-product-title="{{ needle.title | escape }}"
+                      >
+                      <div class="pattern-product__image w-[80px]">
+                        {%- liquid
+                          assign image = needle.featured_media
+                          assign image_alt = image.alt | escape | default: needle.title
+                          assign placeholder_svg = 'product-1'
+                          assign sizes = img_sizes | default: 'auto'
+                          assign image_widths = '200, 225, 250, 275, 300, 325, 350, 375, 400'
+
+                          render 'image-fill', classes: 'w-[80px] rounded-full', aspect_ratio: 1, is_background: false, img_object: image, widths: image_widths, sizes: sizes, placeholder_svg: placeholder_svg, alt: image_alt
+                        -%}
+                      </div>
+
+                      <div class="flex flex-col gap-2">
+                        <div class="pattern-product__title flex flex-col gap-2">
+                          <span>
+                            {{- needle.title -}}
+                          </span>
+                          <div class="flex items-center gap-2">
+                            {% render 'product-price', product: needle, namespace: 'pattern-product' %}
+                          </div>
+                        </div>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+              {% endif %}
+            {% endfor %}
+          </product-form-checkboxes>
+        {% endif %}
+      {% endif %}
     {% endif %}
   {% endif %}
 {% endif %}

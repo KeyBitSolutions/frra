@@ -94,9 +94,13 @@ class VariantChangeListener extends HTMLElement {
 
   updateVariantTitleFromVariant(variant) {
     const variantTitle = variant.title || "";
-    const checkbox = document.querySelector("#pattern_product");
 
-    if (checkbox) {
+    // Update all pattern product checkboxes (pattern_product and pattern_needles)
+    const allPatternCheckboxes = document.querySelectorAll(
+      '#pattern_product, input[name="pattern_needles"], input[name="pattern_needles[]"]'
+    );
+
+    allPatternCheckboxes.forEach((checkbox) => {
       checkbox.setAttribute("data-current-variant-title", variantTitle);
 
       // Update the count display when variant changes
@@ -106,7 +110,7 @@ class VariantChangeListener extends HTMLElement {
       if (checkbox.checked) {
         checkbox.dispatchEvent(new Event("change", { bubbles: true }));
       }
-    }
+    });
   }
 
   /**
@@ -114,10 +118,15 @@ class VariantChangeListener extends HTMLElement {
    * @param {HTMLElement} checkbox - The pattern product checkbox
    */
   updatePatternProductCount(checkbox) {
-    const currentVariantTitle = checkbox.dataset.currentVariantTitle || "";
-    const sizeCountData =
-      checkbox.dataset.parrentProductCountForVariant || "{}";
+    // Optional: size count data for variant-based quantity
+    const sizeCountData = checkbox.dataset.additionalProductCountForVariant;
 
+    // If no size count data, don't update
+    if (!sizeCountData) {
+      return;
+    }
+
+    const currentVariantTitle = checkbox.dataset.currentVariantTitle || "";
     let countValue = 1;
 
     try {
@@ -131,12 +140,16 @@ class VariantChangeListener extends HTMLElement {
       }
     } catch (e) {
       console.warn("Failed to parse size count data:", e);
+      return;
     }
 
-    // Update the count display
-    const countSpan = document.querySelector("[data-pattern-product-count]");
-    if (countSpan) {
-      countSpan.textContent = countValue;
+    // Update the count display - find within the same label/container
+    const label = checkbox.closest("label");
+    if (label) {
+      const countSpan = label.querySelector("[data-additional-product-count]");
+      if (countSpan) {
+        countSpan.textContent = countValue;
+      }
     }
   }
 }
@@ -150,6 +163,7 @@ class PatternProductForm extends HTMLElement {
     super();
     this.checkboxes = new Map();
     this.patternProductCheckbox = null;
+    this.currentVariantPrice = 0;
   }
 
   connectedCallback() {
@@ -164,8 +178,24 @@ class PatternProductForm extends HTMLElement {
    * Initialize checkbox listeners
    */
   init() {
-    // Find pattern product checkbox
+    // Get current variant price from the variant data
+    this.updateCurrentVariantPrice();
+
+    // Find pattern product checkbox - search within this element and across all product-form-checkboxes
     this.patternProductCheckbox = this.querySelector("#pattern_product");
+    if (!this.patternProductCheckbox) {
+      // Also search in other product-form-checkboxes elements on the page
+      const allCheckboxContainers = document.querySelectorAll(
+        "product-form-checkboxes"
+      );
+      for (const container of allCheckboxContainers) {
+        const checkbox = container.querySelector("#pattern_product");
+        if (checkbox) {
+          this.patternProductCheckbox = checkbox;
+          break;
+        }
+      }
+    }
 
     if (this.patternProductCheckbox) {
       this.setupPatternProductCheckbox();
@@ -173,11 +203,123 @@ class PatternProductForm extends HTMLElement {
       this.updateInitialCount();
     }
 
+    // Find all pattern needle checkboxes - search across all product-form-checkboxes elements
+    // First check within this element
+    let needleCheckboxes = Array.from(
+      this.querySelectorAll(
+        'input[name="pattern_needles"], input[name="pattern_needles[]"]'
+      )
+    );
+
+    // Also search in other product-form-checkboxes elements
+    const allCheckboxContainers = document.querySelectorAll(
+      "product-form-checkboxes"
+    );
+    for (const container of allCheckboxContainers) {
+      if (container !== this) {
+        const needles = container.querySelectorAll(
+          'input[name="pattern_needles"], input[name="pattern_needles[]"]'
+        );
+        needleCheckboxes = needleCheckboxes.concat(Array.from(needles));
+      }
+    }
+
+    this.patternNeedleCheckboxes =
+      needleCheckboxes.length > 0 ? needleCheckboxes : null;
+
+    if (
+      this.patternNeedleCheckboxes &&
+      this.patternNeedleCheckboxes.length > 0
+    ) {
+      this.setupPatternNeedleCheckboxes();
+    }
+
     // Setup generic checkbox listeners for all checkboxes in the form
     this.setupGenericCheckboxListeners();
 
     // Setup form submit override
     this.setupFormSubmit();
+
+    // Listen for variant changes to update current variant price
+    this.setupVariantPriceListener();
+  }
+
+  /**
+   * Setup listener for variant changes to update current variant price
+   */
+  setupVariantPriceListener() {
+    // Listen to variant change events
+    if (window.theme?.PUB_SUB_EVENTS?.variantChange && window.subscribe) {
+      this.variantChangeUnsubscriber = window.subscribe(
+        window.theme.PUB_SUB_EVENTS.variantChange,
+        () => {
+          this.updateCurrentVariantPrice();
+          // Recalculate price when variant changes
+          this.recalculateTotalPrice();
+        }
+      );
+    }
+
+    // Also listen to option value changes
+    if (
+      window.theme?.PUB_SUB_EVENTS?.optionValueSelectionChange &&
+      window.subscribe
+    ) {
+      this.optionChangeUnsubscriber = window.subscribe(
+        window.theme.PUB_SUB_EVENTS.optionValueSelectionChange,
+        () => {
+          setTimeout(() => {
+            this.updateCurrentVariantPrice();
+            this.recalculateTotalPrice();
+          }, 200);
+        }
+      );
+    }
+  }
+
+  /**
+   * Update current variant price from variant data
+   */
+  updateCurrentVariantPrice() {
+    // Find the data-selected-variant script tag
+    const variantSelects = document.querySelector("variant-selects");
+    let variantScript = null;
+
+    if (variantSelects) {
+      variantScript = variantSelects.querySelector("[data-selected-variant]");
+    }
+
+    if (!variantScript) {
+      // Try to find it in product-form
+      const productForm = document.querySelector("product-form");
+      if (productForm) {
+        variantScript = productForm.querySelector("[data-selected-variant]");
+      }
+    }
+
+    if (variantScript) {
+      try {
+        const variantData = JSON.parse(variantScript.textContent);
+        if (variantData && variantData.price) {
+          this.currentVariantPrice = parseInt(variantData.price, 10) || 0;
+        }
+      } catch (e) {
+        console.warn("Failed to parse variant price:", e);
+        // Fallback to checkbox data if available
+        if (this.patternProductCheckbox) {
+          this.currentVariantPrice = parseFloat(
+            this.patternProductCheckbox.dataset.mainProductPrice || 0
+          );
+        }
+      }
+    } else {
+      // Fallback to checkbox data if variant script not found
+      if (this.patternProductCheckbox) {
+        this.currentVariantPrice = parseFloat(
+          this.patternProductCheckbox.dataset.mainProductPrice || 0
+        );
+      }
+    }
   }
 
   /**
@@ -206,8 +348,15 @@ class PatternProductForm extends HTMLElement {
    * @param {Event} event - The submit event
    */
   handleFormSubmit(event) {
-    // Only use custom API if pattern product checkbox is checked
-    if (!this.patternProductCheckbox || !this.patternProductCheckbox.checked) {
+    // Check if any pattern product or pattern needle checkbox is checked
+    const hasPatternProduct =
+      this.patternProductCheckbox && this.patternProductCheckbox.checked;
+    const hasPatternNeedles = Array.from(
+      this.patternNeedleCheckboxes || []
+    ).some((cb) => cb.checked);
+
+    // Only use custom API if pattern product or pattern needles are checked
+    if (!hasPatternProduct && !hasPatternNeedles) {
       // Let form submit normally
       return;
     }
@@ -244,65 +393,36 @@ class PatternProductForm extends HTMLElement {
     const variantId = parseInt(variantIdInput.value, 10);
     const quantity = quantityInput ? parseInt(quantityInput.value, 10) || 1 : 1;
 
-    // Build items array
-    const items = [
-      {
-        id: variantId,
-        quantity: quantity,
-      },
-    ];
+    // Build items array in specific order:
+    // 0. Needles (if checked, positions 0+)
+    // 1. Pattern product (if checked, always second place after needles)
+    // 2. Main product (always last position)
+    const items = [];
 
-    // Add pattern product if checkbox is checked
+    // Add pattern needles first if any are checked (positions 0+)
+    if (
+      this.patternNeedleCheckboxes &&
+      this.patternNeedleCheckboxes.length > 0
+    ) {
+      Array.from(this.patternNeedleCheckboxes).forEach((checkbox) => {
+        if (checkbox.checked) {
+          const item = this.buildPatternProductItem(checkbox);
+          if (item) {
+            items.push(item);
+            console.log("Added needle product to cart items:", item);
+          } else {
+            console.warn("Failed to build item for needle checkbox:", checkbox);
+          }
+        }
+      });
+    }
+
+    // Add pattern product if checkbox is checked (position after needles - always second place)
     if (this.patternProductCheckbox && this.patternProductCheckbox.checked) {
-      // Get variant ID directly from data attribute (preferred)
-      const patternVariantId =
-        this.patternProductCheckbox.dataset.patternProductVariantId;
-      const currentVariantTitle =
-        this.patternProductCheckbox.dataset.currentVariantTitle || "";
-      const sizeCountData =
-        this.patternProductCheckbox.dataset.parrentProductCountForVariant ||
-        "{}";
-
-      let patternQuantity = 1;
-
-      // Calculate pattern product quantity based on variant
-      try {
-        const sizeCountObject = JSON.parse(sizeCountData);
-        if (
-          sizeCountObject &&
-          currentVariantTitle &&
-          sizeCountObject[currentVariantTitle]
-        ) {
-          patternQuantity =
-            parseInt(sizeCountObject[currentVariantTitle], 10) || 1;
-        }
-      } catch (e) {
-        console.warn("Failed to parse size count data:", e);
-      }
-
-      if (patternVariantId) {
-        const variantId = parseInt(patternVariantId, 10);
-
-        if (isNaN(variantId)) {
-          console.error(
-            "Invalid pattern product variant ID:",
-            patternVariantId
-          );
-          this.enableSubmitButton(submitButton);
-          this.handleAddToCartError(
-            new Error(
-              "Pattern product variant not available. Please try again."
-            )
-          );
-          return;
-        }
-
-        items.push({
-          id: variantId,
-          quantity: patternQuantity,
-        });
+      const item = this.buildPatternProductItem(this.patternProductCheckbox);
+      if (item) {
+        items.push(item);
       } else {
-        console.error("Pattern product variant ID not found");
         this.enableSubmitButton(submitButton);
         this.handleAddToCartError(
           new Error("Pattern product variant not available. Please try again.")
@@ -310,6 +430,12 @@ class PatternProductForm extends HTMLElement {
         return;
       }
     }
+
+    // Add main product last (always last position)
+    items.push({
+      id: variantId,
+      quantity: quantity,
+    });
 
     // Validate items array
     if (!items || items.length === 0) {
@@ -534,13 +660,27 @@ class PatternProductForm extends HTMLElement {
    * Update count display on initial load
    */
   updateInitialCount() {
-    const checkbox = this.patternProductCheckbox;
+    if (this.patternProductCheckbox) {
+      this.updateInitialCountForCheckbox(this.patternProductCheckbox);
+    }
+  }
+
+  /**
+   * Update count display for a specific checkbox
+   * @param {HTMLElement} checkbox - The checkbox element
+   */
+  updateInitialCountForCheckbox(checkbox) {
     if (!checkbox) return;
 
-    const currentVariantTitle = checkbox.dataset.currentVariantTitle || "";
-    const sizeCountData =
-      checkbox.dataset.parrentProductCountForVariant || "{}";
+    // Optional: size count data for variant-based quantity
+    const sizeCountData = checkbox.dataset.additionalProductCountForVariant;
 
+    // If no size count data, default to 1 and don't update
+    if (!sizeCountData) {
+      return;
+    }
+
+    const currentVariantTitle = checkbox.dataset.currentVariantTitle || "";
     let countValue = 1;
 
     try {
@@ -554,12 +694,22 @@ class PatternProductForm extends HTMLElement {
       }
     } catch (e) {
       console.warn("Failed to parse size count data:", e);
+      return;
     }
 
-    // Update the count display
-    const countSpan = this.querySelector("[data-pattern-product-count]");
-    if (countSpan) {
-      countSpan.textContent = countValue;
+    // Update the count display - find the count span within the same product-form-checkboxes container
+    const container = checkbox.closest("product-form-checkboxes");
+    if (container) {
+      // Find count span within the same label/container as this checkbox
+      const label = checkbox.closest("label");
+      if (label) {
+        const countSpan = label.querySelector(
+          "[data-additional-product-count]"
+        );
+        if (countSpan) {
+          countSpan.textContent = countValue;
+        }
+      }
     }
   }
 
@@ -576,66 +726,190 @@ class PatternProductForm extends HTMLElement {
   }
 
   /**
-   * Handle pattern product checkbox change
+   * Setup listeners for pattern needle checkboxes
+   */
+  setupPatternNeedleCheckboxes() {
+    this.patternNeedleCheckboxes.forEach((checkbox) => {
+      checkbox.addEventListener("change", (event) => {
+        // Handle change for needle checkboxes
+        this.handlePatternProductChange(event);
+      });
+
+      // Store reference with unique key for each needle
+      const name =
+        checkbox.id ||
+        checkbox.name ||
+        `pattern_needle_${this.checkboxes.size}`;
+      this.checkboxes.set(name, checkbox);
+
+      // Update count on initial load (only if count data exists)
+      this.updateInitialCountForCheckbox(checkbox);
+    });
+  }
+
+  /**
+   * Handle pattern product checkbox change (works for both pattern_product and pattern_needles)
    * @param {Event} event - The change event
    */
   handlePatternProductChange(event) {
     const checkbox = event.target;
     const isChecked = checkbox.checked;
 
-    // Get data attributes
-    const mainProductPrice = parseFloat(checkbox.dataset.mainProductPrice || 0);
-    const patternProductPrice = parseFloat(
-      checkbox.dataset.patternProductPrice || 0
-    );
-    const patternProductId = checkbox.dataset.patternProductId;
-    const formattedPrice = checkbox.dataset.patternProductFormattedPrice || "";
+    // Recalculate total price including all checked pattern products and needles
+    // This will update the price display automatically
+    this.recalculateTotalPrice();
 
-    // Get current variant title and count multiplier
-    const currentVariantTitle = checkbox.dataset.currentVariantTitle || "";
-    const sizeCountData =
-      checkbox.dataset.parrentProductCountForVariant || "{}";
-
-    let countMultiplier = 1;
-
-    try {
-      const sizeCountObject = JSON.parse(sizeCountData);
-      if (
-        sizeCountObject &&
-        currentVariantTitle &&
-        sizeCountObject[currentVariantTitle]
-      ) {
-        countMultiplier =
-          parseInt(sizeCountObject[currentVariantTitle], 10) || 1;
-      }
-    } catch (e) {
-      console.warn("Failed to parse size count data:", e);
-    }
-
-    // Calculate total price with multiplier
-    const adjustedPatternPrice = patternProductPrice * countMultiplier;
-    const totalPrice = isChecked
-      ? mainProductPrice + adjustedPatternPrice
-      : mainProductPrice;
+    // Update count display for this checkbox (only if count data exists)
+    this.updateInitialCountForCheckbox(checkbox);
 
     // Dispatch custom event for other components to listen to
+    const additionalProductPrice = parseFloat(
+      checkbox.dataset.additionalProductPrice || 0
+    );
+    const additionalProductId = checkbox.dataset.additionalProductId;
+    const formattedPrice =
+      checkbox.dataset.additionalProductFormattedPrice || "";
+    const currentVariantTitle = checkbox.dataset.currentVariantTitle || "";
+
+    // Optional: size count data for variant-based quantity
+    const sizeCountData = checkbox.dataset.additionalProductCountForVariant;
+
+    let countMultiplier = 1;
+    if (sizeCountData) {
+      try {
+        const sizeCountObject = JSON.parse(sizeCountData);
+        if (
+          sizeCountObject &&
+          currentVariantTitle &&
+          sizeCountObject[currentVariantTitle]
+        ) {
+          countMultiplier =
+            parseInt(sizeCountObject[currentVariantTitle], 10) || 1;
+        }
+      } catch (e) {
+        console.warn("Failed to parse size count data:", e);
+      }
+    }
+
+    // Update current variant price before dispatching event
+    this.updateCurrentVariantPrice();
+
     this.dispatchPatternProductChangeEvent({
       isChecked,
-      mainProductPrice,
-      patternProductPrice: adjustedPatternPrice,
-      patternProductPriceBase: patternProductPrice,
+      mainProductPrice: this.currentVariantPrice,
+      patternProductPrice: additionalProductPrice * countMultiplier,
+      patternProductPriceBase: additionalProductPrice,
       countMultiplier,
-      totalPrice,
-      patternProductId,
+      totalPrice: this.getCalculatedTotalPrice(),
+      patternProductId: additionalProductId,
       formattedPrice,
       currentVariantTitle,
     });
 
-    // Update price display if price element exists
-    this.updatePriceDisplay(totalPrice, isChecked, formattedPrice);
-
     // Update form data or cart data if needed
-    this.updateFormData(isChecked, patternProductId);
+    this.updateFormData(isChecked, additionalProductId);
+  }
+
+  /**
+   * Recalculate total price including all checked pattern products and needles
+   */
+  recalculateTotalPrice() {
+    // Update current variant price in case it changed
+    this.updateCurrentVariantPrice();
+
+    // Use current variant price as main product price
+    const mainProductPrice = this.currentVariantPrice;
+
+    let totalAdditionalPrice = 0;
+
+    // Add pattern product price if checked
+    if (this.patternProductCheckbox?.checked) {
+      const price = this.getCheckboxPrice(this.patternProductCheckbox);
+      totalAdditionalPrice += price;
+    }
+
+    // Add pattern needles prices if checked
+    if (
+      this.patternNeedleCheckboxes &&
+      this.patternNeedleCheckboxes.length > 0
+    ) {
+      Array.from(this.patternNeedleCheckboxes).forEach((checkbox) => {
+        if (checkbox.checked) {
+          const price = this.getCheckboxPrice(checkbox);
+          totalAdditionalPrice += price;
+        }
+      });
+    }
+
+    const totalPrice = mainProductPrice + totalAdditionalPrice;
+    this.updatePriceDisplay(totalPrice, totalAdditionalPrice > 0, "");
+  }
+
+  /**
+   * Get calculated price for a checkbox (with quantity multiplier)
+   * @param {HTMLElement} checkbox - The checkbox element
+   * @returns {Number} Calculated price in cents
+   */
+  getCheckboxPrice(checkbox) {
+    const additionalProductPrice = parseFloat(
+      checkbox.dataset.additionalProductPrice || 0
+    );
+
+    // Optional: size count data for variant-based quantity
+    const sizeCountData = checkbox.dataset.additionalProductCountForVariant;
+
+    let countMultiplier = 1;
+
+    // Only calculate multiplier if size count data is provided
+    if (sizeCountData) {
+      const currentVariantTitle = checkbox.dataset.currentVariantTitle || "";
+      try {
+        const sizeCountObject = JSON.parse(sizeCountData);
+        if (
+          sizeCountObject &&
+          currentVariantTitle &&
+          sizeCountObject[currentVariantTitle]
+        ) {
+          countMultiplier =
+            parseInt(sizeCountObject[currentVariantTitle], 10) || 1;
+        }
+      } catch (e) {
+        console.warn("Failed to parse size count data:", e);
+      }
+    }
+
+    return additionalProductPrice * countMultiplier;
+  }
+
+  /**
+   * Get calculated total price
+   * @returns {Number} Total price in cents
+   */
+  getCalculatedTotalPrice() {
+    // Update current variant price
+    this.updateCurrentVariantPrice();
+    const mainProductPrice = this.currentVariantPrice;
+
+    let totalAdditionalPrice = 0;
+
+    if (this.patternProductCheckbox?.checked) {
+      totalAdditionalPrice += this.getCheckboxPrice(
+        this.patternProductCheckbox
+      );
+    }
+
+    if (
+      this.patternNeedleCheckboxes &&
+      this.patternNeedleCheckboxes.length > 0
+    ) {
+      Array.from(this.patternNeedleCheckboxes).forEach((checkbox) => {
+        if (checkbox.checked) {
+          totalAdditionalPrice += this.getCheckboxPrice(checkbox);
+        }
+      });
+    }
+
+    return mainProductPrice + totalAdditionalPrice;
   }
 
   /**
@@ -659,33 +933,56 @@ class PatternProductForm extends HTMLElement {
    * @param {String} formattedPrice - Formatted price string
    */
   updatePriceDisplay(totalPrice, isChecked, formattedPrice) {
-    // Find price elements - adjust selectors based on your theme structure
-    const priceElements = document.querySelectorAll(
+    // Use the passed totalPrice parameter (already calculated)
+    const formattedTotal = this.formatPrice(totalPrice);
+
+    if (!formattedTotal) {
+      console.warn("Could not format price:", totalPrice);
+      return;
+    }
+
+    // Find price elements - the element with data-product-price is the price span itself
+    // Try multiple selectors to find the price element
+    let priceElements = document.querySelectorAll(
       "[data-add-to-cart] [data-product-price]"
     );
 
-    if (priceElements.length > 0) {
-      // Format price (assuming price is in cents)
-      const formattedTotal = this.formatPrice(totalPrice);
-
-      priceElements.forEach((element) => {
-        // Update price text
-        const priceText = element.querySelector(
-          ".price__regular, .price__current, [data-price]"
-        );
-        if (priceText) {
-          priceText.textContent = formattedTotal;
-        } else if (element.textContent) {
-          element.textContent = formattedTotal;
+    // If not found, try alternative selector
+    if (priceElements.length === 0) {
+      const addToCartButton = document.querySelector("[data-add-to-cart]");
+      if (addToCartButton) {
+        const priceSpan = addToCartButton.querySelector("[data-product-price]");
+        if (priceSpan) {
+          priceElements = [priceSpan];
         }
+      }
+    }
 
-        // Add/remove class to indicate pattern product is included
+    // If still not found, try finding by class
+    if (priceElements.length === 0) {
+      priceElements = document.querySelectorAll(
+        "[data-add-to-cart] .product__price--regular"
+      );
+    }
+
+    if (priceElements.length > 0) {
+      priceElements.forEach((element) => {
+        // The element with data-product-price is the price span itself
+        // Update its text content directly
+        element.textContent = formattedTotal;
+
+        // Add/remove class to indicate additional products are included
         if (isChecked) {
           element.classList.add("price--with-pattern-product");
         } else {
           element.classList.remove("price--with-pattern-product");
         }
       });
+    } else {
+      console.warn("Price element not found. Selectors tried:", [
+        "[data-add-to-cart] [data-product-price]",
+        "[data-add-to-cart] .product__price--regular",
+      ]);
     }
   }
 
@@ -696,36 +993,104 @@ class PatternProductForm extends HTMLElement {
    */
   formatPrice(priceInCents) {
     // Use Shopify's formatMoney function if available
-    if (window.theme && window.theme.formatMoney) {
-      return window.theme.formatMoney(priceInCents, window.theme?.moneyFormat);
+    if (window.Shopify && window.Shopify.formatMoney) {
+      return window.Shopify.formatMoney(
+        priceInCents,
+        window.theme?.moneyFormat || window.theme?.moneyWithCurrencyFormat
+      );
     }
+
+    // Use theme's formatMoney if available
+    if (window.theme && window.theme.formatMoney) {
+      return window.theme.formatMoney(
+        priceInCents,
+        window.theme?.moneyFormat || window.theme?.moneyWithCurrencyFormat
+      );
+    }
+
+    // Fallback formatting
+    const price = (priceInCents / 100).toFixed(2);
+    return `$${price}`;
   }
 
   /**
-   * Update form data when pattern product is selected
+   * Update form data when additional product is selected
    * @param {Boolean} isChecked - Whether checkbox is checked
-   * @param {String} patternProductId - Pattern product ID
+   * @param {String} additionalProductId - Additional product ID
    */
-  updateFormData(isChecked, patternProductId) {
+  updateFormData(isChecked, additionalProductId) {
     const form =
       this.closest("form") ||
       document.querySelector(`form[action*="/cart/add"]`);
 
     if (!form) return;
 
-    // Add or remove hidden input for pattern product
+    // Add or remove hidden input for additional product
     let patternInput = form.querySelector('[name="pattern_product_id"]');
 
-    if (isChecked && patternProductId) {
+    if (isChecked && additionalProductId) {
       if (!patternInput) {
         patternInput = document.createElement("input");
         patternInput.type = "hidden";
         patternInput.name = "pattern_product_id";
         form.appendChild(patternInput);
       }
-      patternInput.value = patternProductId;
+      patternInput.value = additionalProductId;
     } else if (patternInput) {
       patternInput.remove();
+    }
+  }
+
+  /**
+   * Build additional product item from checkbox
+   * @param {HTMLElement} checkbox - The checkbox element
+   * @returns {Object|null} Item object or null if invalid
+   */
+  buildPatternProductItem(checkbox) {
+    // Get variant ID directly from data attribute (unified attribute naming)
+    const additionalVariantId = checkbox.dataset.additionalProductVariantId;
+    const currentVariantTitle = checkbox.dataset.currentVariantTitle || "";
+
+    // Optional: size count data for variant-based quantity
+    const sizeCountData = checkbox.dataset.additionalProductCountForVariant;
+
+    let patternQuantity = 1;
+
+    // Calculate quantity based on variant if size count data is provided
+    if (sizeCountData) {
+      try {
+        const sizeCountObject = JSON.parse(sizeCountData);
+        if (
+          sizeCountObject &&
+          currentVariantTitle &&
+          sizeCountObject[currentVariantTitle]
+        ) {
+          patternQuantity =
+            parseInt(sizeCountObject[currentVariantTitle], 10) || 1;
+        }
+      } catch (e) {
+        console.warn("Failed to parse size count data:", e);
+      }
+    }
+
+    if (additionalVariantId) {
+      const variantId = parseInt(additionalVariantId, 10);
+
+      if (isNaN(variantId)) {
+        console.error(
+          "Invalid additional product variant ID:",
+          additionalVariantId
+        );
+        return null;
+      }
+
+      return {
+        id: variantId,
+        quantity: patternQuantity,
+      };
+    } else {
+      console.error("Additional product variant ID not found");
+      return null;
     }
   }
 
@@ -737,7 +1102,13 @@ class PatternProductForm extends HTMLElement {
 
     allCheckboxes.forEach((checkbox) => {
       // Skip if already handled
-      if (checkbox.id === "pattern_product") return;
+      if (
+        checkbox.id === "pattern_product" ||
+        checkbox.name === "pattern_needles" ||
+        checkbox.name === "pattern_needles[]"
+      ) {
+        return;
+      }
 
       checkbox.addEventListener("change", (event) => {
         this.handleGenericCheckboxChange(event);
@@ -782,6 +1153,16 @@ class PatternProductForm extends HTMLElement {
     // Remove form submit listener
     if (this.form && this.boundHandleFormSubmit) {
       this.form.removeEventListener("submit", this.boundHandleFormSubmit);
+    }
+
+    // Remove variant change listeners
+    if (this.variantChangeUnsubscriber) {
+      this.variantChangeUnsubscriber();
+      this.variantChangeUnsubscriber = null;
+    }
+    if (this.optionChangeUnsubscriber) {
+      this.optionChangeUnsubscriber();
+      this.optionChangeUnsubscriber = null;
     }
 
     this.checkboxes.forEach((checkbox) => {
@@ -906,9 +1287,13 @@ function extendVariantSelectsClass() {
           const variantData = JSON.parse(variantScript.textContent);
           if (variantData && variantData.title) {
             const variantTitle = variantData.title || "";
-            const checkbox = document.querySelector("#pattern_product");
 
-            if (checkbox) {
+            // Update all pattern product checkboxes (pattern_product and pattern_needles)
+            const allPatternCheckboxes = document.querySelectorAll(
+              '#pattern_product, input[name="pattern_needles"], input[name="pattern_needles[]"]'
+            );
+
+            allPatternCheckboxes.forEach((checkbox) => {
               checkbox.setAttribute("data-current-variant-title", variantTitle);
 
               // Update the count display when variant changes
@@ -918,7 +1303,7 @@ function extendVariantSelectsClass() {
               if (checkbox.checked) {
                 checkbox.dispatchEvent(new Event("change", { bubbles: true }));
               }
-            }
+            });
           }
         } catch (e) {
           console.warn("Failed to parse variant data:", e);
@@ -929,10 +1314,15 @@ function extendVariantSelectsClass() {
       VariantSelectsBase.prototype.updatePatternProductCount = function (
         checkbox
       ) {
-        const currentVariantTitle = checkbox.dataset.currentVariantTitle || "";
-        const sizeCountData =
-          checkbox.dataset.parrentProductCountForVariant || "{}";
+        // Optional: size count data for variant-based quantity
+        const sizeCountData = checkbox.dataset.additionalProductCountForVariant;
 
+        // If no size count data, don't update
+        if (!sizeCountData) {
+          return;
+        }
+
+        const currentVariantTitle = checkbox.dataset.currentVariantTitle || "";
         let countValue = 1;
 
         try {
@@ -947,14 +1337,18 @@ function extendVariantSelectsClass() {
           }
         } catch (e) {
           console.warn("Failed to parse size count data:", e);
+          return;
         }
 
-        // Update the count display
-        const countSpan = document.querySelector(
-          "[data-pattern-product-count]"
-        );
-        if (countSpan) {
-          countSpan.textContent = countValue;
+        // Update the count display - find within the same label/container
+        const label = checkbox.closest("label");
+        if (label) {
+          const countSpan = label.querySelector(
+            "[data-additional-product-count]"
+          );
+          if (countSpan) {
+            countSpan.textContent = countValue;
+          }
         }
       };
     }

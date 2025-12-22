@@ -78,7 +78,9 @@
             "show_quantity": true,
             "show_payment_button": true,
             "show_pattern_product": true,
-            "pattern_product_title": "Suggested product for pattern",
+            "pattern_product_title": "Dodaj włóczkę",
+            "show_needles_for_pattern_product": true,
+            "needles_for_pattern_product_title": "Dobierz igły",
             "padding_bottom": 32
           }
         },
@@ -162,7 +164,7 @@
             "content_1": "<p>{{ product.vendor }}</p>",
             "title_2": "Kolekcja",
             "title_icon_2": "award",
-            "content_2": "<p>{{ product.metafields.custom.kolekcja | metafield_tag }}</p>",
+            "content_2": "{{ product.metafields.custom.kolekcja | metafield_tag }}",
             "title_3": "Waga",
             "title_icon_3": "package",
             "content_3": "<p>{{ product.metafields.custom.waga.value }}</p>",
@@ -175,10 +177,10 @@
             "title_6": "Kolor",
             "title_icon_custom_6": "shopify://shop_images/colors_icon_47d47326-a229-476c-97e0-81610ccf48ed.svg",
             "title_icon_6": "calendar",
-            "content_6": "<p>{{ product.metafields.shopify[\"color-pattern\"] | metafield_tag: field: 'label' }}</p>",
+            "content_6": "{{ product.metafields.shopify[\"color-pattern\"] | metafield_tag: field: 'label' }}",
             "title_7": "Skład",
             "title_icon_7": "cotton",
-            "content_7": "<p>{{ product.metafields.custom.sklad | metafield_tag: field: 'wartosc' }}</p>",
+            "content_7": "{{ product.metafields.custom.sklad | metafield_tag: field: 'wartosc' }}",
             "title_8": "Jak myć?",
             "title_icon_8": "dishwasher-safe",
             "content_8": "{{ product.metafields.custom.jak_myc.value.wartosc | metafield_tag }}"

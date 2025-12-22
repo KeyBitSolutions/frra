@@ -881,6 +881,7 @@
                   assign hide_labels_class = ' variant__labels--hide'
                 endunless
                 assign show_pattern_product = block.settings.show_pattern_product
+                assign show_needles_for_pattern_product = block.settings.show_needles_for_pattern_product
               -%}
 
               {%- unless product == blank -%}
@@ -907,7 +908,8 @@
                       show_labels: show_labels,
                       label_text_caps: label_text_caps,
                       is_quick_view: false,
-                      show_pattern_product: show_pattern_product
+                      show_pattern_product: show_pattern_product,
+                      show_needles_for_pattern_product: show_needles_for_pattern_product
                     -%}
 
                     {%- render 'buy-buttons',
@@ -921,7 +923,8 @@
                       show_payment_button: show_payment_button,
                       sold_out: sold_out,
                       is_quick_view: false,
-                      show_pattern_product: show_pattern_product
+                      show_pattern_product: show_pattern_product,
+                      show_needles_for_pattern_product: show_needles_for_pattern_product
                     -%}
                   </div>
                 </product-form>
